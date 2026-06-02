@@ -1,10 +1,3 @@
-import 'package:flutter/material.dart';
+﻿// Backward-compat shim — canonical location moved during structure refactor.
+export 'package:kudipay/shared/widgets/app_bar.dart';
 
-class AppBar extends StatelessWidget {
-  const AppBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
-}
