@@ -40,13 +40,13 @@ import 'package:kudipay/presentation/notification/notification_category_screen.d
 
 import 'package:kudipay/presentation/splashscreen/splashscreen.dart';
 import 'package:kudipay/presentation/onboarding/onboarding_screen.dart';
-import 'package:kudipay/presentation/login/login_page.dart';
+import 'package:kudipay/features/auth/presentation/pages/login_page.dart';
 import 'package:kudipay/presentation/signup/signup.dart';
 import 'package:kudipay/presentation/signup/signup_verify.dart';        // EmailVerifySignup
 import 'package:kudipay/presentation/passcode/create_passcode.dart';    // PasscodeCreationScreen
 import 'package:kudipay/presentation/passcode/confirm_passcode.dart';   // PasscodeConfirmationScreen
 import 'package:kudipay/presentation/account_ready/account_ready.dart';
-import 'package:kudipay/formatting/widget/bottom_nav.dart';
+import 'package:kudipay/shared/widgets/bottom_nav.dart';
 import 'package:kudipay/presentation/homescreen/home_screen.dart';
 
 // KYC
@@ -64,16 +64,16 @@ import 'package:kudipay/presentation/transfer/bulk_transfer/bulk_transfer_upload
 import 'package:kudipay/presentation/transfer/bulk_transfer/bulk_transfer_preview.dart';
 
 // Bills
-import 'package:kudipay/presentation/bill/airtime/airtime_phone_screen.dart';
-import 'package:kudipay/presentation/bill/airtime/airtime_amount_screen.dart';
-import 'package:kudipay/presentation/bill/data/data_phone_screen.dart';
-import 'package:kudipay/presentation/bill/data/data_plan_screen.dart';
-import 'package:kudipay/presentation/bill/cable_tv/cable_tv_screen.dart';
-import 'package:kudipay/presentation/bill/electricity/electricity_screen.dart';
-import 'package:kudipay/presentation/bill/bill_transaction_detail.dart';
+import 'package:kudipay/features/bills/presentation/pages/airtime/airtime_phone_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/airtime/airtime_amount_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/data/data_phone_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/data/data_plan_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/cable_tv/cable_tv_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/electricity/electricity_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/bill_transaction_detail.dart';
 
 // Wallet / Add money
-import 'package:kudipay/presentation/addmoney/add_money_screen.dart';
+import 'package:kudipay/features/wallet/presentation/pages/addmoney/add_money_screen.dart';
 import 'package:kudipay/presentation/bankdeposit/select_bank.dart';
 import 'package:kudipay/presentation/bankdeposit/bank_ussd_screen.dart';
 import 'package:kudipay/presentation/bankdeposit/ussd_code_display_screen.dart';

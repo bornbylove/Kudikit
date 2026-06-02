@@ -11,9 +11,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/core/navigation/app_route.dart';
+import 'package:kudipay/routes/app_route.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/connectivity_widget.dart';
+import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/services/connectivity_service.dart';
 import 'package:camera/camera.dart';
