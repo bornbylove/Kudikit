@@ -1,7 +1,7 @@
-ï»¿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/shimmer_widget.dart';
+import 'package:kudipay/shared/widgets/shimmer_widget.dart';
 import 'package:kudipay/model/bankmodel/bank_model.dart';
 import 'package:kudipay/provider/funding/funding_provider.dart';
 
@@ -36,7 +36,7 @@ class _SelectBankScreenState extends ConsumerState<SelectBankScreen> {
     final banksState = ref.watch(banksProvider);
     final searchQuery = ref.watch(bankSearchQueryProvider);
 
-    // Pure computation off watched state â€” reacts correctly when either
+    // Pure computation off watched state — reacts correctly when either
     // the bank list or the query changes. Previously used ref.read(notifier)
     // which would not recompute when banks updated while search was active.
     final filteredBanks = searchQuery.isEmpty
@@ -123,7 +123,7 @@ class _SelectBankScreenState extends ConsumerState<SelectBankScreen> {
             color: const Color(0xFFB0BEC5),
             size: AppLayout.scaleWidth(context, 20),
           ),
-          // Fix 4: clear button â€” only shows when there is text
+          // Fix 4: clear button — only shows when there is text
           suffixIcon: searchQuery.isNotEmpty
               ? IconButton(
                   icon: Icon(
@@ -216,7 +216,7 @@ class _SelectBankScreenState extends ConsumerState<SelectBankScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Logo circle â€” tries network image, falls back to coloured initials
+          // Logo circle — tries network image, falls back to coloured initials
           Container(
             width: logoSize,
             height: logoSize,

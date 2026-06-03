@@ -1,15 +1,15 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/connectivity_widget.dart';
-import 'package:kudipay/formatting/widget/shimmer_widget.dart';
-import 'package:kudipay/presentation/addmoney/add_money_screen.dart';
-import 'package:kudipay/presentation/bill/airtime/airtime_phone_screen.dart';
-import 'package:kudipay/presentation/bill/cable_tv/cable_tv_screen.dart';
-import 'package:kudipay/presentation/bill/data/data_phone_screen.dart';
-import 'package:kudipay/presentation/bill/electricity/electricity_screen.dart';
+import 'package:kudipay/shared/widgets/connectivity_widget.dart';
+import 'package:kudipay/shared/widgets/shimmer_widget.dart';
+import 'package:kudipay/features/wallet/presentation/pages/addmoney/add_money_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/airtime/airtime_phone_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/cable_tv/cable_tv_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/data/data_phone_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/electricity/electricity_screen.dart';
 import 'package:kudipay/presentation/cashout/cashout_menu_screen.dart';
 import 'package:kudipay/presentation/request/request_menu_screen.dart';
 import 'package:kudipay/presentation/transfer/single_transfer/transfer_menu_screen.dart';
@@ -47,9 +47,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _isBalanceVisible = false;
 
-  // ── Bill & Utilities: which card is currently selected (tapped) ──────────
-  // null  → no selection yet (all outlined)
-  // index → the tapped card is filled, all others outlined
+  // -- Bill & Utilities: which card is currently selected (tapped) ----------
+  // null  ? no selection yet (all outlined)
+  // index ? the tapped card is filled, all others outlined
   int? _selectedBillIndex;
 
   // ---------------------------------------------------------------------------
@@ -72,7 +72,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   static const _teal = Color(0xFF069494);
 
   // ---------------------------------------------------------------------------
-  // Bill items list — defined once, index-stable
+  // Bill items list � defined once, index-stable
   // ---------------------------------------------------------------------------
   static const List<_BillItem> _billItems = [
     _BillItem(svgAsset: _svgAirtime,     label: 'Airtime',     navigateTo: AirtimePhoneScreen()),
@@ -134,7 +134,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Offline banner ───────────────────────────────────────────────
+            // -- Offline banner -----------------------------------------------
             if (!isOnline)
               Container(
                 width: double.infinity,
@@ -183,7 +183,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
 
-                      // ── Header ─────────────────────────────────────────────
+                      // -- Header ---------------------------------------------
                       Padding(
                         padding: AppLayout.pagePadding(context),
                         child: Row(
@@ -258,7 +258,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                       SizedBox(height: AppLayout.scaleHeight(context, 8)),
 
-                      // ── Balance card — flat solid teal, uniform radius ─────
+                      // -- Balance card � flat solid teal, uniform radius -----
                       wallet.isLoading
                           ? Padding(
                               padding: EdgeInsets.symmetric(
@@ -348,8 +348,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       Expanded(
                                         child: Text(
                                           _isBalanceVisible
-                                              ? '₦${wallet.formattedBalance}'
-                                              : '₦ ••••••••••',
+                                              ? '?${wallet.formattedBalance}'
+                                              : '? ����������',
                                           style: TextStyle(
                                             fontSize:
                                                 AppLayout.fontSize(context, 32),
@@ -381,7 +381,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       height: AppLayout.scaleHeight(context, 6)),
                                   Text(
                                     !isOnline
-                                        ? 'Offline — showing cached balance'
+                                        ? 'Offline � showing cached balance'
                                         : wallet.lastUpdated != null
                                             ? 'Last updated ${_timeAgo(wallet.lastUpdated!)}'
                                             : 'Last updated recently',
@@ -451,7 +451,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                       SizedBox(height: AppLayout.scaleHeight(context, 20)),
 
-                      // ── Quick Actions (Transfer / Request / Withdraw) ──────
+                      // -- Quick Actions (Transfer / Request / Withdraw) ------
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: AppLayout.scaleWidth(context, 16)),
@@ -489,7 +489,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                       SizedBox(height: AppLayout.scaleHeight(context, 24)),
 
-                      // ── Bill & Utilities label ───────────────────────────────
+                      // -- Bill & Utilities label -------------------------------
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: AppLayout.scaleWidth(context, 16)),
@@ -505,10 +505,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                       SizedBox(height: AppLayout.scaleHeight(context, 12)),
 
-                      // ── Bill Services grid ───────────────────────────────────
+                      // -- Bill Services grid -----------------------------------
                       // Each card is independently togglable:
-                      //   • tapped  → filled teal bg + white icon/label
-                      //   • others  → white bg + dark icon/label + thin border
+                      //   � tapped  ? filled teal bg + white icon/label
+                      //   � others  ? white bg + dark icon/label + thin border
                       // Tapping the same card again de-selects it (back to outlined).
                       Padding(
                         padding: EdgeInsets.symmetric(
@@ -561,7 +561,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                       SizedBox(height: AppLayout.scaleHeight(context, 24)),
 
-                      // ── Recent Transactions header ────────────────────────────
+                      // -- Recent Transactions header ----------------------------
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: AppLayout.scaleWidth(context, 16)),
@@ -624,26 +624,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ),
 
-                      // ── Transaction list ─────────────────────────────────────
+                      // -- Transaction list -------------------------------------
                       if (wallet.isLoading)
                         const HomeRecentTransactionsShimmer(itemCount: 3)
                       else ...[
                         _buildTransactionItem(
                           title: 'Transfer to POS Transfer - TEMI...',
                           date: 'Dec 20th, 10:39:25',
-                          amount: '-₦10,200.00',
+                          amount: '-?10,200.00',
                           isSuccess: true,
                         ),
                         _buildTransactionItem(
                           title: 'Transfer to POS Transfer - TEMI...',
                           date: 'Dec 20th, 10:39:25',
-                          amount: '-₦10,200.00',
+                          amount: '-?10,200.00',
                           isSuccess: true,
                         ),
                         _buildTransactionItem(
                           title: 'Transfer to POS Transfer - TEMI...',
                           date: 'Dec 20th, 10:39:25',
-                          amount: '-₦10,200.00',
+                          amount: '-?10,200.00',
                           isSuccess: false,
                         ),
                       ],
@@ -661,7 +661,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   // ===========================================================================
-  // Bill card tile — reads _selectedBillIndex to decide fill vs outline
+  // Bill card tile � reads _selectedBillIndex to decide fill vs outline
   // ===========================================================================
 
   Widget _billCardTile({
@@ -680,7 +680,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           onTap: canTap
               ? () {
                   setState(() {
-                    // Tap same card → deselect; tap different → select it
+                    // Tap same card ? deselect; tap different ? select it
                     _selectedBillIndex =
                         isSelected ? null : index;
                   });
@@ -699,7 +699,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               horizontal: AppLayout.scaleWidth(context, 6),
             ),
             decoration: BoxDecoration(
-              // ✅ Selected = filled teal; unselected = white with border
+              // ? Selected = filled teal; unselected = white with border
               color: isSelected ? _teal : Colors.white,
               border: Border.all(
                 color: isSelected ? _teal : const Color(0xFFE9ECEF),
@@ -716,7 +716,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   width: AppLayout.scaleWidth(context, 22),
                   height: AppLayout.scaleWidth(context, 22),
                   colorFilter: ColorFilter.mode(
-                    // ✅ Selected = white icon; unselected = dark navy
+                    // ? Selected = white icon; unselected = dark navy
                     isSelected ? Colors.white : const Color(0xFF1A1A2E),
                     BlendMode.srcIn,
                   ),
@@ -727,7 +727,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   style: TextStyle(
                     fontSize: AppLayout.fontSize(context, 11),
                     fontWeight: FontWeight.w500,
-                    // ✅ Selected = white label; unselected = dark navy
+                    // ? Selected = white label; unselected = dark navy
                     color: isSelected
                         ? Colors.white
                         : canTap
@@ -1105,7 +1105,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 // ---------------------------------------------------------------------------
-// List extension — inserts a separator widget between every item
+// List extension � inserts a separator widget between every item
 // ---------------------------------------------------------------------------
 extension _ListSeparatorExt<T extends Widget> on List<T> {
   void insertSeparators(Widget separator) {

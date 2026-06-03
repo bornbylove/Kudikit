@@ -1,10 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kudipay/core/navigation/app_route.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/shimmer_widget.dart';
+import 'package:kudipay/shared/widgets/shimmer_widget.dart';
 import 'package:kudipay/presentation/email/change_email_screen.dart';
 
 import 'package:kudipay/presentation/notification/notification_preference_screen.dart';
@@ -12,7 +12,7 @@ import 'package:kudipay/presentation/notification/notification_preference_screen
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/provider/refresh/refresh_provider.dart';
 
-// ── SVG icon paths ──────────────────────────────────────────────────────────
+// -- SVG icon paths ----------------------------------------------------------
 const _iconPerson = 'assets/icons/person.svg';
 const _iconEmail = 'assets/icons/email.svg';
 const _iconPhone = 'assets/icons/phone.svg';
@@ -166,7 +166,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     );
   }
 
-  // ── Header card ─────────────────────────────────────────────────────────────
+  // -- Header card -------------------------------------------------------------
   Widget _buildHeaderCard(BuildContext context, user, String firstName) {
     final photoSize = AppLayout.scaleWidth(context, 40);
     final photoRadius = AppLayout.scaleWidth(context, 6);
@@ -303,7 +303,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     );
   }
 
-  // ── Tier card ────────────────────────────────────────────────────────────────
+  // -- Tier card ----------------------------------------------------------------
   Widget _buildTierCard(BuildContext context, currentTierObj) {
     final iconBoxSize = AppLayout.scaleWidth(context, 38);
 
@@ -368,13 +368,13 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                 ),
                 SizedBox(height: AppLayout.scaleHeight(context, 3)),
                 Text(
-                  'Single Transaction Max: ₦${_fmtAmount(currentTierObj.dailySendLimit)}',
+                  'Single Transaction Max: ?${_fmtAmount(currentTierObj.dailySendLimit)}',
                   style: TextStyle(
                       fontSize: AppLayout.fontSize(context, 12),
                       color: AppColors.textGrey),
                 ),
                 Text(
-                  'Max Balance: ₦${_fmtAmount(currentTierObj.dailyReceiveLimit)}',
+                  'Max Balance: ?${_fmtAmount(currentTierObj.dailyReceiveLimit)}',
                   style: TextStyle(
                       fontSize: AppLayout.fontSize(context, 12),
                       color: AppColors.textGrey),
@@ -412,7 +412,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     );
   }
 
-  // ── Personal info grouped card ────────────────────────────────────────────────
+  // -- Personal info grouped card ------------------------------------------------
   Widget _buildPersonalInfoCard(BuildContext context, String fullName, user) {
     return Container(
       margin:
@@ -517,7 +517,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     );
   }
 
-  // ── Single-row card ───────────────────────────────────────────────────────────
+  // -- Single-row card -----------------------------------------------------------
   Widget _buildSingleCard(
     BuildContext context, {
     required String svgPath,
@@ -571,7 +571,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     );
   }
 
-  // ── Switch card ───────────────────────────────────────────────────────────────
+  // -- Switch card ---------------------------------------------------------------
   Widget _buildSwitchCard(
     BuildContext context, {
     required String svgPath,
@@ -638,7 +638,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     );
   }
 
-  // ── Logout card ───────────────────────────────────────────────────────────────
+  // -- Logout card ---------------------------------------------------------------
   Widget _buildLogoutCard(BuildContext context) {
     final iconBoxSize = AppLayout.scaleWidth(context, 36);
 
@@ -697,7 +697,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     );
   }
 
-  // ── Shared helpers ────────────────────────────────────────────────────────────
+  // -- Shared helpers ------------------------------------------------------------
 
   Widget _svgIcon(BuildContext context, String path) {
     final boxSize = AppLayout.scaleWidth(context, 36);
@@ -815,7 +815,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   }
 }
 
-// ── File-level helper ─────────────────────────────────────────────────────────
+// -- File-level helper ---------------------------------------------------------
 String _formatAmount(double amount) {
   if (amount >= 1000000) return '${(amount / 1000000).toStringAsFixed(1)}M';
   if (amount >= 1000) return '${(amount / 1000).toStringAsFixed(0)}K';

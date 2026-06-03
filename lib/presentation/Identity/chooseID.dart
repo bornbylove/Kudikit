@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/core/constant/id_type.dart';
+import 'package:kudipay/core/constants/id_type.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/model/IDdocument/id_verification_state.dart';
 import 'package:kudipay/model/user/user_info.dart';
@@ -145,12 +145,12 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
 
             SizedBox(height: AppLayout.scaleHeight(context, 16)),
 
-            // ✅ Success state: show verified name card
+            // ? Success state: show verified name card
             if (verificationState.status == VerificationStatus.success &&
                 verificationState.data != null)
               _buildFetchedNameDisplay(context, verificationState.data!),
 
-            // ✅ Error state: show error banner
+            // ? Error state: show error banner
             if (verificationState.status == VerificationStatus.error &&
                 verificationState.error != null)
               Padding(
@@ -201,7 +201,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
         Expanded(
           child: _buildToggleButton(
             context: context,
-            // ✅ FIX 3: .label from the real IdType extension — no crash
+            // ? FIX 3: .label from the real IdType extension � no crash
             label: IdType.bvn.label,
             isSelected: _selectedIdType == IdType.bvn,
             onTap: () => setState(() {
@@ -268,7 +268,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          // ✅ .label — from the real IdType extension
+          // ? .label � from the real IdType extension
           'Your ${_selectedIdType.label}',
           style: TextStyle(
             fontSize: AppLayout.fontSize(context, 14),
@@ -302,7 +302,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
             letterSpacing: 1.5,
           ),
           decoration: InputDecoration(
-            // ✅ .hint — uses the hint getter from IdTypeX extension
+            // ? .hint � uses the hint getter from IdTypeX extension
             hintText: _selectedIdType.hint,
             hintStyle: TextStyle(
               color: Colors.grey[400],

@@ -1,10 +1,10 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/connectivity_widget.dart';
+import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/presentation/transaction/transaction_success.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/services/api_services.dart';
@@ -263,7 +263,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     );
   }
 
-  // Moved to bottomNavigationBar — no longer Positioned inside a Stack.
+  // Moved to bottomNavigationBar � no longer Positioned inside a Stack.
   // Both BoxDecorations removed as requested.
   Widget _buildVerifyButton(BuildContext context, bool isOnline) {
     return SafeArea(

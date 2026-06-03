@@ -1,15 +1,15 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/color_app_button.dart';
-import 'package:kudipay/formatting/widget/connectivity_widget.dart';
+import 'package:kudipay/shared/widgets/color_app_button.dart';
+import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/services/api_services.dart';
 import 'package:kudipay/provider/provider.dart';
-import 'package:kudipay/presentation/login/login_page.dart';
+import 'package:kudipay/features/auth/presentation/pages/login_page.dart';
 import 'package:kudipay/presentation/signup/signup_verify.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
@@ -21,7 +21,7 @@ class SignUpScreen extends ConsumerStatefulWidget {
   ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-// ✅ Top-level — lives outside any class, at file scope
+// ? Top-level � lives outside any class, at file scope
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   // now ref.watch(_termsAcceptedProvider) works correctly
@@ -36,7 +36,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final TextEditingController confirmPasswordController = TextEditingController();
 
   // ---------------------------------------------------------------------------
-  // FORM KEY — still used to trigger _validate() on submit
+  // FORM KEY � still used to trigger _validate() on submit
   // ---------------------------------------------------------------------------
 
   final _formKey = GlobalKey<FormState>();
@@ -184,7 +184,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         _passcodeError = 'Please enter a passcode';
         valid = false;
       } else if (!_hasMinLength) {
-        _passcodeError = 'Passcode must be 8–12 characters';
+        _passcodeError = 'Passcode must be 8�12 characters';
         valid = false;
       } else if (!_hasUppercase) {
         _passcodeError = 'Must contain at least one uppercase letter';
@@ -330,7 +330,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         ),
                         SizedBox(height: AppLayout.scaleHeight(context, 25)),
 
-                        // ── Email ──────────────────────────────────────────
+                        // -- Email ------------------------------------------
                         _buildLabel(context, 'Email'),
                         SizedBox(height: AppLayout.scaleHeight(context, 8)),
                         _buildPlainField(
@@ -350,7 +350,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
                         SizedBox(height: AppLayout.scaleHeight(context, 16)),
 
-                        // ── Phone Number ───────────────────────────────────
+                        // -- Phone Number -----------------------------------
                         _buildLabel(context, 'Phone Number'),
                         SizedBox(height: AppLayout.scaleHeight(context, 5)),
                         _buildPlainField(
@@ -375,7 +375,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
                         SizedBox(height: AppLayout.scaleHeight(context, 16)),
 
-                        // ── Passcode ───────────────────────────────────────
+                        // -- Passcode ---------------------------------------
                         _buildLabel(context, 'Passcode'),
                         SizedBox(height: AppLayout.scaleHeight(context, 5)),
                         _buildPlainField(
@@ -532,7 +532,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           const SizedBox(width: 8),
           const Expanded(
             child: Text(
-              'No internet — Sign up requires a connection',
+              'No internet � Sign up requires a connection',
               style: TextStyle(color: Colors.white, fontSize: 14),
             ),
           ),
@@ -764,7 +764,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildCriteriaRow(context, '8–12 characters', _hasMinLength),
+        _buildCriteriaRow(context, '8�12 characters', _hasMinLength),
         _buildCriteriaRow(context, 'At least one uppercase letter', _hasUppercase),
         _buildCriteriaRow(context, 'At least one lowercase letter', _hasLowercase),
         _buildCriteriaRow(context, 'At least one number', _hasNumber),

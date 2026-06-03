@@ -1,10 +1,10 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/KudiAppbar.dart';
-import 'package:kudipay/formatting/widget/contact_avatar.dart';
-import 'package:kudipay/formatting/widget/contact_list_item.dart';
-import 'package:kudipay/formatting/widget/recipient_tab.dart';
+import 'package:kudipay/shared/widgets/KudiAppbar.dart';
+import 'package:kudipay/shared/widgets/contact_avatar.dart';
+import 'package:kudipay/shared/widgets/contact_list_item.dart';
+import 'package:kudipay/shared/widgets/recipient_tab.dart';
 import 'package:kudipay/presentation/request/preview_request_screen.dart';
 import 'package:kudipay/presentation/request/request_money_screen.dart';
 import 'package:kudipay/provider/request/request_provider.dart';
@@ -67,7 +67,7 @@ class _SelectRecipientsScreenState
       appBar: KudiAppBar(title: 'Request Money'),
       body: Column(
         children: [
-          // ── Search bar ──────────────────────────────────────────────
+          // -- Search bar ----------------------------------------------
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: AppLayout.scaleWidth(context, 16),
@@ -79,7 +79,7 @@ class _SelectRecipientsScreenState
             ),
           ),
 
-          // ── Selected chips ──────────────────────────────────────────
+          // -- Selected chips ------------------------------------------
           if (selectedCount > 0)
             SizedBox(
               height: AppLayout.scaleHeight(context, 44),
@@ -105,7 +105,7 @@ class _SelectRecipientsScreenState
 
           SizedBox(height: AppLayout.scaleHeight(context, 12)),
 
-          // ── Tab bar ─────────────────────────────────────────────────
+          // -- Tab bar -------------------------------------------------
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: AppLayout.scaleWidth(context, 16),
@@ -116,7 +116,7 @@ class _SelectRecipientsScreenState
             ),
           ),
 
-          // ── Contact list card ────────────────────────────────────────
+          // -- Contact list card ----------------------------------------
           Expanded(
             child: Container(
               margin: EdgeInsets.fromLTRB(
@@ -144,7 +144,7 @@ class _SelectRecipientsScreenState
         ],
       ),
 
-      // ── Bottom CTA ───────────────────────────────────────────────────
+      // -- Bottom CTA ---------------------------------------------------
       bottomNavigationBar: _BottomCta(
         selectedCount: selectedCount,
         onContinue: selectedCount > 0
@@ -160,9 +160,9 @@ class _SelectRecipientsScreenState
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Private sub-widgets
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 class _KudiSearchField extends StatelessWidget {
   final TextEditingController? controller;

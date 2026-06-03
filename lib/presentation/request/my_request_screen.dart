@@ -1,22 +1,22 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/shimmer_widget.dart';
+import 'package:kudipay/shared/widgets/shimmer_widget.dart';
 import 'package:kudipay/presentation/request/request_detail_screen.dart';
 import 'package:kudipay/presentation/request/request_money_main_screen.dart';
 import 'package:kudipay/provider/request/request_provider.dart';
 import '../../model/request/request_model.dart';
 
-// ─── Colour helpers ────────────────────────────────────────────────────────────
+// --- Colour helpers ------------------------------------------------------------
 const _teal       = AppColors.primaryTeal;
 const _bg         = AppColors.backgroundScreen;
 const _textDark   = AppColors.textDark;
 const _textGrey   = AppColors.textGrey;
 const _white      = AppColors.white;
 
-// ─── My Requests Screen ────────────────────────────────────────────────────────
+// --- My Requests Screen --------------------------------------------------------
 class MyRequestsScreen extends ConsumerStatefulWidget {
   const MyRequestsScreen({super.key});
 
@@ -80,7 +80,7 @@ class _MyRequestsScreenState extends ConsumerState<MyRequestsScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // ── Summary row ──────────────────────────────────────────
+                    // -- Summary row ------------------------------------------
                     Padding(
                       padding: EdgeInsets.fromLTRB(
                         AppLayout.scaleWidth(context, 12),
@@ -109,10 +109,10 @@ class _MyRequestsScreenState extends ConsumerState<MyRequestsScreen>
                       ),
                     ),
 
-                    // ── Tab bar ──────────────────────────────────────────────
+                    // -- Tab bar ----------------------------------------------
                     _buildTabBar(context, receivedCount),
 
-                    // ── Tab views (fixed height, no nested scroll) ───────────
+                    // -- Tab views (fixed height, no nested scroll) -----------
                     SizedBox(
                       height: AppLayout.scaleHeight(context, 300),
                       child: TabBarView(
@@ -271,7 +271,7 @@ class _MyRequestsScreenState extends ConsumerState<MyRequestsScreen>
   }
 }
 
-// ─── Summary stat card ─────────────────────────────────────────────────────────
+// --- Summary stat card ---------------------------------------------------------
 class _SummaryCard extends StatelessWidget {
   final String title;
   final double amount;
@@ -308,7 +308,7 @@ class _SummaryCard extends StatelessWidget {
           ),
           SizedBox(height: AppLayout.scaleHeight(context, 4)),
           Text(
-            '₦${NumberFormat('#,###').format(amount)}',
+            '?${NumberFormat('#,###').format(amount)}',
             style: TextStyle(
               fontFamily: 'PolySans',
               fontSize: AppLayout.fontSize(context, 18),
@@ -322,7 +322,7 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-// ─── Tab list view ─────────────────────────────────────────────────────────────
+// --- Tab list view -------------------------------------------------------------
 class _RequestListView extends ConsumerWidget {
   final List<MoneyRequest> requests;
   final String emptyLabel;
@@ -373,7 +373,7 @@ class _RequestListView extends ConsumerWidget {
   }
 }
 
-// ─── Individual request row ────────────────────────────────────────────────────
+// --- Individual request row ----------------------------------------------------
 class _RequestRow extends StatelessWidget {
   final MoneyRequest request;
   final VoidCallback onTap;
@@ -446,11 +446,11 @@ class _RequestRow extends StatelessWidget {
                 Text(
                   request.status == RequestStatus.expired ||
                           request.status == RequestStatus.declined
-                      ? '₦${NumberFormat('#,###.00').format(request.amount)}'
+                      ? '?${NumberFormat('#,###.00').format(request.amount)}'
                       : 
                               request.status == RequestStatus.pending
-                          ? '-₦${NumberFormat('#,###.00').format(request.amount)}'
-                          : '₦${NumberFormat('#,###.00').format(request.amount)}',
+                          ? '-?${NumberFormat('#,###.00').format(request.amount)}'
+                          : '?${NumberFormat('#,###.00').format(request.amount)}',
                   style: TextStyle(
                     fontSize: AppLayout.fontSize(context, 13),
                     fontWeight: FontWeight.w600,
@@ -506,7 +506,7 @@ class _RequestRow extends StatelessWidget {
   }
 }
 
-// ─── Status badge ──────────────────────────────────────────────────────────────
+// --- Status badge --------------------------------------------------------------
 class _StatusBadge extends StatelessWidget {
   final MoneyRequest request;
 

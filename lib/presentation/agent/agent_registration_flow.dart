@@ -1,10 +1,10 @@
-﻿import 'dart:math' as math;
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/page_transition.dart';
+import 'package:kudipay/shared/widgets/page_transition.dart';
 import 'package:kudipay/model/agent/agent_application_model.dart';
 import 'package:kudipay/presentation/agent/bank_account_step4.dart';
 import 'package:kudipay/presentation/agent/business_location_step2.dart';
@@ -16,7 +16,7 @@ import 'review_application_screen.dart';
 // =============================================================================
 // AgentRegistrationFlow
 // Hosts all 4 steps inside a single Scaffold.
-// The AppBar (title + progress badge) is owned here — each step widget only
+// The AppBar (title + progress badge) is owned here � each step widget only
 // renders its scrollable content + bottom button.
 // =============================================================================
 
@@ -35,7 +35,7 @@ class AgentRegistrationFlow extends ConsumerWidget {
     final state = ref.watch(agentRegistrationProvider);
     final notifier = ref.read(agentRegistrationProvider.notifier);
 
-    // Step 4 completed → push review screen
+    // Step 4 completed ? push review screen
     if (state.currentStep >= 4) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
@@ -162,7 +162,7 @@ class _Step1State extends ConsumerState<Step1BusinessInfoScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // ── Business Name ─────────────────────────────────────
+                      // -- Business Name -------------------------------------
                       KudiFieldLabel('Business Name'),
                       SizedBox(height: AppLayout.scaleHeight(context, 6)),
                       KudiInputField(
@@ -175,7 +175,7 @@ class _Step1State extends ConsumerState<Step1BusinessInfoScreen> {
                           'This is how customers will identify your location'),
                       SizedBox(height: AppLayout.scaleHeight(context, 16)),
 
-                      // ── Business Type ─────────────────────────────────────
+                      // -- Business Type -------------------------------------
                       KudiFieldLabel('Business Type'),
                       SizedBox(height: AppLayout.scaleHeight(context, 6)),
                       _BusinessTypeDropdown(
@@ -186,7 +186,7 @@ class _Step1State extends ConsumerState<Step1BusinessInfoScreen> {
                       KudiHintText('Help customers find the right agent'),
                       SizedBox(height: AppLayout.scaleHeight(context, 16)),
 
-                      // ── Business Description ──────────────────────────────
+                      // -- Business Description ------------------------------
                       KudiFieldLabel('Business Description'),
                       SizedBox(height: AppLayout.scaleHeight(context, 6)),
                       KudiInputField(
@@ -220,11 +220,11 @@ class _Step1State extends ConsumerState<Step1BusinessInfoScreen> {
 }
 
 // =============================================================================
-// Shared widgets — named with Kudi prefix so they can be exported and reused
+// Shared widgets � named with Kudi prefix so they can be exported and reused
 // across Step 2, 3, 4 screens without private-class conflicts.
 // =============================================================================
 
-/// White card with shadow — used in every step.
+/// White card with shadow � used in every step.
 class KudiCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
@@ -252,7 +252,7 @@ class KudiCard extends StatelessWidget {
   }
 }
 
-/// Bold field label — "Business Name", "Cash Float", etc.
+/// Bold field label � "Business Name", "Cash Float", etc.
 class KudiFieldLabel extends StatelessWidget {
   final String text;
   const KudiFieldLabel(this.text, {super.key});
@@ -284,7 +284,7 @@ class KudiHintText extends StatelessWidget {
       );
 }
 
-/// Standard text input field — filled grey background, teal focus border.
+/// Standard text input field � filled grey background, teal focus border.
 class KudiInputField extends StatelessWidget {
   final String hint;
   final TextEditingController? controller;
@@ -444,9 +444,9 @@ class KudiPrimaryButton extends StatelessWidget {
   }
 }
 
-/// Circular arc progress badge — shown in the AppBar across all steps.
+/// Circular arc progress badge � shown in the AppBar across all steps.
 class KudiCircularProgress extends StatelessWidget {
-  final double progress; // 0.0 – 1.0
+  final double progress; // 0.0 � 1.0
 
   const KudiCircularProgress({super.key, required this.progress});
 
@@ -513,7 +513,7 @@ class _ArcPainter extends CustomPainter {
 }
 
 // =============================================================================
-// Business Type Dropdown — private to this file (only used in Step 1)
+// Business Type Dropdown � private to this file (only used in Step 1)
 // =============================================================================
 
 class _BusinessTypeDropdown extends StatelessWidget {

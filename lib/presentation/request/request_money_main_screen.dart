@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
-import 'package:kudipay/formatting/widget/contact_list_item.dart';
-import 'package:kudipay/formatting/widget/recipient_tab.dart';
+import 'package:kudipay/shared/widgets/contact_list_item.dart';
+import 'package:kudipay/shared/widgets/recipient_tab.dart';
 import 'package:kudipay/model/request/request_model.dart';
 import 'package:kudipay/presentation/request/request_money_screen.dart';
 import 'package:kudipay/presentation/request/select_recipient_screen.dart';
@@ -176,7 +176,7 @@ Navigator.push(context, MaterialPageRoute(builder: ((context) => SelectRecipient
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ✅ Replaced custom.SearchBar with a standard TextField-based search bar
+          // ? Replaced custom.SearchBar with a standard TextField-based search bar
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
             child: _buildSearchBar(),
@@ -208,7 +208,7 @@ Navigator.push(context, MaterialPageRoute(builder: ((context) => SelectRecipient
     );
   }
 
-  // ✅ Inline search bar — no custom import needed
+  // ? Inline search bar � no custom import needed
   Widget _buildSearchBar() {
     return Container(
       height: 44,

@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/app_loading_indicator.dart';
+import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/model/bankmodel/bank_model.dart';
 import 'package:kudipay/presentation/bankdeposit/select_bank.dart';
 import 'package:kudipay/presentation/bankdeposit/ussd_code_display_screen.dart';
@@ -144,14 +144,14 @@ class _BankUssdScreenState extends ConsumerState<BankUssdScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Fund Method ──────────────────────────────────────────────────
+          // -- Fund Method --------------------------------------------------
           _buildSectionLabel(context, 'Fund Method'),
           SizedBox(height: AppLayout.scaleHeight(context, 10)),
           _buildBankSelector(context),
 
           SizedBox(height: AppLayout.scaleHeight(context, 28)),
 
-          // ── Amount ───────────────────────────────────────────────────────
+          // -- Amount -------------------------------------------------------
           _buildSectionLabel(context, 'Enter or select amount'),
           SizedBox(height: AppLayout.scaleHeight(context, 10)),
           _buildAmountField(context),
@@ -160,7 +160,7 @@ class _BankUssdScreenState extends ConsumerState<BankUssdScreen> {
 
           SizedBox(height: AppLayout.scaleHeight(context, 20)),
 
-          // ── Note ─────────────────────────────────────────────────────────
+          // -- Note ---------------------------------------------------------
           _buildTransferNote(context),
         ],
       ),
@@ -178,7 +178,7 @@ class _BankUssdScreenState extends ConsumerState<BankUssdScreen> {
     );
   }
 
-  // ── Bank selector card ────────────────────────────────────────────────────
+  // -- Bank selector card ----------------------------------------------------
   Widget _buildBankSelector(BuildContext context) {
     return GestureDetector(
       onTap: _navigateToBankSelection,
@@ -229,7 +229,7 @@ class _BankUssdScreenState extends ConsumerState<BankUssdScreen> {
     );
   }
 
-  // ── Amount field ──────────────────────────────────────────────────────────
+  // -- Amount field ----------------------------------------------------------
   Widget _buildAmountField(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -248,7 +248,7 @@ class _BankUssdScreenState extends ConsumerState<BankUssdScreen> {
       child: Row(
         children: [
           Text(
-            '₦',
+            '?',
             style: TextStyle(
               fontSize: AppLayout.fontSize(context, 16),
               fontWeight: FontWeight.w500,
@@ -283,7 +283,7 @@ class _BankUssdScreenState extends ConsumerState<BankUssdScreen> {
     );
   }
 
-  // ── Quick amount chips ────────────────────────────────────────────────────
+  // -- Quick amount chips ----------------------------------------------------
   Widget _buildQuickAmounts(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -329,7 +329,7 @@ class _BankUssdScreenState extends ConsumerState<BankUssdScreen> {
           ),
         ),
         child: Text(
-          '₦${_formatAmount(amount)}',
+          '?${_formatAmount(amount)}',
           style: TextStyle(
             fontSize: AppLayout.fontSize(context, 13),
             fontWeight: FontWeight.w400,
@@ -340,7 +340,7 @@ class _BankUssdScreenState extends ConsumerState<BankUssdScreen> {
     );
   }
 
-  // ── Transfer note ─────────────────────────────────────────────────────────
+  // -- Transfer note ---------------------------------------------------------
   Widget _buildTransferNote(BuildContext context) {
     return RichText(
       textAlign: TextAlign.center,
@@ -350,7 +350,7 @@ class _BankUssdScreenState extends ConsumerState<BankUssdScreen> {
           color: AppColors.textGrey,
         ),
         children: [
-          const TextSpan(text: 'For amount above ₦9,999, '),
+          const TextSpan(text: 'For amount above ?9,999, '),
           WidgetSpan(
             alignment: PlaceholderAlignment.baseline,
             baseline: TextBaseline.alphabetic,
@@ -371,7 +371,7 @@ class _BankUssdScreenState extends ConsumerState<BankUssdScreen> {
     );
   }
 
-  // ── Confirm button ────────────────────────────────────────────────────────
+  // -- Confirm button --------------------------------------------------------
   Widget _buildConfirmButton(BuildContext context, bool isLoading) {
     return Container(
       color: AppColors.backgroundScreen,
@@ -411,7 +411,7 @@ class _BankUssdScreenState extends ConsumerState<BankUssdScreen> {
     );
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  // -- Helpers ---------------------------------------------------------------
   String _formatAmount(double amount) {
     return amount.toInt().toString().replaceAllMapped(
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -420,7 +420,7 @@ class _BankUssdScreenState extends ConsumerState<BankUssdScreen> {
   }
 }
 
-// ─── Shared bank logo circle widget ──────────────────────────────────────────
+// --- Shared bank logo circle widget ------------------------------------------
 
 class _BankLogoCircle extends StatelessWidget {
   final Bank bank;

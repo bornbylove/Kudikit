@@ -1,5 +1,5 @@
-﻿import 'package:flutter/material.dart';
-import 'package:kudipay/formatting/widget/app_loading_indicator.dart';
+import 'package:flutter/material.dart';
+import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/provider/auth/auth_provider.dart';
@@ -365,7 +365,7 @@ class _SelfieCaptureScreenState extends ConsumerState<SelfieCaptureScreen> {
 
                   if (context.mounted) {
                     // Pop the dialog first, then pushReplacement so the
-                    // capture screen is removed — user cannot go back to
+                    // capture screen is removed � user cannot go back to
                     // the camera after photo is validated and uploaded.
                     Navigator.pop(context); // close dialog
                     Navigator.pushReplacement(

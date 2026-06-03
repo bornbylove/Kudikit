@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/page_transition.dart';
+import 'package:kudipay/shared/widgets/page_transition.dart';
 import 'package:kudipay/presentation/kyc/kyc_flow_manager.dart';
 import 'package:kudipay/provider/tier/tier_provider.dart';
 import 'package:kudipay/model/tier/tier_model.dart';
@@ -12,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'agent_registration_flow.dart'
     show AgentRegistrationFlow, KudiCard, KudiPrimaryButton, KudiCircularProgress;
 
-// ── Screen: Tier 2 Required Gate ──────────────────────────────────────────────
+// -- Screen: Tier 2 Required Gate ----------------------------------------------
 
 class TierCheckScreen extends ConsumerWidget {
   const TierCheckScreen({super.key});
@@ -62,7 +62,7 @@ class TierCheckScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // ── Lock icon ────────────────────────────────────────────────
+              // -- Lock icon ------------------------------------------------
               Container(
                 width: AppLayout.scaleWidth(context, 72),
                 height: AppLayout.scaleWidth(context, 72),
@@ -105,7 +105,7 @@ class TierCheckScreen extends ConsumerWidget {
                   onPressed: () {
                     // Navigate into the real KYC flow manager.
                     // KycFlowManager reads tierProvider and routes the user
-                    // through Selfie → ID → Address for Tier 2, then
+                    // through Selfie ? ID ? Address for Tier 2, then
                     // returns them here once complete (tier state updated).
                     Navigator.push(
                       context,
@@ -134,7 +134,7 @@ class TierCheckScreen extends ConsumerWidget {
   }
 }
 
-// ── Screen: Identity Verified ─────────────────────────────────────────────────
+// -- Screen: Identity Verified -------------------------------------------------
 
 class IdentityVerifiedScreen extends ConsumerWidget {
   const IdentityVerifiedScreen({super.key});
@@ -182,7 +182,7 @@ class IdentityVerifiedScreen extends ConsumerWidget {
           children: [
             SizedBox(height: AppLayout.scaleHeight(context, 8)),
 
-            // ── Success banner ─────────────────────────────────────────────
+            // -- Success banner ---------------------------------------------
             KudiCard(
               child: Row(
                 children: [
@@ -229,7 +229,7 @@ class IdentityVerifiedScreen extends ConsumerWidget {
             ),
             SizedBox(height: AppLayout.scaleHeight(context, 16)),
 
-            // ── What's next card ───────────────────────────────────────────
+            // -- What's next card -------------------------------------------
             KudiCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,7 +272,7 @@ class IdentityVerifiedScreen extends ConsumerWidget {
   }
 }
 
-// ── Private sub-widgets (local to this file only) ─────────────────────────────
+// -- Private sub-widgets (local to this file only) -----------------------------
 
 class _BvnStatusRow extends StatelessWidget {
   const _BvnStatusRow();

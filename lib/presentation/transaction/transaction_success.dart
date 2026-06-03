@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/presentation/addmoney/add_money_screen.dart';
+import 'package:kudipay/features/wallet/presentation/pages/addmoney/add_money_screen.dart';
 import 'package:kudipay/provider/provider.dart';
 
 class TransactionReceiptScreen extends ConsumerWidget {
@@ -134,7 +134,7 @@ class TransactionReceiptScreen extends ConsumerWidget {
 
           // Amount
           Text(
-            '₦${_formatAmount(receipt.amount)}',
+            '?${_formatAmount(receipt.amount)}',
             style: TextStyle(
               fontSize: AppLayout.fontSize(context, 32),
               fontWeight: FontWeight.w700,

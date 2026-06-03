@@ -1,21 +1,21 @@
-ï»¿// lib/presentation/signup/signup_verify.dart
+// lib/presentation/signup/signup_verify.dart
 //
 // FIXED:
-//   - Constructor parameter renamed: `pin` â†’ `passcode`.
-//     The old name `pin` was ambiguous â€” the same word was used inside
+//   - Constructor parameter renamed: `pin` ? `passcode`.
+//     The old name `pin` was ambiguous — the same word was used inside
 //     the Pinput widget for the OTP code, causing a naming collision that
 //     made the code confusing and error-prone for future developers.
 //   - All internal references updated accordingly.
-//   - No logic changes â€” only naming clarity.
+//   - No logic changes — only naming clarity.
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/app_loading_indicator.dart';
-import 'package:kudipay/formatting/widget/color_app_button.dart';
-import 'package:kudipay/formatting/widget/connectivity_widget.dart';
+import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
+import 'package:kudipay/shared/widgets/color_app_button.dart';
+import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/presentation/signup/signup_more_details.dart';
 import 'package:kudipay/services/api_services.dart';
@@ -51,7 +51,7 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
   bool isLoading = false;
   bool isResending = false;
 
-  /// Tracks the current otpId â€” updated when the user resends the code.
+  /// Tracks the current otpId — updated when the user resends the code.
   late String _currentOtpId;
 
   @override
@@ -66,7 +66,7 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
     super.initState();
     _currentOtpId = widget.otpId;
 
-    // OTP was already sent by the signup screen â€” do NOT send again here.
+    // OTP was already sent by the signup screen — do NOT send again here.
     // Only set up the connectivity listener.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _setupConnectivityListener();
@@ -428,7 +428,7 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
                       ),
                       const SizedBox(height: 20),
 
-                      // OTP input â€” 6 digits only. This is NOT the passcode.
+                      // OTP input — 6 digits only. This is NOT the passcode.
                       Pinput(
                         length: 6,
                         controller: _otpController,

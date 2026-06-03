@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/page_transition.dart';
+import 'package:kudipay/shared/widgets/page_transition.dart';
 import 'tier_check_screen.dart';
 
 class BecomeAgentLandingScreen extends StatelessWidget {
@@ -89,7 +89,7 @@ class BecomeAgentLandingScreen extends StatelessWidget {
                     icon: Icons.trending_up_rounded,
                     title: 'Earn Commission',
                     subtitle:
-                        'Get paid ₦50–₦200 for every withdrawal you process',
+                        'Get paid ?50�?200 for every withdrawal you process',
                   ),
                   SizedBox(height: AppLayout.scaleHeight(context, 14)),
                   const _BenefitRow(
@@ -125,7 +125,7 @@ class BecomeAgentLandingScreen extends StatelessWidget {
                   SizedBox(height: AppLayout.scaleHeight(context, 14)),
                   const _RequirementRow('Tier 2 KYC verification completed'),
                   SizedBox(height: AppLayout.scaleHeight(context, 10)),
-                  const _RequirementRow('Minimum ₦50,000 cash float'),
+                  const _RequirementRow('Minimum ?50,000 cash float'),
                   SizedBox(height: AppLayout.scaleHeight(context, 10)),
                   const _RequirementRow('Valid business location'),
                   SizedBox(height: AppLayout.scaleHeight(context, 10)),
@@ -148,7 +148,7 @@ class BecomeAgentLandingScreen extends StatelessWidget {
   }
 }
 
-// ── Sub-widgets ───────────────────────────────────────────────────────────────
+// -- Sub-widgets ---------------------------------------------------------------
 
 class _BenefitRow extends StatelessWidget {
   final IconData icon;
@@ -235,7 +235,7 @@ class _RequirementRow extends StatelessWidget {
   }
 }
 
-// ── Shared local widgets ──────────────────────────────────────────────────────
+// -- Shared local widgets ------------------------------------------------------
 
 class _SectionCard extends StatelessWidget {
   final Widget child;

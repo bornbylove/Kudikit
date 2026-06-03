@@ -1,13 +1,13 @@
-﻿// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Review Application Screen
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/core/utils/formatters.dart';
-import 'package:kudipay/formatting/widget/page_transition.dart';
+import 'package:kudipay/shared/widgets/page_transition.dart';
 import 'package:kudipay/provider/agent/agent_registration_provider.dart';
 
 import 'agent_registration_flow.dart'
@@ -86,12 +86,12 @@ class ReviewApplicationScreen extends ConsumerWidget {
                     onEdit: () => notifier.goToStep(0)),
                 _ReviewRow(
                     label: 'Business Type',
-                    value: app.businessType?.label ?? '—',
+                    value: app.businessType?.label ?? '�',
                     onEdit: () => notifier.goToStep(0)),
                 _ReviewRow(
                     label: 'Description',
                     value: app.businessDescription.isEmpty
-                        ? '—'
+                        ? '�'
                         : app.businessDescription,
                     onEdit: () => notifier.goToStep(0),
                     isLast: true),
@@ -128,17 +128,17 @@ class ReviewApplicationScreen extends ConsumerWidget {
                     onEdit: () => notifier.goToStep(2)),
                 _ReviewRow(
                     label: 'Hours',
-                    value: '${app.openingTime} – ${app.closingTime}',
+                    value: '${app.openingTime} � ${app.closingTime}',
                     onEdit: () => notifier.goToStep(2)),
                 _ReviewRow(
                     label: 'Cash Float',
                     value:
-                        '₦${TransactionFormatter.formatAmount(app.cashFloat)}',
+                        '?${TransactionFormatter.formatAmount(app.cashFloat)}',
                     onEdit: () => notifier.goToStep(2)),
                 _ReviewRow(
                     label: 'Transaction Limit',
                     value:
-                        '₦${TransactionFormatter.formatAmount(app.maxPerTransaction)}',
+                        '?${TransactionFormatter.formatAmount(app.maxPerTransaction)}',
                     onEdit: () => notifier.goToStep(2)),
                 _ReviewRow(
                     label: 'Commission Rate',
@@ -208,9 +208,9 @@ class ReviewApplicationScreen extends ConsumerWidget {
   }
 
   String _formatDays(List<String> days) {
-    if (days.isEmpty) return '—';
+    if (days.isEmpty) return '�';
     if (days.length >= 7) return 'Daily';
-    return days.join(' – ');
+    return days.join(' � ');
   }
 
   String _maskAccount(String account) {
@@ -335,9 +335,9 @@ class _ReviewRow extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Application Submitted Screen
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 class ApplicationSubmittedScreen extends ConsumerWidget {
   const ApplicationSubmittedScreen({super.key});
@@ -425,9 +425,9 @@ class ApplicationSubmittedScreen extends ConsumerWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Agent Dashboard Screen
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 class AgentDashboardScreen extends ConsumerWidget {
   const AgentDashboardScreen({super.key});
@@ -547,15 +547,15 @@ class AgentDashboardScreen extends ConsumerWidget {
             ),
             SizedBox(height: AppLayout.scaleHeight(context, 12)),
 
-            // Stat cards — flexible row
+            // Stat cards � flexible row
             Row(
               children: [
                 Expanded(
                   child: _StatCard(
                     label: 'Commission',
                     value:
-                        '₦${TransactionFormatter.formatAmount(state.todayCommission)}',
-                    sub: '↗ 12% vs yesterday',
+                        '?${TransactionFormatter.formatAmount(state.todayCommission)}',
+                    sub: '? 12% vs yesterday',
                     subColor: AppColors.primaryTeal,
                   ),
                 ),
@@ -565,7 +565,7 @@ class AgentDashboardScreen extends ConsumerWidget {
                     label: 'Transactions',
                     value: '${state.todayTransactions}',
                     sub:
-                        '₦${TransactionFormatter.formatAmount(state.totalAmount)} total',
+                        '?${TransactionFormatter.formatAmount(state.totalAmount)} total',
                     subColor: AppColors.textGrey,
                   ),
                 ),
@@ -648,7 +648,7 @@ class AgentDashboardScreen extends ConsumerWidget {
   }
 }
 
-// ── Dashboard sub-widgets ─────────────────────────────────────────────────────
+// -- Dashboard sub-widgets -----------------------------------------------------
 
 class _StatCard extends StatelessWidget {
   final String label;
@@ -783,7 +783,7 @@ class _RequestCard extends StatelessWidget {
                     ),
                     SizedBox(height: AppLayout.scaleHeight(context, 4)),
                     Text(
-                      '₦${TransactionFormatter.formatAmount(request['amount'] ?? 0)}',
+                      '?${TransactionFormatter.formatAmount(request['amount'] ?? 0)}',
                       style: TextStyle(
                         fontFamily: 'PolySans',
                         fontSize: AppLayout.fontSize(context, 18),
@@ -820,7 +820,7 @@ class _RequestCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '+₦${TransactionFormatter.formatAmount(request['commission'] ?? 0)}',
+                    '+?${TransactionFormatter.formatAmount(request['commission'] ?? 0)}',
                     style: TextStyle(
                       fontSize: AppLayout.fontSize(context, 13),
                       fontWeight: FontWeight.w600,

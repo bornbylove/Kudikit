@@ -1,4 +1,4 @@
-import 'package:kudipay/core/constant/id_type.dart';
+import 'package:kudipay/core/constants/id_type.dart';
 import 'package:kudipay/presentation/Identity/verification_status.dart';
 
 

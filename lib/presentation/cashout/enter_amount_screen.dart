@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/model/agent/agent_model.dart';
-import 'package:kudipay/formatting/widget/confirm_bottomsheet.dart';
+import 'package:kudipay/shared/widgets/confirm_bottomsheet.dart';
 import 'package:kudipay/provider/cashout/cashout_provider.dart';
 import 'package:kudipay/provider/auth/auth_provider.dart';
 import 'package:kudipay/provider/wallet/wallet_provider.dart';
@@ -58,7 +58,7 @@ class _EnterAmountScreenState extends ConsumerState<EnterAmountScreen> {
   void _continue() {
     if (!_isValid) return;
 
-    // Read live user data from providers — no hardcoding.
+    // Read live user data from providers � no hardcoding.
     final wallet = ref.read(walletProvider);
 
     showModalBottomSheet(
@@ -82,7 +82,7 @@ class _EnterAmountScreenState extends ConsumerState<EnterAmountScreen> {
   Future<void> _processTransaction() async {
     Navigator.pop(context); // close bottom sheet
 
-    // Read live user data from providers — no hardcoding.
+    // Read live user data from providers � no hardcoding.
     final user = ref.read(currentUserProvider);
     final wallet = ref.read(walletProvider);
 
@@ -205,7 +205,7 @@ class _EnterAmountScreenState extends ConsumerState<EnterAmountScreen> {
                     style: const TextStyle(
                         fontSize: 15, fontWeight: FontWeight.w500),
                     decoration: InputDecoration(
-                      prefixText: '₦ ',
+                      prefixText: '? ',
                       prefixStyle: const TextStyle(
                           fontSize: 15, color: Colors.black54),
                       hintText:
@@ -262,7 +262,7 @@ class _EnterAmountScreenState extends ConsumerState<EnterAmountScreen> {
                               ),
                               child: Center(
                                 child: Text(
-                                  '₦${_fmt(amount)}',
+                                  '?${_fmt(amount)}',
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
@@ -305,18 +305,18 @@ class _EnterAmountScreenState extends ConsumerState<EnterAmountScreen> {
                     const SizedBox(height: 12),
                     _FeeRow(
                       label: 'Withdrawal amount',
-                      value: '₦${_fmtAmount(_amount)}',
+                      value: '?${_fmtAmount(_amount)}',
                     ),
                     const SizedBox(height: 8),
                     _FeeRow(
                       label:
                           'Commission (${widget.agent.commissionPercent}%)',
-                      value: '₦${_fmtAmount(_commission)}',
+                      value: '?${_fmtAmount(_commission)}',
                     ),
                     const Divider(height: 20),
                     _FeeRow(
                       label: 'Total to Debit',
-                      value: '₦${_fmtAmount(_totalDebit)}',
+                      value: '?${_fmtAmount(_totalDebit)}',
                       isTotal: true,
                     ),
                   ],

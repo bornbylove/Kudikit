@@ -1,17 +1,17 @@
-﻿// lib/presentation/request/preview_request_screen.dart
+// lib/presentation/request/preview_request_screen.dart
 //
 // Covers two states shown in the designs:
-//   1. Preview state  — shows amount card, recipient, delivery method,
+//   1. Preview state  � shows amount card, recipient, delivery method,
 //                       request details, "Send Request" + "Edit Request" CTAs.
-//   2. Sent state     — success tick, confirmation copy, delivery method,
+//   2. Sent state     � success tick, confirmation copy, delivery method,
 //                       recipient list, "Done" CTA.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/KudiAppbar.dart';
-import 'package:kudipay/formatting/widget/contact_avatar.dart';
+import 'package:kudipay/shared/widgets/KudiAppbar.dart';
+import 'package:kudipay/shared/widgets/contact_avatar.dart';
 import 'package:kudipay/model/request/request_model.dart';
 import 'package:kudipay/provider/request/request_provider.dart';
 
@@ -52,9 +52,9 @@ class _PreviewRequestScreenState extends ConsumerState<PreviewRequestScreen> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// STATE 1 — Preview
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// STATE 1 � Preview
+// -----------------------------------------------------------------------------
 
 class _PreviewView extends StatelessWidget {
   final List<Contact> recipients;
@@ -81,26 +81,26 @@ class _PreviewView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Amount card ────────────────────────────────────────
+                // -- Amount card ----------------------------------------
                 _AmountCard(),
 
                 SizedBox(height: AppLayout.scaleHeight(context, 20)),
 
-                // ── Recipients ─────────────────────────────────────────
+                // -- Recipients -----------------------------------------
                 ...recipients.map(
                   (contact) => _RecipientRow(contact: contact),
                 ),
 
                 SizedBox(height: AppLayout.scaleHeight(context, 20)),
 
-                // ── Delivery method ────────────────────────────────────
+                // -- Delivery method ------------------------------------
                 _SectionLabel(label: 'Delivery method'),
                 SizedBox(height: AppLayout.scaleHeight(context, 8)),
                 _DeliveryMethodCard(recipientCount: recipients.length),
 
                 SizedBox(height: AppLayout.scaleHeight(context, 20)),
 
-                // ── Request details ────────────────────────────────────
+                // -- Request details ------------------------------------
                 _SectionLabel(label: 'Request Details'),
                 SizedBox(height: AppLayout.scaleHeight(context, 8)),
                 _RequestDetailsCard(),
@@ -111,7 +111,7 @@ class _PreviewView extends StatelessWidget {
           ),
         ),
 
-        // ── Bottom CTAs ──────────────────────────────────────────────
+        // -- Bottom CTAs ----------------------------------------------
         _PreviewBottomBar(onSend: onSend, onEdit: onEdit),
       ],
     );
@@ -141,7 +141,7 @@ class _AmountCard extends StatelessWidget {
           ),
           SizedBox(height: AppLayout.scaleHeight(context, 6)),
           Text(
-            '₦10,000.00',
+            '?10,000.00',
             style: TextStyle(
               fontSize: AppLayout.fontSize(context, 28),
               color: AppColors.white,
@@ -211,7 +211,7 @@ class _RecipientRow extends StatelessWidget {
             ),
           ),
           Text(
-            '₦10,000.00',
+            '?10,000.00',
             style: TextStyle(
               fontSize: AppLayout.fontSize(context, 14),
               fontWeight: FontWeight.w600,
@@ -403,7 +403,7 @@ class _PreviewBottomBar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Send Request — filled teal
+            // Send Request � filled teal
             SizedBox(
               width: double.infinity,
               height: AppLayout.scaleHeight(context, 54),
@@ -424,7 +424,7 @@ class _PreviewBottomBar extends StatelessWidget {
 
             SizedBox(height: AppLayout.scaleHeight(context, 10)),
 
-            // Edit Request — outlined
+            // Edit Request � outlined
             SizedBox(
               width: double.infinity,
               height: AppLayout.scaleHeight(context, 54),
@@ -456,9 +456,9 @@ class _PreviewBottomBar extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// STATE 2 — Request Sent
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// STATE 2 � Request Sent
+// -----------------------------------------------------------------------------
 
 class _RequestSentView extends StatelessWidget {
   final List<Contact> recipients;
@@ -478,7 +478,7 @@ class _RequestSentView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Success icon + copy ────────────────────────────────
+                // -- Success icon + copy --------------------------------
                 Center(
                   child: Column(
                     children: [
@@ -520,14 +520,14 @@ class _RequestSentView extends StatelessWidget {
 
                 SizedBox(height: AppLayout.scaleHeight(context, 32)),
 
-                // ── Delivery method ────────────────────────────────────
+                // -- Delivery method ------------------------------------
                 _SectionLabel(label: 'Delivery method'),
                 SizedBox(height: AppLayout.scaleHeight(context, 10)),
                 _DeliveryMethodCard(recipientCount: recipients.length),
 
                 SizedBox(height: AppLayout.scaleHeight(context, 24)),
 
-                // ── Recipients ─────────────────────────────────────────
+                // -- Recipients -----------------------------------------
                 _SectionLabel(label: 'Recipients'),
                 SizedBox(height: AppLayout.scaleHeight(context, 10)),
                 ...recipients.map(
@@ -538,7 +538,7 @@ class _RequestSentView extends StatelessWidget {
           ),
         ),
 
-        // ── Done button ──────────────────────────────────────────────
+        // -- Done button ----------------------------------------------
         _SentBottomBar(),
       ],
     );

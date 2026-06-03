@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/formatters.dart';
-import 'package:kudipay/formatting/widget/shimmer_widget.dart';
+import 'package:kudipay/shared/widgets/shimmer_widget.dart';
 import 'package:kudipay/model/transaction/transaction_model.dart';
 import 'package:kudipay/presentation/transaction/transaction_filter_screen.dart';
 import 'package:kudipay/provider/provider.dart';
@@ -57,7 +57,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     final groupedTransactions = ref.watch(groupedTransactionsProvider);
 
     // Show SnackBar for errors that occur while data already exists
-    // (pagination failures, search failures) — not caught by the empty-state UI.
+    // (pagination failures, search failures) � not caught by the empty-state UI.
     ref.listen<TransactionState>(transactionProvider, (previous, next) {
       if (next.error != null &&
           next.error != previous?.error &&
@@ -378,8 +378,8 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       children: [
         Text(
           transaction.type == TransactionType.debit
-              ? '-₦${TransactionFormatter.formatAmount(transaction.amount)}'
-              : '+₦${TransactionFormatter.formatAmount(transaction.amount)}',
+              ? '-?${TransactionFormatter.formatAmount(transaction.amount)}'
+              : '+?${TransactionFormatter.formatAmount(transaction.amount)}',
           style: TextStyle(
             fontSize: isTablet ? 16 : 15,
             fontWeight: FontWeight.w600,

@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/shimmer_widget.dart';
+import 'package:kudipay/shared/widgets/shimmer_widget.dart';
 import 'package:kudipay/presentation/notification/notification_preferences.dart';
 import 'package:kudipay/provider/provider.dart';
 
@@ -49,7 +49,7 @@ class NotificationCategoryScreen extends ConsumerWidget {
           data: (preferences) => _buildContent(context, ref, preferences),
           // Fix 1: shimmer instead of spinner
           loading: () => const NotificationPrefsShimmer(),
-          // Fix 3: proper error state with retry — previously a dead-end Text widget
+          // Fix 3: proper error state with retry � previously a dead-end Text widget
           error: (error, stack) => Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),

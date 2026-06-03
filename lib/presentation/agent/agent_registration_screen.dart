@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/page_transition.dart';
+import 'package:kudipay/shared/widgets/page_transition.dart';
 import 'package:kudipay/model/agent/agent_application_model.dart';
 import 'package:kudipay/presentation/agent/bank_account_step4.dart';
 import 'package:kudipay/presentation/agent/business_location_step2.dart';
@@ -11,10 +11,10 @@ import 'package:kudipay/provider/agent/agent_registration_provider.dart';
 import 'dart:math' as math;
 import 'review_application_screen.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // AgentRegistrationFlow
 // Hosts all 4 steps. Step widgets own their scroll + button.
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 class AgentRegistrationFlow extends ConsumerWidget {
   const AgentRegistrationFlow({super.key});
@@ -31,7 +31,7 @@ class AgentRegistrationFlow extends ConsumerWidget {
     final state = ref.watch(agentRegistrationProvider);
     final notifier = ref.read(agentRegistrationProvider.notifier);
 
-    // All 4 steps done → navigate to review
+    // All 4 steps done ? navigate to review
     if (state.currentStep >= 4) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
@@ -104,9 +104,9 @@ class AgentRegistrationFlow extends ConsumerWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Step 1: Business Information
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 class Step1BusinessInfoScreen extends ConsumerStatefulWidget {
   const Step1BusinessInfoScreen({super.key});
@@ -215,9 +215,9 @@ class _Step1State extends ConsumerState<Step1BusinessInfoScreen> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Shared widgets (used across all 4 steps — defined once here)
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// Shared widgets (used across all 4 steps � defined once here)
+// -----------------------------------------------------------------------------
 
 class _SectionCard extends StatelessWidget {
   final Widget child;

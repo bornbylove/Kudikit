@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/formatting/widget/app_loading_indicator.dart';
-import 'package:kudipay/formatting/widget/bottom_nav.dart';
+import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
+import 'package:kudipay/shared/widgets/bottom_nav.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/model/tier/tier_model.dart';
@@ -20,29 +20,29 @@ import 'package:kudipay/provider/tier/tier_provider.dart';
 // based on their selected tier AND the KYC flags already set on their
 // UserModel. Returning users are never sent back to a completed step.
 //
-// PRD-COMPLIANT ROUTING TABLE (v2 — fixed from original):
-// ─────────────────────────────────────────────────────────────────────────────
+// PRD-COMPLIANT ROUTING TABLE (v2 � fixed from original):
+// -----------------------------------------------------------------------------
 // Tier 1 (Basic)
 //   1. Selfie verification        [isSelfieVerified]
 //   2. BVN OR NIN verification    [isBvnVerified]
-//   → Confirm Info → PIN → Account Ready → Dashboard
+//   ? Confirm Info ? PIN ? Account Ready ? Dashboard
 //
 // Tier 2 (Pro)
 //   1. Selfie verification        [isSelfieVerified]
 //   2. BVN AND NIN verification   [isBvnVerified]
 //   3. ID document upload         [isDocumentVerified]
-//   → Confirm Info → PIN → Account Ready → Dashboard
+//   ? Confirm Info ? PIN ? Account Ready ? Dashboard
 //
 // Tier 3 (Mega)
 //   1. Selfie verification        [isSelfieVerified]
 //   2. BVN AND NIN verification   [isBvnVerified]
 //   3. ID document upload         [isDocumentVerified]
 //   4. Address + utility bill     [isAddressVerified]
-//   → Confirm Info → PIN → Account Ready → Dashboard
+//   ? Confirm Info ? PIN ? Account Ready ? Dashboard
 //
 // NOTE: ConfirmInfoScreen, CreateTransactionPinScreen, and AccountReadyScreen
 // are NOT routed from here. They are pushed sequentially from within each
-// preceding screen — this manager only routes to the first incomplete step.
+// preceding screen � this manager only routes to the first incomplete step.
 // =============================================================================
 
 class KycFlowManager extends ConsumerWidget {
@@ -54,7 +54,7 @@ class KycFlowManager extends ConsumerWidget {
     final tierState         = ref.watch(tierProvider);
     final connectivityState = ref.watch(connectivityStateProvider);
 
-    // ── Offline guard ────────────────────────────────────────────────────────
+    // -- Offline guard --------------------------------------------------------
     if (!connectivityState.isConnected) {
       return _OfflineScreen(
         onRetry: () =>
@@ -63,12 +63,12 @@ class KycFlowManager extends ConsumerWidget {
       );
     }
 
-    // ── Loading guard ────────────────────────────────────────────────────────
+    // -- Loading guard --------------------------------------------------------
     if (user == null || tierState.isLoading) {
       return const _LoadingScreen(message: 'Loading your information...');
     }
 
-    // ── Resolve the next incomplete step and navigate ────────────────────────
+    // -- Resolve the next incomplete step and navigate ------------------------
     final tier       = tierState.currentTier;
     final nextScreen = _resolveNextScreen(tier, user);
 
@@ -93,23 +93,23 @@ class KycFlowManager extends ConsumerWidget {
   Widget _resolveNextScreen(TierLevel tier, dynamic user) {
     switch (tier) {
 
-      // ── Tier 1 (Basic) ─────────────────────────────────────────────────────
-      // Steps: Selfie → BVN or NIN
+      // -- Tier 1 (Basic) -----------------------------------------------------
+      // Steps: Selfie ? BVN or NIN
       case TierLevel.basic:
         if (!user.isSelfieVerified)   return const SelfieInstructionsScreen();
         if (!user.isBvnVerified)      return const IdVerificationScreen();
         return const BottomNavBar();
 
-      // ── Tier 2 (Pro) ───────────────────────────────────────────────────────
-      // Steps: Selfie → BVN AND NIN → ID document upload
+      // -- Tier 2 (Pro) -------------------------------------------------------
+      // Steps: Selfie ? BVN AND NIN ? ID document upload
       case TierLevel.pro:
         if (!user.isSelfieVerified)   return const SelfieInstructionsScreen();
         if (!user.isBvnVerified)      return const IdVerificationScreen();
         if (!user.isDocumentVerified) return const UploadIdCardScreen();
         return const BottomNavBar();
 
-      // ── Tier 3 (Mega) ──────────────────────────────────────────────────────
-      // Steps: Selfie → BVN AND NIN → ID document upload → Address
+      // -- Tier 3 (Mega) ------------------------------------------------------
+      // Steps: Selfie ? BVN AND NIN ? ID document upload ? Address
       case TierLevel.mega:
         if (!user.isSelfieVerified)   return const SelfieInstructionsScreen();
         if (!user.isBvnVerified)      return const IdVerificationScreen();
@@ -146,7 +146,7 @@ class KycFlowManager extends ConsumerWidget {
 }
 
 // =============================================================================
-// _LoadingScreen — shown for one frame while navigation is pending, and also
+// _LoadingScreen � shown for one frame while navigation is pending, and also
 // during the initial data fetch (user == null || tierState.isLoading).
 // =============================================================================
 class _LoadingScreen extends StatelessWidget {
@@ -201,7 +201,7 @@ class _LoadingScreen extends StatelessWidget {
 }
 
 // =============================================================================
-// _OfflineScreen — shown when there is no internet connection.
+// _OfflineScreen � shown when there is no internet connection.
 // Extracted to a separate widget to keep KycFlowManager's build() readable.
 // =============================================================================
 class _OfflineScreen extends StatelessWidget {
@@ -220,7 +220,7 @@ class _OfflineScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // ── Icon ────────────────────────────────────────────────────
+              // -- Icon ----------------------------------------------------
               Container(
                 width: AppLayout.scaleWidth(context, 120),
                 height: AppLayout.scaleWidth(context, 120),
@@ -236,7 +236,7 @@ class _OfflineScreen extends StatelessWidget {
               ),
               SizedBox(height: AppLayout.scaleHeight(context, 32)),
 
-              // ── Title ────────────────────────────────────────────────────
+              // -- Title ----------------------------------------------------
               Text(
                 'No Internet Connection',
                 textAlign: TextAlign.center,
@@ -259,7 +259,7 @@ class _OfflineScreen extends StatelessWidget {
               ),
               SizedBox(height: AppLayout.scaleHeight(context, 32)),
 
-              // ── Check Connection button ──────────────────────────────────
+              // -- Check Connection button ----------------------------------
               SizedBox(
                 width: double.infinity,
                 height: AppLayout.scaleHeight(context, 54),
@@ -286,7 +286,7 @@ class _OfflineScreen extends StatelessWidget {
               ),
               SizedBox(height: AppLayout.scaleHeight(context, 12)),
 
-              // ── Go Back ──────────────────────────────────────────────────
+              // -- Go Back --------------------------------------------------
               TextButton(
                 onPressed: onBack,
                 child: Text(
@@ -299,7 +299,7 @@ class _OfflineScreen extends StatelessWidget {
               ),
               SizedBox(height: AppLayout.scaleHeight(context, 32)),
 
-              // ── Tips card ────────────────────────────────────────────────
+              // -- Tips card ------------------------------------------------
               Container(
                 padding: EdgeInsets.all(AppLayout.scaleWidth(context, 16)),
                 decoration: BoxDecoration(
@@ -357,7 +357,7 @@ class _Tip extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '•  ',
+            '�  ',
             style: TextStyle(
               fontSize: AppLayout.fontSize(context, 13),
               color: Colors.blue,

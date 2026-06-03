@@ -1,9 +1,9 @@
-ï»¿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:kudipay/model/agent/agent_model.dart';
 import 'package:kudipay/presentation/cashout/agent_detail_screen.dart';
-import 'package:kudipay/formatting/widget/agent_list_tile.dart';
+import 'package:kudipay/shared/widgets/agent_list_tile.dart';
 import 'package:kudipay/provider/cashout/cashout_provider.dart';
 
 
@@ -36,7 +36,7 @@ class _CashOutMapScreenState extends ConsumerState<CashOutMapScreen> {
     super.dispose();
   }
 
-  // FIX #5: Build markers here â€” called from ref.listen, NOT inside build().
+  // FIX #5: Build markers here — called from ref.listen, NOT inside build().
   // This prevents setState being triggered during a build cycle.
   void _rebuildMarkers(List<AgentModel> agents) {
     if (!mounted) return;
@@ -53,7 +53,7 @@ class _CashOutMapScreenState extends ConsumerState<CashOutMapScreen> {
           infoWindow: InfoWindow(
             title: agent.shopName,
             snippet:
-                '${agent.distanceKm?.toStringAsFixed(1)}km Â· ${agent.commissionPercent}% fee',
+                '${agent.distanceKm?.toStringAsFixed(1)}km · ${agent.commissionPercent}% fee',
           ),
           onTap: () => _selectAgent(agent),
         );
@@ -85,7 +85,7 @@ class _CashOutMapScreenState extends ConsumerState<CashOutMapScreen> {
     final state = ref.watch(cashOutProvider);
 
     // FIX #5: Use ref.listen for side-effects (marker rebuild + camera animation).
-    // This runs AFTER build completes â€” never during â€” eliminating setState-in-build.
+    // This runs AFTER build completes — never during — eliminating setState-in-build.
     ref.listen<CashOutState>(cashOutProvider, (previous, next) {
       // Rebuild markers when agent list changes
       if (previous?.nearbyAgents != next.nearbyAgents) {

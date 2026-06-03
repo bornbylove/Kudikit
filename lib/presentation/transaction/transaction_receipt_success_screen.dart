@@ -16,7 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/model/bankmodel/bank_model.dart';
-import 'package:kudipay/presentation/addmoney/add_money_screen.dart';
+import 'package:kudipay/features/wallet/presentation/pages/addmoney/add_money_screen.dart';
 import 'package:kudipay/provider/provider.dart';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

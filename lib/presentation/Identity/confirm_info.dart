@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/formatting/widget/app_loading_indicator.dart';
+import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/model/user/user_info.dart';
 import 'package:kudipay/presentation/transactionpin/transaction_pin_screen.dart';
 import 'package:kudipay/provider/auth/auth_provider.dart';
@@ -14,11 +14,11 @@ import 'package:kudipay/provider/auth/auth_provider.dart';
 // identity details for final confirmation.
 //
 // FLOW  (all tiers):
-//   [ID Verification] ──► ConfirmInfoScreen ──[Submit]──► CreateTransactionPinScreen
-//                                             ↓
-//                                         [Edit Info] → pop back
+//   [ID Verification] --? ConfirmInfoScreen --[Submit]--? CreateTransactionPinScreen
+//                                             ?
+//                                         [Edit Info] ? pop back
 //
-// The circular progress indicator is fixed at 100% — this is the last step
+// The circular progress indicator is fixed at 100% � this is the last step
 // before the user creates their transaction PIN and reaches the dashboard.
 // =============================================================================
 
@@ -38,7 +38,7 @@ class _ConfirmInfoScreenState extends ConsumerState<ConfirmInfoScreen> {
   bool _isSubmitting = false;
 
   // ---------------------------------------------------------------------------
-  // SUBMIT — calls AuthService, updates KYC flags, then pushes PIN screen.
+  // SUBMIT � calls AuthService, updates KYC flags, then pushes PIN screen.
   // ---------------------------------------------------------------------------
   Future<void> _handleSubmit() async {
     if (_isSubmitting) return;
@@ -129,7 +129,7 @@ class _ConfirmInfoScreenState extends ConsumerState<ConfirmInfoScreen> {
         body: SafeArea(
           child: Column(
             children: [
-              // ── Scrollable content ─────────────────────────────────────────
+              // -- Scrollable content -----------------------------------------
               Expanded(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.symmetric(
@@ -164,7 +164,7 @@ class _ConfirmInfoScreenState extends ConsumerState<ConfirmInfoScreen> {
                       ),
                       SizedBox(height: AppLayout.scaleHeight(context, 32)),
 
-                      // ── Info card group ──────────────────────────────────
+                      // -- Info card group ----------------------------------
                       _buildInfoCard(context),
 
                       SizedBox(height: AppLayout.scaleHeight(context, 40)),
@@ -173,7 +173,7 @@ class _ConfirmInfoScreenState extends ConsumerState<ConfirmInfoScreen> {
                 ),
               ),
 
-              // ── Sticky bottom buttons ──────────────────────────────────────
+              // -- Sticky bottom buttons --------------------------------------
               _buildBottomActions(context),
             ],
           ),
@@ -183,7 +183,7 @@ class _ConfirmInfoScreenState extends ConsumerState<ConfirmInfoScreen> {
   }
 
   // ---------------------------------------------------------------------------
-  // APP BAR — back arrow left, 100% circular progress indicator right
+  // APP BAR � back arrow left, 100% circular progress indicator right
   // ---------------------------------------------------------------------------
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
@@ -241,7 +241,7 @@ class _ConfirmInfoScreenState extends ConsumerState<ConfirmInfoScreen> {
   }
 
   // ---------------------------------------------------------------------------
-  // INFO CARD — all four rows grouped in a single card with dividers
+  // INFO CARD � all four rows grouped in a single card with dividers
   // ---------------------------------------------------------------------------
   Widget _buildInfoCard(BuildContext context) {
     final rows = [
@@ -362,7 +362,7 @@ class _ConfirmInfoScreenState extends ConsumerState<ConfirmInfoScreen> {
 }
 
 // =============================================================================
-// _InfoRow  — a single label/value row inside the grouped info card.
+// _InfoRow  � a single label/value row inside the grouped info card.
 // =============================================================================
 class _InfoRow extends StatelessWidget {
   final String label;
@@ -419,7 +419,7 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-/// Internal data holder — keeps `_buildInfoCard` readable.
+/// Internal data holder � keeps `_buildInfoCard` readable.
 class _RowData {
   final String label;
   final String value;

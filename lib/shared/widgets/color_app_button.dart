@@ -1,6 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-import '../../core/constant/constant.dart';
+import '../../core/constants/constant.dart';
 
 class ColorAppButton extends StatelessWidget {
   final String text;
