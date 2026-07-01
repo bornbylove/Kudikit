@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="x-apple-disable-message-reformatting" />
+  <title>OTP Code — Kudikit</title>
+
+
+
+  <style>
+    /* Reset */
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+    body { margin: 0 !important; padding: 0 !important; }
+
+    /* Responsive */
+    @media only screen and (max-width: 600px) {
+      .email-container { width: 100% !important; }
+      .card { padding: 32px 20px !important; }
+      .otp-code { font-size: 32px !important; letter-spacing: 8px !important; }
+    }
+  </style>
+</head>
+
+<body style="margin:0;padding:0;background-color:#F0F0F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+
+  <!-- Outer wrapper -->
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
+    style="background-color:#F0F0F0;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+
+        <!-- Email card -->
+        <table class="email-container card" role="presentation" cellspacing="0" cellpadding="0"
+          border="0" width="600"
+          style="background-color:#FFFFFF;border-radius:16px;padding:48px 48px 40px;
+                 box-shadow:0 2px 12px rgba(0,0,0,0.08);max-width:600px;width:100%;">
+
+          <!-- ── LOGO ─────────────────────────────────────────────────── -->
+          <tr>
+            <td style="padding-bottom:40px;">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <td style="vertical-align:middle;padding-right:10px;">
+                    <svg width="32" height="32" viewBox="0 0 380 372" fill="none"
+                      xmlns="http://www.w3.org/2000/svg" style="display:block;">
+                      <path d="M379.467 372H269.72L256.076 355.885L163.6 246.594L153.044 234.132L119.282 194.219L108.726 181.756L119.282 169.294L153.071 129.408L163.627 116.918L248.958 16.1155H208.293L143.294 92.906L132.738 105.369L98.9496 145.255L88.3939 157.744L68.0615 181.756L88.3939 205.795L98.9496 218.258L132.712 258.144L143.24 270.607L215.411 355.885L229.056 372H207.944L194.3 355.885L132.685 283.096L122.156 270.607L88.3939 230.721L77.8383 218.258L57.5059 194.219L46.9502 181.756L57.5059 169.294L77.8383 145.255L88.3939 132.792L122.183 92.906L132.738 80.4433L187.182 16.1155L200.826 0H283.714L270.07 16.1155L174.155 129.408L163.6 141.87L129.838 181.756L163.6 221.642L174.155 234.132L277.187 355.885H344.711L207.917 194.219L197.362 181.756L207.917 169.294L337.594 16.1155L351.238 0H372.349L358.705 16.1155L218.473 181.756L365.823 355.885L379.467 372Z" fill="#069494"/>
+                      <path d="M34.4335 142.085L54.7659 117.912L65.3216 105.449L141.011 16.1155L154.655 0H0V182.643L23.8778 154.494L34.4335 142.085ZM146.705 355.938L64.4621 258.869L53.9064 246.38L33.574 222.367L23.1258 209.905L0 182.643V372H160.349L146.705 355.938Z" fill="#069494"/>
+                    </svg>
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <span style="font-size:18px;font-weight:700;color:#151717;
+                                 letter-spacing:-0.3px;line-height:1;">Kudikit</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── HEADING ───────────────────────────────────────────────── -->
+          <tr>
+            <td style="padding-bottom:16px;">
+              <h1 style="margin:0;font-size:26px;font-weight:700;color:#151717;
+                         line-height:1.2;letter-spacing:-0.4px;">OTP Code</h1>
+            </td>
+          </tr>
+
+          <!-- ── GREETING ──────────────────────────────────────────────── -->
+          <tr>
+            <td style="padding-bottom:12px;">
+              <p style="margin:0;font-size:15px;color:#151717;line-height:1.6;">
+                Dear {{firstName}},
+              </p>
+            </td>
+          </tr>
+
+          <!-- ── BODY TEXT ─────────────────────────────────────────────── -->
+          <tr>
+            <td style="padding-bottom:32px;">
+              <p style="margin:0;font-size:15px;color:#151717;line-height:1.6;">
+                We received a request to verify your account. Use the code
+                below to complete your verification
+              </p>
+            </td>
+          </tr>
+
+          <!-- ── OTP CODE BLOCK ────────────────────────────────────────── -->
+          <tr>
+            <td style="padding-bottom:36px;">
+              <table role="presentation" cellspacing="0" cellpadding="0"
+                border="0" width="100%"
+                style="background-color:#F5F5F5;border-radius:10px;">
+                <tr>
+                  <td align="center" style="padding:28px 24px 8px;">
+                    <p style="margin:0;font-size:12px;font-weight:400;
+                               color:#9E9E9E;letter-spacing:0.3px;">
+                      Verification code
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding:8px 24px 12px;">
+                    <p class="otp-code"
+                       style="margin:0;font-size:38px;font-weight:700;
+                              color:#151717;letter-spacing:12px;line-height:1.1;">
+                      {{otp_code}}
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding:0 24px 24px;">
+                    <p style="margin:0;font-size:13px;font-weight:500;
+                               color:#EF9920;">
+                      Code expires in {{expiry_minutes}} minutes
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── DISCLAIMER ─────────────────────────────────────────────── -->
+          <tr>
+            <td style="padding-bottom:32px;">
+              <p style="margin:0;font-size:14px;color:#151717;line-height:1.6;">
+                If you didn't request this code or don't recognize this details
+                above, please ignore this email and
+                <a href="{{support_url}}"
+                   style="color:#151717;text-decoration:underline;">
+                  secure your account immediately</a>.
+              </p>
+            </td>
+          </tr>
+
+          <!-- ── DIVIDER ────────────────────────────────────────────────── -->
+          <tr>
+            <td style="padding-bottom:24px;">
+              <table role="presentation" cellspacing="0" cellpadding="0"
+                border="0" width="100%">
+                <tr>
+                  <td style="border-top:1px solid #EEEEEE;font-size:0;
+                             line-height:0;">&nbsp;</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── SIGN-OFF ───────────────────────────────────────────────── -->
+          <tr>
+            <td style="padding-bottom:32px;">
+              <p style="margin:0 0 4px;font-size:15px;color:#151717;line-height:1.6;">
+                Best regards,
+              </p>
+              <p style="margin:0;font-size:15px;color:#151717;line-height:1.6;">
+                Kudikit Team
+              </p>
+            </td>
+          </tr>
+
+          <!-- ── SOCIAL ICONS ───────────────────────────────────────────── -->
+          <tr>
+            <td align="center" style="padding-bottom:8px;">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                  <!-- Facebook -->
+                  <td style="padding:0 12px;">
+                    <a href="#" style="text-decoration:none;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg" style="display:block;">
+                        <path d="M24 12C24 5.37258 18.6274 0 12 0C5.37258 0 0 5.37258 0 12C0 17.9895 4.38823 22.954 10.125 23.8542V15.4688H7.07813V12H10.125V9.35625C10.125 6.34875 11.9166 4.6875 14.6576 4.6875C15.9701 4.6875 17.3438 4.92188 17.3438 4.92188V7.875H15.8306C14.34 7.875 13.875 8.80008 13.875 9.75V12H17.2031L16.6711 15.4688H13.875V23.8542C19.6118 22.954 24 17.9895 24 12Z" fill="#151717"/>
+                      </svg>
+                    </a>
+                  </td>
+                  <!-- Twitter / X -->
+                  <td style="padding:0 12px;">
+                    <a href="#" style="text-decoration:none;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg" style="display:block;">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.632L18.244 2.25Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z" fill="#151717"/>
+                      </svg>
+                    </a>
+                  </td>
+                  <!-- Instagram -->
+                  <td style="padding:0 12px;">
+                    <a href="#" style="text-decoration:none;">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg" style="display:block;">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069Zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0Zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324ZM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8Zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881Z" fill="#151717"/>
+                      </svg>
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+        <!-- /Email card -->
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
