@@ -138,20 +138,17 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.refresh, size: 20),
-                      onPressed: () =>
-                          ref.read(connectivityStateProvider.notifier).refresh(),
+                      onPressed: () => ref
+                          .read(connectivityStateProvider.notifier)
+                          .refresh(),
                       color: Colors.red.shade700,
                     ),
                   ],
                 ),
               ),
-
             SizedBox(height: AppLayout.scaleHeight(context, 24)),
-
             _buildInstructionText(context),
-
             SizedBox(height: AppLayout.scaleHeight(context, 32)),
-
             _buildOtpField(context, isOnline),
           ],
         ),
@@ -231,8 +228,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
             focusedBorder: OutlineInputBorder(
               borderRadius:
                   BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
-              borderSide:
-                  const BorderSide(color: Color(0xFFf9f9f9), width: 1),
+              borderSide: const BorderSide(color: Color(0xFFf9f9f9), width: 1),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius:
@@ -263,7 +259,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
     );
   }
 
-  // Moved to bottomNavigationBar — no longer Positioned inside a Stack.
+  // Moved to bottomNavigationBar â€” no longer Positioned inside a Stack.
   // Both BoxDecorations removed as requested.
   Widget _buildVerifyButton(BuildContext context, bool isOnline) {
     return SafeArea(

@@ -10,7 +10,6 @@ class UpgradeTierScreen extends ConsumerWidget {
   final UpgradeTier tier;
   const UpgradeTierScreen({super.key, required this.tier});
 
-  static const Color _teal = Color(0xFF069494);
   static const Color _bg = Color(0xFFF9F9F9);
 
   @override

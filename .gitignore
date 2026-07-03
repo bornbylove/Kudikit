@@ -41,3 +41,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Secrets — never commit backend/CBA credentials or Postman exports.
+# The Cyclos (CBA) collection contains plaintext production admin passwords.
+*postman*collection*
+*cba-collection*
+*cyclos*
+**/secrets/
+*.env
+!lib/config/env.dart

@@ -18,9 +18,9 @@ import 'package:kudipay/provider/wallet/wallet_provider.dart';
 // Screen 1 of the Buy Data flow.
 //
 // Changes from previous version:
-//   • _pickFromContacts() now opens the real ContactPickerBottomSheet
-//   • Selected contact auto-fills phone input + passes detected network
-//   • "Contact" tab shows _ContactTabPrompt instead of empty state
+//   â€¢ _pickFromContacts() now opens the real ContactPickerBottomSheet
+//   â€¢ Selected contact auto-fills phone input + passes detected network
+//   â€¢ "Contact" tab shows _ContactTabPrompt instead of empty state
 // ============================================================================
 
 class DataPhoneScreen extends ConsumerStatefulWidget {
@@ -67,8 +67,9 @@ class _DataPhoneScreenState extends ConsumerState<DataPhoneScreen>
 
     final network = selected.network;
     if (network != null) {
-      ref.read(dataProvider.notifier).setPhoneNumberWithNetwork(
-            selected.normalizedNumber, network);
+      ref
+          .read(dataProvider.notifier)
+          .setPhoneNumberWithNetwork(selected.normalizedNumber, network);
     } else {
       ref.read(dataProvider.notifier).setPhoneNumber(selected.normalizedNumber);
     }
@@ -76,9 +77,8 @@ class _DataPhoneScreenState extends ConsumerState<DataPhoneScreen>
 
   void _buyForSelf() {
     final wallet = ref.read(walletProvider);
-    final selfPhone = wallet.accountNumber.isNotEmpty
-        ? wallet.accountNumber
-        : '08104532643';
+    final selfPhone =
+        wallet.accountNumber.isNotEmpty ? wallet.accountNumber : '08104532643';
     _phoneController.text = _formatPhoneDisplay(selfPhone);
     ref.read(dataProvider.notifier).setPhoneNumber(selfPhone);
   }
@@ -421,7 +421,8 @@ class _DataPhoneScreenState extends ConsumerState<DataPhoneScreen>
                       state.canProceedFromPhone ? () => _proceed() : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF069494),
-                    disabledBackgroundColor: const Color(0xFF069494).withValues(alpha: 0.35),
+                    disabledBackgroundColor:
+                        const Color(0xFF069494).withValues(alpha: 0.35),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
@@ -448,7 +449,7 @@ class _DataPhoneScreenState extends ConsumerState<DataPhoneScreen>
 }
 
 // ============================================================================
-// _ContactTabPrompt — opens picker when tapped
+// _ContactTabPrompt â€” opens picker when tapped
 // ============================================================================
 
 class _ContactTabPrompt extends StatelessWidget {

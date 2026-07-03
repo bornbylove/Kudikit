@@ -28,9 +28,6 @@ class _MyRequestsScreenState extends ConsumerState<MyRequestsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  // Tab order: Received | Sent | Paid | Expired
-  static const _tabs = ['Received', 'Sent', 'Paid', 'Expired'];
-
   @override
   void initState() {
     super.initState();

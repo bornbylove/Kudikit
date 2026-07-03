@@ -2,11 +2,11 @@
 //
 // FIXED:
 //   - Constructor parameter renamed: `pin` ? `passcode`.
-//     The old name `pin` was ambiguous — the same word was used inside
+//     The old name `pin` was ambiguous â€” the same word was used inside
 //     the Pinput widget for the OTP code, causing a naming collision that
 //     made the code confusing and error-prone for future developers.
 //   - All internal references updated accordingly.
-//   - No logic changes — only naming clarity.
+//   - No logic changes â€” only naming clarity.
 
 import 'dart:async';
 
@@ -51,7 +51,7 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
   bool isLoading = false;
   bool isResending = false;
 
-  /// Tracks the current otpId — updated when the user resends the code.
+  /// Tracks the current otpId â€” updated when the user resends the code.
   late String _currentOtpId;
 
   @override
@@ -66,7 +66,7 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
     super.initState();
     _currentOtpId = widget.otpId;
 
-    // OTP was already sent by the signup screen — do NOT send again here.
+    // OTP was already sent by the signup screen â€” do NOT send again here.
     // Only set up the connectivity listener.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _setupConnectivityListener();
@@ -84,41 +84,6 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
           ConnectivitySnackBar.showConnectionRestored(context);
         }
       });
-    });
-  }
-
-  void _showNoInternetOnLoad() {
-    if (!mounted) return;
-
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (!mounted) return;
-
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          icon: const Icon(Icons.wifi_off, size: 48, color: Colors.red),
-          title: const Text('No Internet Connection'),
-          content: const Text(
-            'Verification code could not be sent. Please check your connection and try again.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                ref
-                    .read(connectivityStateProvider.notifier)
-                    .refresh()
-                    .then((_) {
-                  if (ref.read(currentConnectivityProvider)) {
-                    _sendVerificationCode();
-                  }
-                });
-              },
-              child: const Text('Retry'),
-            ),
-          ],
-        ),
-      );
     });
   }
 
@@ -314,13 +279,11 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
         actions: [
           if (!isOnline)
             Padding(
-              padding:
-                  EdgeInsets.only(right: AppLayout.scaleWidth(context, 8)),
+              padding: EdgeInsets.only(right: AppLayout.scaleWidth(context, 8)),
               child: const Center(child: ConnectivityIndicator()),
             ),
           Padding(
-            padding:
-                EdgeInsets.only(right: AppLayout.scaleWidth(context, 16)),
+            padding: EdgeInsets.only(right: AppLayout.scaleWidth(context, 16)),
             child: Center(
               child: Stack(
                 children: [
@@ -358,8 +321,7 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
           if (!isOnline)
             Container(
               width: double.infinity,
-              padding:
-                  const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               color: Colors.red.shade700,
               child: Row(
                 children: [
@@ -373,9 +335,7 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
                   ),
                   TextButton(
                     onPressed: () {
-                      ref
-                          .read(connectivityStateProvider.notifier)
-                          .refresh();
+                      ref.read(connectivityStateProvider.notifier).refresh();
                     },
                     child: const Text(
                       'Retry',
@@ -385,7 +345,6 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
                 ],
               ),
             ),
-
           Expanded(
             child: SingleChildScrollView(
               child: SafeArea(
@@ -428,7 +387,7 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
                       ),
                       const SizedBox(height: 20),
 
-                      // OTP input — 6 digits only. This is NOT the passcode.
+                      // OTP input â€” 6 digits only. This is NOT the passcode.
                       Pinput(
                         length: 6,
                         controller: _otpController,

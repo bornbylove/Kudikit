@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:kudipay/config/env.dart';
 import 'package:kudipay/model/addmoney/addmoney.dart';
 import 'package:kudipay/model/bankmodel/bank_model.dart';
 

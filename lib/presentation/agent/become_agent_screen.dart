@@ -89,7 +89,7 @@ class BecomeAgentLandingScreen extends StatelessWidget {
                     icon: Icons.trending_up_rounded,
                     title: 'Earn Commission',
                     subtitle:
-                        'Get paid ?50–?200 for every withdrawal you process',
+                        'Get paid ?50â€“?200 for every withdrawal you process',
                   ),
                   SizedBox(height: AppLayout.scaleHeight(context, 14)),
                   const _BenefitRow(
@@ -248,8 +248,7 @@ class _SectionCard extends StatelessWidget {
       padding: EdgeInsets.all(AppLayout.scaleWidth(context, 16)),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius:
-            BorderRadius.circular(AppLayout.scaleWidth(context, 16)),
+        borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 16)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -293,10 +292,12 @@ class _PrimaryButton extends StatelessWidget {
             backgroundColor: onPressed != null
                 ? AppColors.primaryTeal
                 : AppColors.primaryTeal.withValues(alpha: 0.4),
-            disabledBackgroundColor: AppColors.primaryTeal.withValues(alpha: 0.4),
+            disabledBackgroundColor:
+                AppColors.primaryTeal.withValues(alpha: 0.4),
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 28)),
+              borderRadius:
+                  BorderRadius.circular(AppLayout.scaleWidth(context, 28)),
             ),
           ),
           child: isLoading

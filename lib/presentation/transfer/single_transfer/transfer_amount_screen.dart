@@ -231,8 +231,6 @@ class _TransferAmountScreenState extends ConsumerState<TransferAmountScreen> {
     bool hasInsufficientBalance,
     List<double> quickAmounts,
   ) {
-    final isDisabled = state.transferData.amount == null;
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

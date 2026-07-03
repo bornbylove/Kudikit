@@ -1,6 +1,6 @@
 // ============================================================================
 // lib/presentation/bill/electricity/electricity_screen.dart
-// Electricity bill payment screen — matches designs exactly.
+// Electricity bill payment screen â€” matches designs exactly.
 //
 // Screens covered:
 //   Image 5  ? Main form (provider, prepaid/postpaid toggle, meter, amounts)
@@ -225,7 +225,8 @@ class _ElectricityScreenState extends ConsumerState<ElectricityScreen> {
                           ),
                         ],
                       ),
-                      padding: EdgeInsets.all(AppLayout.scaleWidth(context, 16)),
+                      padding:
+                          EdgeInsets.all(AppLayout.scaleWidth(context, 16)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -311,9 +312,11 @@ class _ElectricityScreenState extends ConsumerState<ElectricityScreen> {
 
                           // Account detail section
                           if (state.accountDetail != null) ...[
-                            SizedBox(height: AppLayout.scaleHeight(context, 16)),
+                            SizedBox(
+                                height: AppLayout.scaleHeight(context, 16)),
                             const Divider(height: 1, color: Color(0xFFF0F0F0)),
-                            SizedBox(height: AppLayout.scaleHeight(context, 12)),
+                            SizedBox(
+                                height: AppLayout.scaleHeight(context, 12)),
                             Text(
                               'Account detail',
                               style: TextStyle(
@@ -322,7 +325,8 @@ class _ElectricityScreenState extends ConsumerState<ElectricityScreen> {
                                 color: const Color(0xFF1A1A2E),
                               ),
                             ),
-                            SizedBox(height: AppLayout.scaleHeight(context, 10)),
+                            SizedBox(
+                                height: AppLayout.scaleHeight(context, 10)),
                             _DetailRow(
                               label: 'Name',
                               value: state.accountDetail!.name,
@@ -366,7 +370,8 @@ class _ElectricityScreenState extends ConsumerState<ElectricityScreen> {
                           ),
                         ],
                       ),
-                      padding: EdgeInsets.all(AppLayout.scaleWidth(context, 16)),
+                      padding:
+                          EdgeInsets.all(AppLayout.scaleWidth(context, 16)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -450,7 +455,7 @@ class _ElectricityScreenState extends ConsumerState<ElectricityScreen> {
 
                           SizedBox(height: AppLayout.scaleHeight(context, 14)),
 
-                          // Amount quick chips — 2 rows of 3
+                          // Amount quick chips â€” 2 rows of 3
                           _AmountChipsGrid(
                             onAmountSelected: (amount) {
                               ref
@@ -595,9 +600,7 @@ class _MeterTypeTab extends StatelessWidget {
             style: TextStyle(
               fontSize: AppLayout.fontSize(context, 14),
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected
-                  ? Colors.white
-                  : const Color(0xFF9E9E9E),
+              color: isSelected ? Colors.white : const Color(0xFF9E9E9E),
             ),
           ),
         ),
@@ -654,7 +657,7 @@ class _DetailRow extends StatelessWidget {
 }
 
 // ============================================================================
-// _AmountChipsGrid  — 2 rows × 3 cols
+// _AmountChipsGrid  â€” 2 rows Ã— 3 cols
 // ============================================================================
 
 class _AmountChipsGrid extends StatelessWidget {
@@ -820,9 +823,7 @@ class _ProviderSelectionSheet extends ConsumerWidget {
                   final p = electricityProviders[i];
                   return GestureDetector(
                     onTap: () {
-                      ref
-                          .read(electricityProvider.notifier)
-                          .setProvider(p);
+                      ref.read(electricityProvider.notifier).setProvider(p);
                       Navigator.pop(context);
                     },
                     child: Container(
@@ -857,8 +858,6 @@ class _ProviderSelectionSheet extends ConsumerWidget {
     );
   }
 }
-
-
 
 class _ConfirmPaymentSheet extends ConsumerStatefulWidget {
   const _ConfirmPaymentSheet();
@@ -1084,68 +1083,83 @@ class _ConfirmPaymentSheetState extends ConsumerState<_ConfirmPaymentSheet> {
                         height: 52,
                         child: ElevatedButton(
                           onPressed: () async {
-  final nav = Navigator.of(context);
-  final currentState = ref.read(electricityProvider);
+                            final nav = Navigator.of(context);
+                            final currentState = ref.read(electricityProvider);
 
-  // Collect PIN before closing the confirm sheet
-  final pin = await showModalBottomSheet<String>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.white,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
-    builder: (_) => TransactionPinBottomSheet(title: '', onSuccess: () { },),
-  );
+                            // Collect PIN before closing the confirm sheet
+                            final pin = await showModalBottomSheet<String>(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.white,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(24)),
+                              ),
+                              builder: (_) => TransactionPinBottomSheet(
+                                title: '',
+                                onSuccess: () {},
+                              ),
+                            );
 
-  if (pin == null || pin.length != 4) return; // user dismissed
+                            if (pin == null || pin.length != 4)
+                              return; // user dismissed
 
-  nav.pop(); // close confirm sheet
-  await ref
-      .read(electricityProvider.notifier)
-      .processPayment(pin);
+                            nav.pop(); // close confirm sheet
+                            await ref
+                                .read(electricityProvider.notifier)
+                                .processPayment(pin);
 
-  final updatedState = ref.read(electricityProvider);
-  if (updatedState.step == ElectricityStep.success) {
-    nav.push(
-      MaterialPageRoute(
-        builder: (_) => BillPaymentSuccessScreen(
-          title: 'Electricity',
-          providerName: currentState.selectedProvider.name,
-          amount: currentState.amount ?? 0,
-          transactionId: updatedState.result?.transactionId ?? '',
-          prepaidToken: currentState.meterType == MeterType.prepaid
-              ? updatedState.result?.token
-              : null,
-          details: [
-            BillSuccessDetail(
-              label: 'Name',
-              value: currentState.accountDetail?.name ?? '-',
-            ),
-            BillSuccessDetail(
-              label: 'Meter number',
-              value: currentState.meterNumber,
-            ),
-            BillSuccessDetail(
-              label: 'Meter type',
-              value: currentState.meterType == MeterType.prepaid
-                  ? 'Prepaid'
-                  : 'Postpaid',
-            ),
-            BillSuccessDetail(
-              label: 'Provider',
-              value: currentState.selectedProvider.name,
-            ),
-            BillSuccessDetail(
-              label: 'Transaction ID',
-              value: updatedState.result?.transactionId ?? '-',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-},
+                            final updatedState = ref.read(electricityProvider);
+                            if (updatedState.step == ElectricityStep.success) {
+                              nav.push(
+                                MaterialPageRoute(
+                                  builder: (_) => BillPaymentSuccessScreen(
+                                    title: 'Electricity',
+                                    providerName:
+                                        currentState.selectedProvider.name,
+                                    amount: currentState.amount ?? 0,
+                                    transactionId:
+                                        updatedState.result?.transactionId ??
+                                            '',
+                                    prepaidToken: currentState.meterType ==
+                                            MeterType.prepaid
+                                        ? updatedState.result?.token
+                                        : null,
+                                    details: [
+                                      BillSuccessDetail(
+                                        label: 'Name',
+                                        value:
+                                            currentState.accountDetail?.name ??
+                                                '-',
+                                      ),
+                                      BillSuccessDetail(
+                                        label: 'Meter number',
+                                        value: currentState.meterNumber,
+                                      ),
+                                      BillSuccessDetail(
+                                        label: 'Meter type',
+                                        value: currentState.meterType ==
+                                                MeterType.prepaid
+                                            ? 'Prepaid'
+                                            : 'Postpaid',
+                                      ),
+                                      BillSuccessDetail(
+                                        label: 'Provider',
+                                        value:
+                                            currentState.selectedProvider.name,
+                                      ),
+                                      BillSuccessDetail(
+                                        label: 'Transaction ID',
+                                        value: updatedState
+                                                .result?.transactionId ??
+                                            '-',
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF069494),
                             elevation: 0,

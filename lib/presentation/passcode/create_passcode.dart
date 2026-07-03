@@ -23,7 +23,6 @@ class PasscodeCreationScreen extends ConsumerStatefulWidget {
 
 class _PasscodeCreationScreenState
     extends ConsumerState<PasscodeCreationScreen> {
-  final bool _isLoading = true;
   bool _dialogShown = false;
 
   void _showSuccessDialog(BuildContext context, PasscodeNotifier notifier) {

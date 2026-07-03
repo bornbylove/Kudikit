@@ -107,7 +107,6 @@ import 'package:kudipay/presentation/tier/upgrade_tier_screen.dart';
 import 'package:kudipay/presentation/tier/upgrade_success_screen.dart';
 
 // Notifications
-import 'package:kudipay/presentation/notification/notification_category_screen.dart';
 import 'package:kudipay/presentation/notification/notification_preference_screen.dart';
 
 // Profile / Settings

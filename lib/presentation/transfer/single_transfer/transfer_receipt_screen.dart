@@ -328,11 +328,10 @@ class _TransferRecipientScreenState
               ),
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: _selectedBank != null
-                      ? const Color(0xFF069494)
-                      : Colors.grey[300]!,
-                      width: 0.5
-                ),
+                    color: _selectedBank != null
+                        ? const Color(0xFF069494)
+                        : Colors.grey[300]!,
+                    width: 0.5),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -847,7 +846,7 @@ class _TransferRecipientScreenState
                   ),
                   SizedBox(height: AppLayout.scaleHeight(context, 2)),
                   Text(
-                    '${contact.accountNumber} • ${contact.bank}',
+                    '${contact.accountNumber} â€¢ ${contact.bank}',
                     style: TextStyle(
                       fontSize: AppLayout.fontSize(context, 12),
                       color: Colors.black54,

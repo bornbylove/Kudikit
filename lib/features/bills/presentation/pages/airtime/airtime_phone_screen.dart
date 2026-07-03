@@ -17,9 +17,9 @@ import 'package:kudipay/provider/wallet/wallet_provider.dart';
 // Screen 1 of the Buy Airtime flow.
 //
 // Changes from previous version:
-//   • _pickFromContacts() now opens the real ContactPickerBottomSheet
-//   • Selected contact auto-fills phone input + triggers network detection
-//   • "Contact" tab now opens the real picker instead of showing empty state
+//   â€¢ _pickFromContacts() now opens the real ContactPickerBottomSheet
+//   â€¢ Selected contact auto-fills phone input + triggers network detection
+//   â€¢ "Contact" tab now opens the real picker instead of showing empty state
 // ============================================================================
 
 class AirtimePhoneScreen extends ConsumerStatefulWidget {
@@ -73,13 +73,16 @@ class _AirtimePhoneScreenState extends ConsumerState<AirtimePhoneScreen>
     _phoneController.text = selected.displayNumber;
 
     // Tell the provider about the raw normalized number (0XXXXXXXXXX)
-    // Network is already detected — we pass it directly to skip re-detection
+    // Network is already detected â€” we pass it directly to skip re-detection
     final network = selected.network;
     if (network != null) {
-      ref.read(airtimeProvider.notifier).setPhoneNumberWithNetwork(
-            selected.normalizedNumber, network);
+      ref
+          .read(airtimeProvider.notifier)
+          .setPhoneNumberWithNetwork(selected.normalizedNumber, network);
     } else {
-      ref.read(airtimeProvider.notifier).setPhoneNumber(selected.normalizedNumber);
+      ref
+          .read(airtimeProvider.notifier)
+          .setPhoneNumber(selected.normalizedNumber);
     }
   }
 
@@ -87,9 +90,8 @@ class _AirtimePhoneScreenState extends ConsumerState<AirtimePhoneScreen>
     final wallet = ref.read(walletProvider);
     // Use wallet account number as the self-purchase number; fall back to
     // a known default if the wallet hasn't loaded yet.
-    final selfPhone = wallet.accountNumber.isNotEmpty
-        ? wallet.accountNumber
-        : '08104532643';
+    final selfPhone =
+        wallet.accountNumber.isNotEmpty ? wallet.accountNumber : '08104532643';
     _phoneController.text = _formatPhoneDisplay(selfPhone);
     ref.read(airtimeProvider.notifier).setPhoneNumber(selfPhone);
   }
@@ -214,8 +216,7 @@ class _AirtimePhoneScreenState extends ConsumerState<AirtimePhoneScreen>
                                       _PhoneNumberFormatter(),
                                     ],
                                     style: TextStyle(
-                                      fontSize:
-                                          AppLayout.fontSize(context, 17),
+                                      fontSize: AppLayout.fontSize(context, 17),
                                       fontWeight: FontWeight.w500,
                                       color: const Color(0xFF1A1A2E),
                                     ),
@@ -433,7 +434,8 @@ class _AirtimePhoneScreenState extends ConsumerState<AirtimePhoneScreen>
                   onPressed: state.canProceedFromPhone ? _proceed : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF069494),
-                    disabledBackgroundColor: const Color(0xFF069494).withValues(alpha: 0.35),
+                    disabledBackgroundColor:
+                        const Color(0xFF069494).withValues(alpha: 0.35),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
@@ -460,7 +462,7 @@ class _AirtimePhoneScreenState extends ConsumerState<AirtimePhoneScreen>
 // ============================================================================
 // _ContactTabPrompt
 // Shown in the "Contact" tab. A single tappable row that opens the picker.
-// Better UX than an empty state — makes it clear what the tab does.
+// Better UX than an empty state â€” makes it clear what the tab does.
 // ============================================================================
 
 class _ContactTabPrompt extends StatelessWidget {

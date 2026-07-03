@@ -50,7 +50,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     final firstName =
         userInfo?.firstName ?? user?.name?.split(' ').first ?? 'User';
     final fullName = userInfo != null
-        ? '${userInfo.firstName} ${userInfo.lastName ?? ''}'.trim()
+        ? '${userInfo.firstName} ${userInfo.lastName}'.trim()
         : user?.name ?? 'Full name not set';
 
     if (user == null) {
@@ -813,11 +813,4 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
       ),
     );
   }
-}
-
-// -- File-level helper ---------------------------------------------------------
-String _formatAmount(double amount) {
-  if (amount >= 1000000) return '${(amount / 1000000).toStringAsFixed(1)}M';
-  if (amount >= 1000) return '${(amount / 1000).toStringAsFixed(0)}K';
-  return amount.toStringAsFixed(0);
 }

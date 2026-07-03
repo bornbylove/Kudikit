@@ -13,7 +13,6 @@
 // ============================================================================
 
 import 'dart:async';
-import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
@@ -293,15 +292,14 @@ class ContactService {
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   static String _buildDisplayName(Contact contact) {
-    final name = (contact.displayName ?? '').trim();
+    final name = contact.displayName.trim();
     if (name.isNotEmpty) return name;
 
     // Fallback: construct from name components
-    final parts = [
-      contact.name?.first,
-      contact.name?.middle,
-      contact.name?.last
-    ].whereType<String>().where((s) => s.isNotEmpty).toList();
+    final parts = [contact.name.first, contact.name.middle, contact.name.last]
+        .whereType<String>()
+        .where((s) => s.isNotEmpty)
+        .toList();
 
     return parts.join(' ').trim();
   }

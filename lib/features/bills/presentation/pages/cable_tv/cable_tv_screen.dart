@@ -1,5 +1,5 @@
 // lib/presentation/bill/cable_tv/cable_tv_screen.dart
-// Cable TV subscription payment screen — matches all 7 design images.
+// Cable TV subscription payment screen â€” matches all 7 design images.
 //
 // FIXED (3 errors at the ref.listen block):
 //   The compiler reports that `prev` (typed CableTvState?) can be null on the

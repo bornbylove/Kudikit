@@ -55,34 +55,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   // ---------------------------------------------------------------------------
   // SVG asset paths
   // ---------------------------------------------------------------------------
-  static const _svgTransfer    = 'assets/icons/transfer.svg';
-  static const _svgRequest     = 'assets/icons/request.svg';
-  static const _svgCashOut     = 'assets/icons/cashout.svg';
-  static const _svgAirtime     = 'assets/icons/airtime.svg';
-  static const _svgData        = 'assets/icons/data.svg';
-  static const _svgTv          = 'assets/icons/tv.svg';
+  static const _svgTransfer = 'assets/icons/transfer.svg';
+  static const _svgRequest = 'assets/icons/request.svg';
+  static const _svgCashOut = 'assets/icons/cashout.svg';
+  static const _svgAirtime = 'assets/icons/airtime.svg';
+  static const _svgData = 'assets/icons/data.svg';
+  static const _svgTv = 'assets/icons/tv.svg';
   static const _svgElectricity = 'assets/icons/electricity.svg';
-  static const _svgEducation   = 'assets/icons/education.svg';
-  static const _svgBetting     = 'assets/icons/betting.svg';
-  static const _svgSavings     = 'assets/icons/saving.svg';
-  static const _svgInternet    = 'assets/icons/internet.svg';
-  static const _svgHeadset     = 'assets/icons/headset.svg';
-  static const _svgBell        = 'assets/icons/bell.svg';
+  static const _svgEducation = 'assets/icons/education.svg';
+  static const _svgBetting = 'assets/icons/betting.svg';
+  static const _svgSavings = 'assets/icons/saving.svg';
+  static const _svgInternet = 'assets/icons/internet.svg';
+  static const _svgHeadset = 'assets/icons/headset.svg';
+  static const _svgBell = 'assets/icons/bell.svg';
 
   static const _teal = Color(0xFF069494);
 
   // ---------------------------------------------------------------------------
-  // Bill items list — defined once, index-stable
+  // Bill items list â€” defined once, index-stable
   // ---------------------------------------------------------------------------
   static const List<_BillItem> _billItems = [
-    _BillItem(svgAsset: _svgAirtime,     label: 'Airtime',     navigateTo: AirtimePhoneScreen()),
-    _BillItem(svgAsset: _svgData,        label: 'Data',        navigateTo: DataPhoneScreen()),
-    _BillItem(svgAsset: _svgTv,          label: 'TV',          navigateTo: CableTvScreen()),
-    _BillItem(svgAsset: _svgElectricity, label: 'Electricity', navigateTo: ElectricityScreen()),
-    _BillItem(svgAsset: _svgEducation,   label: 'Education'),
-    _BillItem(svgAsset: _svgBetting,     label: 'Betting'),
-    _BillItem(svgAsset: _svgSavings,     label: 'Savings'),
-    _BillItem(svgAsset: _svgInternet,    label: 'Internet'),
+    _BillItem(
+        svgAsset: _svgAirtime,
+        label: 'Airtime',
+        navigateTo: AirtimePhoneScreen()),
+    _BillItem(svgAsset: _svgData, label: 'Data', navigateTo: DataPhoneScreen()),
+    _BillItem(svgAsset: _svgTv, label: 'TV', navigateTo: CableTvScreen()),
+    _BillItem(
+        svgAsset: _svgElectricity,
+        label: 'Electricity',
+        navigateTo: ElectricityScreen()),
+    _BillItem(svgAsset: _svgEducation, label: 'Education'),
+    _BillItem(svgAsset: _svgBetting, label: 'Betting'),
+    _BillItem(svgAsset: _svgSavings, label: 'Savings'),
+    _BillItem(svgAsset: _svgInternet, label: 'Internet'),
   ];
 
   void _copyAccountNumber() {
@@ -117,12 +123,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       });
     });
 
-    final userInfo          = ref.watch(userInfoProvider);
+    final userInfo = ref.watch(userInfoProvider);
     final connectivityState = ref.watch(connectivityStateProvider);
-    final tierState         = ref.watch(tierProvider);
+    final tierState = ref.watch(tierProvider);
     final currentTierObject = tierState.getTierObject();
-    final wallet            = ref.watch(walletProvider);
-    final isOnline          = connectivityState.isConnected;
+    final wallet = ref.watch(walletProvider);
+    final isOnline = connectivityState.isConnected;
 
     final firstName = userInfo?.firstName ??
         (wallet.accountName.isNotEmpty
@@ -158,8 +164,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () =>
-                          ref.read(connectivityStateProvider.notifier).refresh(),
+                      onPressed: () => ref
+                          .read(connectivityStateProvider.notifier)
+                          .refresh(),
                       child: Text('Retry',
                           style: TextStyle(
                               color: Colors.white,
@@ -182,7 +189,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       // -- Header ---------------------------------------------
                       Padding(
                         padding: AppLayout.pagePadding(context),
@@ -219,11 +225,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       color: const Color(0xFF151717),
                                     ),
                                   ),
-                                  SizedBox(width: AppLayout.scaleWidth(context, 6)),
+                                  SizedBox(
+                                      width: AppLayout.scaleWidth(context, 6)),
                                   Container(
                                     padding: EdgeInsets.symmetric(
-                                      horizontal: AppLayout.scaleWidth(context, 8),
-                                      vertical: AppLayout.scaleHeight(context, 3),
+                                      horizontal:
+                                          AppLayout.scaleWidth(context, 8),
+                                      vertical:
+                                          AppLayout.scaleHeight(context, 3),
                                     ),
                                     decoration: BoxDecoration(
                                       color: _teal.withValues(alpha: 0.12),
@@ -233,7 +242,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     child: Text(
                                       'Tier ${currentTierObject.tierNumber}',
                                       style: TextStyle(
-                                        fontSize: AppLayout.fontSize(context, 11),
+                                        fontSize:
+                                            AppLayout.fontSize(context, 11),
                                         color: _teal,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -258,16 +268,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                       SizedBox(height: AppLayout.scaleHeight(context, 8)),
 
-                      // -- Balance card — flat solid teal, uniform radius -----
+                      // -- Balance card â€” flat solid teal, uniform radius -----
                       wallet.isLoading
                           ? Padding(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: AppLayout.scaleWidth(context, 16)),
+                                  horizontal:
+                                      AppLayout.scaleWidth(context, 16)),
                               child: const HomeBalanceCardShimmer(),
                             )
                           : Container(
                               margin: EdgeInsets.symmetric(
-                                  horizontal: AppLayout.scaleWidth(context, 16)),
+                                  horizontal:
+                                      AppLayout.scaleWidth(context, 16)),
                               padding: EdgeInsets.all(
                                   AppLayout.scaleWidth(context, 20)),
                               decoration: BoxDecoration(
@@ -297,8 +309,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                                       const AddMoneyScreen()),
                                             );
                                           } else {
-                                            ConnectivitySnackBar
-                                                .showNoInternet(context);
+                                            ConnectivitySnackBar.showNoInternet(
+                                                context);
                                           }
                                         },
                                         borderRadius: BorderRadius.circular(
@@ -312,10 +324,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           ),
                                           decoration: BoxDecoration(
                                             color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(
-                                                    AppLayout.scaleWidth(
-                                                        context, 16)),
+                                            borderRadius: BorderRadius.circular(
+                                                AppLayout.scaleWidth(
+                                                    context, 16)),
                                           ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
@@ -342,14 +353,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     ],
                                   ),
                                   SizedBox(
-                                      height: AppLayout.scaleHeight(context, 8)),
+                                      height:
+                                          AppLayout.scaleHeight(context, 8)),
                                   Row(
                                     children: [
                                       Expanded(
                                         child: Text(
                                           _isBalanceVisible
                                               ? '?${wallet.formattedBalance}'
-                                              : '? ••••••••••',
+                                              : '? â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
                                           style: TextStyle(
                                             fontSize:
                                                 AppLayout.fontSize(context, 32),
@@ -371,25 +383,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                               ? Icons.visibility_outlined
                                               : Icons.visibility_off_outlined,
                                           color: Colors.white70,
-                                          size: AppLayout.scaleWidth(
-                                              context, 20),
+                                          size:
+                                              AppLayout.scaleWidth(context, 20),
                                         ),
                                       ),
                                     ],
                                   ),
                                   SizedBox(
-                                      height: AppLayout.scaleHeight(context, 6)),
+                                      height:
+                                          AppLayout.scaleHeight(context, 6)),
                                   Text(
                                     !isOnline
-                                        ? 'Offline — showing cached balance'
+                                        ? 'Offline â€” showing cached balance'
                                         : wallet.lastUpdated != null
                                             ? 'Last updated ${_timeAgo(wallet.lastUpdated!)}'
                                             : 'Last updated recently',
                                     style: TextStyle(
                                         fontSize:
                                             AppLayout.fontSize(context, 11),
-                                        color:
-                                            Colors.white.withValues(alpha: 0.7)),
+                                        color: Colors.white
+                                            .withValues(alpha: 0.7)),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   SizedBox(
@@ -423,7 +436,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         Flexible(
                                           child: Text(
                                             userInfo != null
-                                                ? '${userInfo.firstName} ${userInfo.lastName ?? ''}'
+                                                ? '${userInfo.firstName} ${userInfo.lastName}'
                                                     .trim()
                                                 : wallet.accountName,
                                             style: TextStyle(
@@ -461,7 +474,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               context: context,
                               svgAsset: _svgTransfer,
                               label: 'Transfer',
-                              onTap: () => _handleQuickAction(context, 'Transfer',
+                              onTap: () => _handleQuickAction(
+                                  context, 'Transfer',
                                   navigateTo: const TransferMenuScreen()),
                               isEnabled: isOnline,
                             ),
@@ -470,7 +484,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               context: context,
                               svgAsset: _svgRequest,
                               label: 'Request',
-                              onTap: () => _handleQuickAction(context, 'Request',
+                              onTap: () => _handleQuickAction(
+                                  context, 'Request',
                                   navigateTo: const RequestMenuScreen()),
                               isEnabled: isOnline,
                             ),
@@ -479,7 +494,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               context: context,
                               svgAsset: _svgCashOut,
                               label: 'Withdraw',
-                              onTap: () => _handleQuickAction(context, 'Withdraw',
+                              onTap: () => _handleQuickAction(
+                                  context, 'Withdraw',
                                   navigateTo: const CashoutMenuScreen()),
                               isEnabled: isOnline,
                             ),
@@ -507,8 +523,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                       // -- Bill Services grid -----------------------------------
                       // Each card is independently togglable:
-                      //   • tapped  ? filled teal bg + white icon/label
-                      //   • others  ? white bg + dark icon/label + thin border
+                      //   â€¢ tapped  ? filled teal bg + white icon/label
+                      //   â€¢ others  ? white bg + dark icon/label + thin border
                       // Tapping the same card again de-selects it (back to outlined).
                       Padding(
                         padding: EdgeInsets.symmetric(
@@ -526,10 +542,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               }).expand((w) sync* {
                                 yield w;
                               }).toList()
-                                ..insertSeparators(
-                                  SizedBox(
-                                      width:
-                                          AppLayout.scaleWidth(context, 12))),
+                                ..insertSeparators(SizedBox(
+                                    width: AppLayout.scaleWidth(context, 12))),
                             ),
                             SizedBox(
                                 height: AppLayout.scaleHeight(context, 12)),
@@ -545,10 +559,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 }).expand((w) sync* {
                                   yield w;
                                 }).toList()
-                                  ..insertSeparators(
-                                    SizedBox(
-                                        width:
-                                            AppLayout.scaleWidth(context, 12))),
+                                  ..insertSeparators(SizedBox(
+                                      width:
+                                          AppLayout.scaleWidth(context, 12))),
                                 SizedBox(
                                     width: AppLayout.scaleWidth(context, 12)),
                                 // Empty slot keeps 4-column grid alignment
@@ -596,8 +609,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             horizontal: AppLayout.scaleWidth(context, 16),
                             vertical: AppLayout.scaleHeight(context, 8),
                           ),
-                          padding: EdgeInsets.all(
-                              AppLayout.scaleWidth(context, 12)),
+                          padding:
+                              EdgeInsets.all(AppLayout.scaleWidth(context, 12)),
                           decoration: BoxDecoration(
                             color: Colors.orange.shade50,
                             borderRadius: BorderRadius.circular(12),
@@ -615,8 +628,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 child: Text(
                                   'You\'re viewing cached transactions. Connect to internet for latest updates.',
                                   style: TextStyle(
-                                      fontSize:
-                                          AppLayout.fontSize(context, 12),
+                                      fontSize: AppLayout.fontSize(context, 12),
                                       color: Colors.orange.shade900),
                                 ),
                               ),
@@ -661,7 +673,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   // ===========================================================================
-  // Bill card tile — reads _selectedBillIndex to decide fill vs outline
+  // Bill card tile â€” reads _selectedBillIndex to decide fill vs outline
   // ===========================================================================
 
   Widget _billCardTile({
@@ -669,9 +681,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     required int index,
     required bool isOnline,
   }) {
-    final item       = _billItems[index];
+    final item = _billItems[index];
     final isSelected = _selectedBillIndex == index;
-    final canTap     = isOnline;
+    final canTap = isOnline;
 
     return Expanded(
       child: Opacity(
@@ -681,8 +693,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ? () {
                   setState(() {
                     // Tap same card ? deselect; tap different ? select it
-                    _selectedBillIndex =
-                        isSelected ? null : index;
+                    _selectedBillIndex = isSelected ? null : index;
                   });
                   // Navigate only when selecting (not deselecting)
                   if (!isSelected) {
@@ -705,8 +716,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: isSelected ? _teal : const Color(0xFFE9ECEF),
                 width: 1.0,
               ),
-              borderRadius: BorderRadius.circular(
-                  AppLayout.scaleWidth(context, 12)),
+              borderRadius:
+                  BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -812,8 +823,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 SvgPicture.asset(svgAsset,
                     width: AppLayout.scaleWidth(context, 16),
                     height: AppLayout.scaleWidth(context, 16),
-                    colorFilter: const ColorFilter.mode(
-                        Colors.white, BlendMode.srcIn)),
+                    colorFilter:
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
                 SizedBox(width: AppLayout.scaleWidth(context, 6)),
                 Text(label,
                     style: TextStyle(
@@ -851,8 +862,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 vertical: AppLayout.scaleHeight(context, 12)),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(
-                  color: const Color(0xFFE2E8F0), width: 1.2),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
               borderRadius:
                   BorderRadius.circular(AppLayout.scaleWidth(context, 50)),
             ),
@@ -918,8 +928,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     if (navigateTo != null) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (_) => navigateTo));
+      Navigator.push(context, MaterialPageRoute(builder: (_) => navigateTo));
     } else {
       _showComingSoon(context, actionName);
     }
@@ -1015,8 +1024,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       padding: EdgeInsets.all(AppLayout.scaleWidth(context, 12)),
       decoration: BoxDecoration(
         color: AppColors.backgroundScreen,
-        borderRadius:
-            BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
+        borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
       ),
       child: Row(
         children: [
@@ -1027,8 +1035,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               borderRadius:
                   BorderRadius.circular(AppLayout.scaleWidth(context, 8)),
             ),
-            child: Icon(
-                isSuccess ? Icons.arrow_upward : Icons.arrow_downward,
+            child: Icon(isSuccess ? Icons.arrow_upward : Icons.arrow_downward,
                 color: isSuccess ? _teal : Colors.red.shade700,
                 size: AppLayout.scaleWidth(context, 16)),
           ),
@@ -1072,8 +1079,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   color: isSuccess
                       ? _teal.withValues(alpha: 0.1)
                       : Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(
-                      AppLayout.scaleWidth(context, 8)),
+                  borderRadius:
+                      BorderRadius.circular(AppLayout.scaleWidth(context, 8)),
                 ),
                 child: Text(
                   isSuccess ? 'Successful' : 'Failed',
@@ -1105,7 +1112,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 // ---------------------------------------------------------------------------
-// List extension — inserts a separator widget between every item
+// List extension â€” inserts a separator widget between every item
 // ---------------------------------------------------------------------------
 extension _ListSeparatorExt<T extends Widget> on List<T> {
   void insertSeparators(Widget separator) {

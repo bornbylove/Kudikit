@@ -35,8 +35,6 @@ class _AddRecipientsManuallyScreenState
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(bulkTransferProvider);
-    final isEqualSplit =
-        state.distributionType == AmountDistributionType.equalSplit;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),

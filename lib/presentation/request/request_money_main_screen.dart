@@ -4,7 +4,6 @@ import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/shared/widgets/contact_list_item.dart';
 import 'package:kudipay/shared/widgets/recipient_tab.dart';
 import 'package:kudipay/model/request/request_model.dart';
-import 'package:kudipay/presentation/request/request_money_screen.dart';
 import 'package:kudipay/presentation/request/select_recipient_screen.dart';
 
 class RequestMoneyMainScreen extends StatefulWidget {
@@ -71,7 +70,8 @@ class _RequestMoneyMainScreenState extends State<RequestMoneyMainScreen>
             : ContactData.recentContacts)
         .where((c) => _selectedContactIds.contains(c.id))
         .toList();
-Navigator.push(context, MaterialPageRoute(builder: ((context) => SelectRecipientsScreen())));
+    Navigator.push(context,
+        MaterialPageRoute(builder: ((context) => SelectRecipientsScreen())));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -208,7 +208,7 @@ Navigator.push(context, MaterialPageRoute(builder: ((context) => SelectRecipient
     );
   }
 
-  // ? Inline search bar — no custom import needed
+  // ? Inline search bar â€” no custom import needed
   Widget _buildSearchBar() {
     return Container(
       height: 44,

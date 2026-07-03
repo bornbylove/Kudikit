@@ -36,14 +36,14 @@ class _SelectBankScreenState extends ConsumerState<SelectBankScreen> {
     final banksState = ref.watch(banksProvider);
     final searchQuery = ref.watch(bankSearchQueryProvider);
 
-    // Pure computation off watched state — reacts correctly when either
+    // Pure computation off watched state â€” reacts correctly when either
     // the bank list or the query changes. Previously used ref.read(notifier)
     // which would not recompute when banks updated while search was active.
     final filteredBanks = searchQuery.isEmpty
         ? banksState.banks
         : banksState.banks
-            .where((b) =>
-                b.name.toLowerCase().contains(searchQuery.toLowerCase()))
+            .where(
+                (b) => b.name.toLowerCase().contains(searchQuery.toLowerCase()))
             .toList();
 
     return Scaffold(
@@ -123,7 +123,7 @@ class _SelectBankScreenState extends ConsumerState<SelectBankScreen> {
             color: const Color(0xFFB0BEC5),
             size: AppLayout.scaleWidth(context, 20),
           ),
-          // Fix 4: clear button — only shows when there is text
+          // Fix 4: clear button â€” only shows when there is text
           suffixIcon: searchQuery.isNotEmpty
               ? IconButton(
                   icon: Icon(
@@ -216,7 +216,7 @@ class _SelectBankScreenState extends ConsumerState<SelectBankScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Logo circle — tries network image, falls back to coloured initials
+          // Logo circle â€” tries network image, falls back to coloured initials
           Container(
             width: logoSize,
             height: logoSize,
@@ -292,11 +292,12 @@ class _SelectBankScreenState extends ConsumerState<SelectBankScreen> {
 
   Widget _buildErrorView(BuildContext context, String message) {
     final lower = message.toLowerCase();
-    final IconData icon = lower.contains('internet') || lower.contains('network')
-        ? Icons.wifi_off_rounded
-        : lower.contains('timed out') || lower.contains('timeout')
-            ? Icons.timer_off_rounded
-            : Icons.cloud_off_rounded;
+    final IconData icon =
+        lower.contains('internet') || lower.contains('network')
+            ? Icons.wifi_off_rounded
+            : lower.contains('timed out') || lower.contains('timeout')
+                ? Icons.timer_off_rounded
+                : Icons.cloud_off_rounded;
 
     return Center(
       child: Padding(
@@ -333,8 +334,8 @@ class _SelectBankScreenState extends ConsumerState<SelectBankScreen> {
                 backgroundColor: const Color(0xFF069494),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                      AppLayout.scaleWidth(context, 32)),
+                  borderRadius:
+                      BorderRadius.circular(AppLayout.scaleWidth(context, 32)),
                 ),
                 padding: EdgeInsets.symmetric(
                   horizontal: AppLayout.scaleWidth(context, 32),

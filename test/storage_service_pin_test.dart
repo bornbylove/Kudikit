@@ -25,9 +25,8 @@ void main() {
   // ---------------------------------------------------------------------------
   // Valid test passcodes — meet ALL complexity rules
   // ---------------------------------------------------------------------------
-  const validPasscode1 = 'Secret1!';      // 8 chars — minimum valid
-  const validPasscode2 = 'MyPass1@2024';  // 12 chars — maximum valid
-  const validPasscode3 = 'Hello\$99';     // 8 chars — alternate special char
+  const validPasscode1 = 'Secret1!'; // 8 chars — minimum valid
+  const validPasscode2 = 'MyPass1@2024'; // 12 chars — maximum valid
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
@@ -69,7 +68,8 @@ void main() {
       expect(isValid, isFalse);
     });
 
-    test('Should generate different hashes for same passcode (different salts)', () async {
+    test('Should generate different hashes for same passcode (different salts)',
+        () async {
       await storageService.savePasscode(validPasscode1);
       const secureStorage = FlutterSecureStorage();
       final firstHash = await secureStorage.read(key: 'user_passcode');
@@ -166,7 +166,8 @@ void main() {
     // REMOVED: 'Should accept 4-digit PIN' — '1234' now FAILS validation
     // REMOVED: 'Should accept 6-digit PIN' — '123456' now FAILS validation
 
-    test('Should accept valid passcode with all special chars in allowed set', () async {
+    test('Should accept valid passcode with all special chars in allowed set',
+        () async {
       // Test each allowed special character
       final specialChars = ['!', '@', '#', r'$', '%', '^', '&', '*'];
       for (final char in specialChars) {
@@ -191,7 +192,8 @@ void main() {
   // ===========================================================================
 
   group('hasPasscode and deletePasscode', () {
-    test('hasPasscode should return false when no passcode is stored', () async {
+    test('hasPasscode should return false when no passcode is stored',
+        () async {
       expect(await storageService.hasPasscode(), isFalse);
     });
 
@@ -294,7 +296,8 @@ void main() {
       expect(salts.length, equals(10));
     });
 
-    test('Hash output should be consistent — verify returns true repeatedly', () async {
+    test('Hash output should be consistent — verify returns true repeatedly',
+        () async {
       await storageService.savePasscode(validPasscode1);
 
       for (var i = 0; i < 5; i++) {
@@ -306,14 +309,16 @@ void main() {
       await storageService.savePasscode(validPasscode1);
 
       final stopwatch1 = Stopwatch()..start();
-      await storageService.verifyPasscode('WrongA1!');  // Differs early
+      await storageService.verifyPasscode('WrongA1!'); // Differs early
       stopwatch1.stop();
 
       final stopwatch2 = Stopwatch()..start();
-      await storageService.verifyPasscode('Secret1?');  // Differs late
+      await storageService.verifyPasscode('Secret1?'); // Differs late
       stopwatch2.stop();
 
-      final timeDiff = (stopwatch1.elapsedMicroseconds - stopwatch2.elapsedMicroseconds).abs();
+      final timeDiff =
+          (stopwatch1.elapsedMicroseconds - stopwatch2.elapsedMicroseconds)
+              .abs();
       expect(timeDiff, lessThan(10000)); // 10ms tolerance
     });
   });

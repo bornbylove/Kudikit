@@ -13,7 +13,6 @@
 
 import 'dart:async';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/config/dio_client.dart';
 import 'package:kudipay/core/providers/core_providers.dart';
@@ -231,7 +230,7 @@ class CableTvNotifier extends StateNotifier<CableTvState> {
         isIucInvalid: true,
         clearAccountDetail: true,
         step: CableTvStep.idle,
-        error: e.message ?? 'Could not validate IUC. Please try again.',
+        error: e.message,
       );
     } catch (_) {
       state = state.copyWith(
@@ -302,7 +301,7 @@ class CableTvNotifier extends StateNotifier<CableTvState> {
     } on KudiApiException catch (e) {
       state = state.copyWith(
         step: CableTvStep.failed,
-        error: e.message ?? 'Payment failed. Please try again.',
+        error: e.message,
       );
     } catch (_) {
       state = state.copyWith(

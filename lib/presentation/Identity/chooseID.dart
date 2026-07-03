@@ -21,7 +21,6 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
   final TextEditingController _idNumberController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-
   IdType _selectedIdType = IdType.bvn;
 
   final int _progressPercentage = 48;
@@ -34,13 +33,11 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
     final verificationState = ref.watch(idVerificationProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: _buildAppBar(context),
-  
       bottomNavigationBar: _buildNextButton(context, verificationState),
       body: Stack(
         children: [
@@ -154,8 +151,8 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
             if (verificationState.status == VerificationStatus.error &&
                 verificationState.error != null)
               Padding(
-                padding: EdgeInsets.only(
-                    top: AppLayout.scaleHeight(context, 16)),
+                padding:
+                    EdgeInsets.only(top: AppLayout.scaleHeight(context, 16)),
                 child: Container(
                   padding: EdgeInsets.all(AppLayout.scaleWidth(context, 12)),
                   decoration: BoxDecoration(
@@ -201,7 +198,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
         Expanded(
           child: _buildToggleButton(
             context: context,
-            // ? FIX 3: .label from the real IdType extension — no crash
+            // ? FIX 3: .label from the real IdType extension â€” no crash
             label: IdType.bvn.label,
             isSelected: _selectedIdType == IdType.bvn,
             onTap: () => setState(() {
@@ -254,8 +251,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
             style: TextStyle(
               fontSize: AppLayout.fontSize(context, 16),
               fontWeight: FontWeight.w600,
-              color:
-                  isSelected ? const Color(0xFF069494) : Colors.grey[700],
+              color: isSelected ? const Color(0xFF069494) : Colors.grey[700],
             ),
           ),
         ),
@@ -268,7 +264,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          // ? .label — from the real IdType extension
+          // ? .label â€” from the real IdType extension
           'Your ${_selectedIdType.label}',
           style: TextStyle(
             fontSize: AppLayout.fontSize(context, 14),
@@ -302,7 +298,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
             letterSpacing: 1.5,
           ),
           decoration: InputDecoration(
-            // ? .hint — uses the hint getter from IdTypeX extension
+            // ? .hint â€” uses the hint getter from IdTypeX extension
             hintText: _selectedIdType.hint,
             hintStyle: TextStyle(
               color: Colors.grey[400],
@@ -324,8 +320,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
             focusedBorder: OutlineInputBorder(
               borderRadius:
                   BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
-              borderSide:
-                  const BorderSide(color: Color(0xFF069494), width: 2),
+              borderSide: const BorderSide(color: Color(0xFF069494), width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius:
@@ -350,8 +345,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
       padding: EdgeInsets.all(AppLayout.scaleWidth(context, 16)),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
+        borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
         border: Border.all(color: const Color(0xFFE0E0E0), width: 1),
       ),
       child: Column(
@@ -376,7 +370,6 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
             ],
           ),
           SizedBox(height: AppLayout.scaleHeight(context, 12)),
-          
           Text(
             (data['name'] as String? ?? '').toUpperCase(),
             style: TextStyle(
@@ -452,20 +445,21 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
 
   void _handleNext() {
     final state = ref.read(idVerificationProvider);
-    if (state.status != VerificationStatus.success || state.data == null) return;
+    if (state.status != VerificationStatus.success || state.data == null)
+      return;
 
     // Build a UserInfo from the data returned by the ID verification step.
     // The mock (and real) API returns first_name, last_name, date_of_birth,
     // and the raw BVN/NIN number that the user entered.
     final data = state.data!;
     final userInfo = UserInfo(
-      firstName:   (data['first_name']  as String? ?? '').trim(),
-      lastName:    (data['last_name']   as String? ?? '').trim(),
-      bvn:         _idNumberController.text.trim(),
+      firstName: (data['first_name'] as String? ?? '').trim(),
+      lastName: (data['last_name'] as String? ?? '').trim(),
+      bvn: _idNumberController.text.trim(),
       dateOfBirth: DateTime.tryParse(
-                     data['date_of_birth'] as String? ?? '',
-                   ) ??
-                   DateTime(1990, 1, 1),
+            data['date_of_birth'] as String? ?? '',
+          ) ??
+          DateTime(1990, 1, 1),
     );
 
     Navigator.push(

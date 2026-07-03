@@ -3,12 +3,12 @@
 // Screen 2 of the Buy Data flow.
 //
 // Features:
-//   • Network + phone number display row (tap network to change)
-//   • Tab bar: Daily | Weekly | Monthly
-//   • Plan tiles with data badge, description, validity chip, price, check icon
-//   • Animated selection highlight
-//   • ConfirmDataBottomSheet: review + Recheck / Send
-//   • DataSuccessBottomSheet: check icon + amount + "Add to beneficiary"
+//   â€¢ Network + phone number display row (tap network to change)
+//   â€¢ Tab bar: Daily | Weekly | Monthly
+//   â€¢ Plan tiles with data badge, description, validity chip, price, check icon
+//   â€¢ Animated selection highlight
+//   â€¢ ConfirmDataBottomSheet: review + Recheck / Send
+//   â€¢ DataSuccessBottomSheet: check icon + amount + "Add to beneficiary"
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -33,7 +33,7 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
     with SingleTickerProviderStateMixin {
   late TabController _validityTab;
   static const _tabs = ['Daily', 'Weekly', 'Monthly'];
-  
+
   @override
   void initState() {
     super.initState();
@@ -96,8 +96,7 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
               MaterialPageRoute(
                 builder: (_) => BillTransactionDetail(
                   title: 'Data Receipt',
-                  transactionId:
-                      s.result?.transactionId ??
+                  transactionId: s.result?.transactionId ??
                       'TXN${DateTime.now().millisecondsSinceEpoch}',
                   billType: 'Data',
                   providerName: s.selectedNetwork?.displayName ?? '',
@@ -142,7 +141,7 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(dataProvider);
-    // Use the dedicated isProcessing field — more reliable than comparing
+    // Use the dedicated isProcessing field â€” more reliable than comparing
     // DataStep, which may not stay in sync if state transitions change.
     final isProcessing = state.isProcessing;
 
@@ -354,8 +353,12 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
                                         // notifier may write e.toString() which
                                         // leaks internal exception details.
                                         (state.error != null &&
-                                                !state.error!.toLowerCase().contains('exception') &&
-                                                !state.error!.toLowerCase().contains('error:'))
+                                                !state.error!
+                                                    .toLowerCase()
+                                                    .contains('exception') &&
+                                                !state.error!
+                                                    .toLowerCase()
+                                                    .contains('error:'))
                                             ? state.error!
                                             : 'Could not load plans. Please check your connection and try again.',
                                         textAlign: TextAlign.center,
@@ -386,8 +389,8 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
                                         icon: const Icon(Icons.refresh,
                                             color: Colors.white, size: 18),
                                         label: const Text('Try Again',
-                                            style: TextStyle(
-                                                color: Colors.white)),
+                                            style:
+                                                TextStyle(color: Colors.white)),
                                       ),
                                     ],
                                   ),
@@ -411,8 +414,7 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
                                     children: [
                                       _PlanList(
                                         plans: dailyPlans,
-                                        selectedPlanId:
-                                            state.selectedPlan?.id,
+                                        selectedPlanId: state.selectedPlan?.id,
                                         onSelect: (p) => ref
                                             .read(dataProvider.notifier)
                                             .selectPlan(p),
@@ -421,8 +423,7 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
                                       ),
                                       _PlanList(
                                         plans: weeklyPlans,
-                                        selectedPlanId:
-                                            state.selectedPlan?.id,
+                                        selectedPlanId: state.selectedPlan?.id,
                                         onSelect: (p) => ref
                                             .read(dataProvider.notifier)
                                             .selectPlan(p),
@@ -431,8 +432,7 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
                                       ),
                                       _PlanList(
                                         plans: monthlyPlans,
-                                        selectedPlanId:
-                                            state.selectedPlan?.id,
+                                        selectedPlanId: state.selectedPlan?.id,
                                         onSelect: (p) => ref
                                             .read(dataProvider.notifier)
                                             .selectPlan(p),
@@ -463,7 +463,8 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF069494),
-                    disabledBackgroundColor: const Color(0xFF069494).withValues(alpha: 0.35),
+                    disabledBackgroundColor:
+                        const Color(0xFF069494).withValues(alpha: 0.35),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
@@ -554,7 +555,6 @@ class _DataPlanTile extends StatelessWidget {
   final DataPlan plan;
   final bool isSelected;
   final VoidCallback onTap;
-  final _fmt = NumberFormat('#,###', 'en_NG');
 
   _DataPlanTile({
     required this.plan,
@@ -696,7 +696,6 @@ class ConfirmDataBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userInfo = ref.watch(userInfoProvider);
-    final wallet = ref.watch(walletProvider);
     final displayName =
         '${(userInfo?.firstName ?? 'MICHAEL').toUpperCase()} ASUQUO TOLUWALASE';
     final fmt = NumberFormat('#,###', 'en_NG');

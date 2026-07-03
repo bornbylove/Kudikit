@@ -5,7 +5,6 @@
 // layer simultaneously. Everything above this uses only domain types.
 
 import 'package:flutter/foundation.dart';
-import 'package:kudipay/config/dio_client.dart';
 import 'package:kudipay/features/auth/data/auth_services.dart';
 
 import 'package:kudipay/features/auth/domain/entities/user_entities.dart';

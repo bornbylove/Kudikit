@@ -14,7 +14,6 @@ class TicketsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tickets = ref.watch(filteredTicketsProvider);
-    final screenSize = MediaQuery.sizeOf(context);
 
     return Scaffold(
       backgroundColor: AppColors.background,

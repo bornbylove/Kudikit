@@ -58,7 +58,7 @@ class _EnterAmountScreenState extends ConsumerState<EnterAmountScreen> {
   void _continue() {
     if (!_isValid) return;
 
-    // Read live user data from providers — no hardcoding.
+    // Read live user data from providers â€” no hardcoding.
     final wallet = ref.read(walletProvider);
 
     showModalBottomSheet(
@@ -82,7 +82,7 @@ class _EnterAmountScreenState extends ConsumerState<EnterAmountScreen> {
   Future<void> _processTransaction() async {
     Navigator.pop(context); // close bottom sheet
 
-    // Read live user data from providers — no hardcoding.
+    // Read live user data from providers â€” no hardcoding.
     final user = ref.read(currentUserProvider);
     final wallet = ref.read(walletProvider);
 
@@ -93,19 +93,21 @@ class _EnterAmountScreenState extends ConsumerState<EnterAmountScreen> {
     if (userId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Unable to process: user session expired. Please log in again.'),
+          content: Text(
+              'Unable to process: user session expired. Please log in again.'),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    final transaction = await ref.read(cashOutProvider.notifier).createTransaction(
-      amount: _amount,
-      userId: userId,
-      userAccountNumber: userAccountNumber,
-      userName: userName,
-    );
+    final transaction =
+        await ref.read(cashOutProvider.notifier).createTransaction(
+              amount: _amount,
+              userId: userId,
+              userAccountNumber: userAccountNumber,
+              userName: userName,
+            );
 
     if (transaction != null && mounted) {
       Navigator.pushReplacement(
@@ -206,12 +208,12 @@ class _EnterAmountScreenState extends ConsumerState<EnterAmountScreen> {
                         fontSize: 15, fontWeight: FontWeight.w500),
                     decoration: InputDecoration(
                       prefixText: '? ',
-                      prefixStyle: const TextStyle(
-                          fontSize: 15, color: Colors.black54),
+                      prefixStyle:
+                          const TextStyle(fontSize: 15, color: Colors.black54),
                       hintText:
                           '${_fmt(widget.agent.minWithdrawal)} - ${_fmt(widget.agent.maxWithdrawal)}',
-                      hintStyle: const TextStyle(
-                          color: Colors.black26, fontSize: 14),
+                      hintStyle:
+                          const TextStyle(color: Colors.black26, fontSize: 14),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
@@ -250,7 +252,8 @@ class _EnterAmountScreenState extends ConsumerState<EnterAmountScreen> {
                             child: Container(
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? const Color(0xFF2BA89A).withValues(alpha: 0.1)
+                                    ? const Color(0xFF2BA89A)
+                                        .withValues(alpha: 0.1)
                                     : const Color(0xFFF5F5F5),
                                 borderRadius: BorderRadius.circular(8),
                                 border: isSelected
@@ -309,8 +312,7 @@ class _EnterAmountScreenState extends ConsumerState<EnterAmountScreen> {
                     ),
                     const SizedBox(height: 8),
                     _FeeRow(
-                      label:
-                          'Commission (${widget.agent.commissionPercent}%)',
+                      label: 'Commission (${widget.agent.commissionPercent}%)',
                       value: '?${_fmtAmount(_commission)}',
                     ),
                     const Divider(height: 20),
@@ -345,9 +347,7 @@ class _EnterAmountScreenState extends ConsumerState<EnterAmountScreen> {
                     child: Text(
                       "You'll receive a 6-digit code to show the agent for cash collection. The code expires in 15 minutes.",
                       style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.black54,
-                          height: 1.4),
+                          fontSize: 12, color: Colors.black54, height: 1.4),
                     ),
                   ),
                 ],
@@ -363,12 +363,12 @@ class _EnterAmountScreenState extends ConsumerState<EnterAmountScreen> {
         child: SizedBox(
           height: 52,
           child: ElevatedButton(
-            onPressed: _isValid && !state.isProcessingTransaction
-                ? _continue
-                : null,
+            onPressed:
+                _isValid && !state.isProcessingTransaction ? _continue : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2BA89A),
-              disabledBackgroundColor: const Color(0xFF2BA89A).withValues(alpha: 0.4),
+              disabledBackgroundColor:
+                  const Color(0xFF2BA89A).withValues(alpha: 0.4),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),

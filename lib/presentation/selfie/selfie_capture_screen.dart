@@ -335,7 +335,8 @@ class _SelfieCaptureScreenState extends ConsumerState<SelfieCaptureScreen> {
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.check_circle,
-                  color: Color(0xFF069494), size: AppLayout.scaleWidth(context, 50)),
+                  color: Color(0xFF069494),
+                  size: AppLayout.scaleWidth(context, 50)),
             ),
             SizedBox(height: AppLayout.scaleHeight(context, 24)),
             Text(
@@ -365,7 +366,7 @@ class _SelfieCaptureScreenState extends ConsumerState<SelfieCaptureScreen> {
 
                   if (context.mounted) {
                     // Pop the dialog first, then pushReplacement so the
-                    // capture screen is removed — user cannot go back to
+                    // capture screen is removed â€” user cannot go back to
                     // the camera after photo is validated and uploaded.
                     Navigator.pop(context); // close dialog
                     Navigator.pushReplacement(

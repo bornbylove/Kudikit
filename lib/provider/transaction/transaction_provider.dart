@@ -12,9 +12,8 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:kudipay/config/dio_client.dart';
 import 'package:kudipay/model/transaction/transaction_model.dart';
-import 'package:kudipay/provider/auth/auth_provider.dart';
+import 'package:kudipay/provider/network/dio_provider.dart';
 import 'package:kudipay/services/transaction_service.dart';
 
 // ==================== TRANSACTION SERVICE PROVIDER ====================
@@ -243,12 +242,27 @@ String _getDateKey(DateTime date) {
   }
 
   const days = [
-    'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-    'Friday', 'Saturday', 'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
   ];
   const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
 
   final dayName = days[date.weekday - 1];

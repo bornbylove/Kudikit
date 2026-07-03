@@ -4,14 +4,14 @@
 // Screen 2 of the Buy Airtime flow.
 //
 // Features:
-//   • Promo banner: "Buy ?1,000 + Get ?100 Bonus"
-//   • Network + phone display row (tap network to go back and change)
-//   • Amount input: ? prefix, range hint ?60 – ?50,000
-//   • Balance display (from wallet provider)
-//   • 6-preset quick-select grid: ?100, ?200, ?500, ?1,000, ?5,000, ?6,000
-//   • Continue enabled only when amount is valid
-//   • ConfirmAirtimeBottomSheet: review + "Recheck" / "Send"
-//   • AirtimeSuccessBottomSheet: check icon + amount + "Add to beneficiary"
+//   â€¢ Promo banner: "Buy ?1,000 + Get ?100 Bonus"
+//   â€¢ Network + phone display row (tap network to go back and change)
+//   â€¢ Amount input: ? prefix, range hint ?60 â€“ ?50,000
+//   â€¢ Balance display (from wallet provider)
+//   â€¢ 6-preset quick-select grid: ?100, ?200, ?500, ?1,000, ?5,000, ?6,000
+//   â€¢ Continue enabled only when amount is valid
+//   â€¢ ConfirmAirtimeBottomSheet: review + "Recheck" / "Send"
+//   â€¢ AirtimeSuccessBottomSheet: check icon + amount + "Add to beneficiary"
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -26,7 +26,6 @@ import 'package:kudipay/features/bills/presentation/pages/bill_transaction_detai
 import 'package:kudipay/provider/bill/bill_provider.dart';
 import 'package:kudipay/provider/kyc/kyc_provider.dart';
 import 'package:kudipay/provider/wallet/wallet_provider.dart';
-
 
 class AirtimeAmountScreen extends ConsumerStatefulWidget {
   const AirtimeAmountScreen({super.key});
@@ -119,8 +118,7 @@ class _AirtimeAmountScreenState extends ConsumerState<AirtimeAmountScreen> {
               MaterialPageRoute(
                 builder: (_) => BillTransactionDetail(
                   title: 'Airtime Receipt',
-                  transactionId:
-                      s.result?.transactionId ??
+                  transactionId: s.result?.transactionId ??
                       'TXN${DateTime.now().millisecondsSinceEpoch}',
                   billType: 'Airtime',
                   providerName: s.selectedNetwork?.displayName ?? '',
@@ -401,7 +399,7 @@ class _AirtimeAmountScreenState extends ConsumerState<AirtimeAmountScreen> {
 
                           SizedBox(height: AppLayout.scaleHeight(context, 14)),
 
-                          // Preset amount grid (3 × 2)
+                          // Preset amount grid (3 Ã— 2)
                           GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -475,7 +473,8 @@ class _AirtimeAmountScreenState extends ConsumerState<AirtimeAmountScreen> {
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF069494),
-                    disabledBackgroundColor: const Color(0xFF069494).withValues(alpha: 0.35),
+                    disabledBackgroundColor:
+                        const Color(0xFF069494).withValues(alpha: 0.35),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
@@ -960,12 +959,12 @@ class _PayingFromRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Pull live wallet data — account number and initials from the mock API,
+    // Pull live wallet data â€” account number and initials from the mock API,
     // not hardcoded literals.
-    final wallet   = ref.watch(walletProvider);
+    final wallet = ref.watch(walletProvider);
     final initials = wallet.initials;
-    final acctNum  = wallet.accountNumber;
-    final balance  = wallet.formattedBalance;
+    final acctNum = wallet.accountNumber;
+    final balance = wallet.formattedBalance;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1025,7 +1024,8 @@ class _PayingFromRow extends ConsumerWidget {
                     const SizedBox(height: 2),
                     Text(
                       '? $balance',
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF9E9E9E)),
+                      style: const TextStyle(
+                          fontSize: 12, color: Color(0xFF9E9E9E)),
                     ),
                   ],
                 ),
