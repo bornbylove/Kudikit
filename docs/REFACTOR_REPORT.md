@@ -98,30 +98,45 @@ re-exports the canonical router; `model/auth/auth_state.dart` shims to
 `features/auth/domain`). Routing is cleanly split into `app_route.dart` (router
 logic) vs `app_routes.dart` (route-name constants) — **not** a duplicate.
 
-## Feature migration — progress
+## Feature migration — status: screens 100% complete
 
-Eight domains have now been relocated into `lib/features/<domain>/`, each as its own
-green, per-domain commit (screens → `presentation/pages`, providers/notifiers →
-`presentation/controllers`, models → `domain/entities`), with one-line barrel
-re-export shims left at every legacy path so importers keep compiling unchanged:
+**Every screen has been relocated into `lib/features/<domain>/`.** `lib/presentation/`
+now contains only one-line barrel re-export shims — no real code. There are **31
+feature domains**, each migrated as its own green, per-domain commit (screens →
+`presentation/pages`, providers/notifiers → `presentation/controllers`, models →
+`domain/entities`), with shims left at every legacy path so importers compile
+unchanged. `flutter analyze` is clean and the app builds after every step.
 
-`selfie · notification · tier · request · cashout · transaction · linkdevice · agent`
+Domains migrated in this effort: `selfie · notification · tier · request · cashout ·
+transaction · linkdevice · agent · address · bankdeposit · email · intro · onboarding ·
+otp · passcode · profile · qrcode · splashscreen · support · tribe · homescreen ·
+transactionpin · identity · ticket · kyc · signup · account_ready · transfer` (plus the
+pre-existing `auth · bills · wallet`).
 
-`flutter analyze` is clean after each. **Remaining legacy domains** to migrate the
-same way: `address · bankdeposit · email · Identity · intro · onboarding · otp ·
-passcode · profile · qrcode · splashscreen · support · ticket · tribe · homescreen`
-plus their `provider/*` counterparts. Once every importer of a shim is repointed to
-the canonical path, the shim files can be deleted.
+Notable handling:
+- **`request`** used **relative** imports (`../../model/...`) — converted to `package:`
+  paths on move, since barrel shims only cover `package:` imports.
+- **`ticket`** is a self-contained module — moved wholesale (subtree intact) with its 2
+  external importers repointed directly (no shim needed).
+- **`PasscodeState`** was duplicated in `usecases/` and `features/auth/domain/`;
+  consolidated into `features/passcode/domain`, both old copies now shims.
+- Domain **providers** for `bills` (bill/cable_tv/electricity), `wallet`, and
+  `linkdevice` (device_linking) were consolidated into their features too.
 
-> Note: the `request` domain used **relative** imports (`../../model/...`) rather than
-> `package:` imports — these must be converted to absolute paths when moved, since
-> barrel shims only cover `package:` imports. Watch for this in remaining domains.
+### Remaining (state layer only — no screens left)
+Cross-cutting infrastructure providers intentionally left in `lib/provider/` because
+they are **not** domain features and belong in `core/`: `connectivity`, `network/dio`,
+`refresh`, the `provider.dart` aggregator barrel, plus `add_money`/`funding` (wallet-
+adjacent, boundary needs a decision) and cross-cutting models (`bankmodel`, `device`,
+`user`, `addmoney`). These need dedup/ownership review, not a mechanical move.
 
 ## Recommendations (future scalability)
 
-1. **Continue the feature migration** for the remaining domains listed above, using
-   the same barrel-shim + per-domain-commit procedure. Run `flutter analyze` after
-   **each** domain (not batched) — it catches broken relative imports immediately.
+1. **Delete the shims once importers are repointed.** Every legacy `presentation/`,
+   `provider/`, and `model/` path is now a shim. In a follow-up, repoint each importer
+   to the canonical `features/` path (grep-and-replace, verify with `analyze`), then
+   delete the shim files — this removes `lib/presentation/`, `lib/usecases/`, and most
+   of `lib/model/` and `lib/provider/` entirely.
 
 2. **Centralize the brand palette (biggest DRY win).** `AppColors.primaryTeal` is
    defined in `core/theme/app_theme.dart` but the raw literal `Color(0xFF069494)` is
@@ -129,12 +144,16 @@ the canonical path, the shim files can be deleted.
    dedicated, reviewed pass. Do the same for the other repeated hex literals
    (`0xFF9E9E9E`, `0xFF1A1A2E`, `0xFFF9F9F9`, …).
 
-3. **Collapse the parallel state layer.** `provider/` (Riverpod providers) duplicates
-   the role of `features/*/presentation/controllers`. Consolidate as each domain moves.
+3. **Finish collapsing the parallel state layer.** Most domain providers now live in
+   `features/*/presentation/controllers`. The remainder in `lib/provider/` is either
+   cross-cutting infra (→ move to `core/`: connectivity, network/dio, refresh, the
+   `provider.dart` barrel) or wallet-adjacent (`add_money`, `funding` — decide whether
+   they belong to `features/wallet` or their own feature).
 
-4. **Relocate stray state files.** `lib/usecases/selfie_state.dart` was moved into
-   `features/selfie/domain` in this pass; `lib/usecases/passcode_state.dart` still
-   belongs inside its feature (auth/passcode), not a top-level `usecases/`.
+4. **Relocate stray state files.** `lib/usecases/` is now empty of real code
+   (`selfie_state.dart` → `features/selfie/domain`, `passcode_state.dart` →
+   `features/passcode/domain`, both shimmed); the directory can be deleted once its two
+   shims are repointed.
 
 5. **Standardize directory names.** `presentation/Identity/` → `identity/`,
    `provider/Identity_verify/` → `identity_verify/`, `provider/P2P_transfer/` →
