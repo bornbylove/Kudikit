@@ -36,7 +36,7 @@
 // ============================================================================
 
 import 'package:kudipay/config/dio_client.dart';
-import 'package:kudipay/model/bill/bill_model.dart';
+import 'package:kudipay/features/bills/domain/entities/bill_model.dart';
 
 // ============================================================================
 // BillsException

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/model/agent/agent_model.dart';
+import 'package:kudipay/features/agent/domain/entities/agent_model.dart';
 import 'package:kudipay/shared/widgets/confirm_bottomsheet.dart';
-import 'package:kudipay/provider/cashout/cashout_provider.dart';
-import 'package:kudipay/provider/auth/auth_provider.dart';
-import 'package:kudipay/provider/wallet/wallet_provider.dart';
+import 'package:kudipay/features/cashout/presentation/controllers/cashout_provider.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_provider.dart';
 
 import 'transaction_code_screen.dart';
 

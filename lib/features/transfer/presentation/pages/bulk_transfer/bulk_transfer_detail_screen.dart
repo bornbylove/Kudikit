@@ -6,8 +6,6 @@ import 'package:kudipay/core/navigation/app_routes.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
 
-import 'package:kudipay/provider/transfer/bulk_transfer_provider.dart';
-
 class BulkTransferDetailsScreen extends ConsumerWidget {
   const BulkTransferDetailsScreen({super.key});
 

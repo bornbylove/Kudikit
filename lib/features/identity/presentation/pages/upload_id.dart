@@ -7,8 +7,8 @@ import 'package:kudipay/features/identity/domain/entities/document_data.dart';
 import 'package:kudipay/model/user/user_info.dart';
 import 'package:kudipay/features/identity/presentation/pages/confirm_info.dart';
 
-import 'package:kudipay/provider/auth/auth_provider.dart';
-import 'package:kudipay/provider/kyc/kyc_provider.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:kudipay/features/kyc/presentation/controllers/kyc_controllers.dart';
 import 'dart:io';
 
 class UploadIdCardScreen extends ConsumerWidget {

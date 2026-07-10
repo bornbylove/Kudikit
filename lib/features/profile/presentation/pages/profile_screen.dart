@@ -5,9 +5,9 @@ import 'package:kudipay/core/navigation/app_routes.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/shimmer_widget.dart';
-import 'package:kudipay/presentation/email/change_email_screen.dart';
+import 'package:kudipay/features/email/presentation/pages/change_email_screen.dart';
 
-import 'package:kudipay/presentation/notification/notification_preference_screen.dart';
+import 'package:kudipay/features/notification/presentation/pages/notification_preference_screen.dart';
 
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/provider/refresh/refresh_provider.dart';

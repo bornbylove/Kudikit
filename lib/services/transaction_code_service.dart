@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:kudipay/model/agent/agent_model.dart';
-import 'package:kudipay/model/agent/cashout_transaction_model.dart';
+import 'package:kudipay/features/agent/domain/entities/agent_model.dart';
+import 'package:kudipay/features/agent/domain/entities/cashout_transaction_model.dart';
 
 class TransactionCodeService {
   static final TransactionCodeService _instance =

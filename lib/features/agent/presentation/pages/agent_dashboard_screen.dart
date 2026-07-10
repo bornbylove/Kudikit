@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/shared_widget.dart';
-import 'package:kudipay/provider/agent/agent_registration_provider.dart';
+import 'package:kudipay/features/agent/presentation/controllers/agent_registration_provider.dart';
 
 class AgentDashboardScreen extends ConsumerWidget {
   const AgentDashboardScreen({super.key});

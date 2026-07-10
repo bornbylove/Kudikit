@@ -2,8 +2,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/presentation/linkdevice/get_verification_code_screen.dart';
-import 'package:kudipay/presentation/linkdevice/verify_id.dart';
+import 'package:kudipay/features/linkdevice/presentation/pages/get_verification_code_screen.dart';
+import 'package:kudipay/features/linkdevice/presentation/pages/verify_id.dart';
 import 'package:kudipay/provider/provider.dart';
 
 class LinkDeviceScreen extends ConsumerStatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/config/dio_client.dart';
 
-import 'package:kudipay/provider/auth/auth_provider.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
 import 'package:kudipay/services/email_change_services.dart';
 import 'package:flutter_riverpod/legacy.dart';
 // ==================== EMAIL CHANGE PROVIDER ====================

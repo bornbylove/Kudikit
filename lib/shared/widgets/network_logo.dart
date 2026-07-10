@@ -8,7 +8,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
-import 'package:kudipay/model/bill/bill_model.dart';
+import 'package:kudipay/features/bills/domain/entities/bill_model.dart';
 
 // ============================================================================
 // NetworkLogo

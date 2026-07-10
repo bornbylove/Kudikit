@@ -5,7 +5,7 @@
 export 'package:kudipay/features/wallet/presentation/pages/addmoney/add_money_screen.dart';
 export 'package:kudipay/features/wallet/presentation/pages/addmoney/cash_deposit.dart';
 export 'package:kudipay/features/wallet/presentation/pages/addmoney/top_up_with_card.dart';
-export 'package:kudipay/presentation/bankdeposit/bank_ussd_screen.dart';
-export 'package:kudipay/presentation/bankdeposit/select_bank.dart';
-export 'package:kudipay/presentation/bankdeposit/ussd_code_display_screen.dart';
-export 'package:kudipay/presentation/qrcode/qr_code_screen.dart';
+export 'package:kudipay/features/bankdeposit/presentation/pages/bank_ussd_screen.dart';
+export 'package:kudipay/features/bankdeposit/presentation/pages/select_bank.dart';
+export 'package:kudipay/features/bankdeposit/presentation/pages/ussd_code_display_screen.dart';
+export 'package:kudipay/features/qrcode/presentation/pages/qr_code_screen.dart';

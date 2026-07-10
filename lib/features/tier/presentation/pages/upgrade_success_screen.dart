@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/model/tier/tier_model.dart';
+import 'package:kudipay/features/tier/domain/entities/tier_model.dart';
 
 class UpgradeSuccessScreen extends StatelessWidget {
   final UpgradeTier tier;

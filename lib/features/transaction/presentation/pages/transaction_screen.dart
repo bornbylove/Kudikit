@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/formatters.dart';
 import 'package:kudipay/shared/widgets/shimmer_widget.dart';
-import 'package:kudipay/model/transaction/transaction_model.dart';
-import 'package:kudipay/presentation/transaction/transaction_filter_screen.dart';
-import 'package:kudipay/provider/transaction/transaction_provider.dart';
+import 'package:kudipay/features/transaction/domain/entities/transaction_model.dart';
+import 'package:kudipay/features/transaction/presentation/pages/transaction_filter_screen.dart';
+import 'package:kudipay/features/transaction/presentation/controllers/transaction_provider.dart';
 import 'package:kudipay/provider/refresh/refresh_provider.dart';
 
 class TransactionsScreen extends ConsumerStatefulWidget {

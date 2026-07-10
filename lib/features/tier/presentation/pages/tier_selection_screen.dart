@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/model/tier/tier_model.dart';
-import 'package:kudipay/presentation/tier/upgrade_tier_screen.dart';
-import 'package:kudipay/provider/tier/tier_provider.dart';
+import 'package:kudipay/features/tier/domain/entities/tier_model.dart';
+import 'package:kudipay/features/tier/presentation/pages/upgrade_tier_screen.dart';
+import 'package:kudipay/features/tier/presentation/controllers/tier_provider.dart';
 
 class TierSelectionScreen extends ConsumerWidget {
   const TierSelectionScreen({super.key});

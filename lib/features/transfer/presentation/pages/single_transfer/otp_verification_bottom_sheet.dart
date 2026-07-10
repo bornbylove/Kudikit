@@ -4,7 +4,7 @@ import 'package:kudipay/core/navigation/app_routes.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import 'package:kudipay/presentation/transfer/single_transfer/transfer_success_dialogue.dart';
+import 'package:kudipay/features/transfer/presentation/pages/single_transfer/transfer_success_dialogue.dart';
 
 class OtpVerificationBottomSheet extends ConsumerStatefulWidget {
   final double amount;

@@ -5,7 +5,7 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/model/user/user_info.dart';
 import 'package:kudipay/core/navigation/app_routes.dart';
-import 'package:kudipay/provider/auth/auth_provider.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
 
 // =============================================================================
 // ConfirmInfoScreen

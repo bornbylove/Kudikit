@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/presentation/linkdevice/account_active.dart';
+import 'package:kudipay/features/linkdevice/presentation/pages/account_active.dart';
 
 class EnableBiometricsScreen extends ConsumerWidget {
   const EnableBiometricsScreen({super.key});

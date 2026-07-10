@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:kudipay/model/agent/agent_model.dart';
+import 'package:kudipay/features/agent/domain/entities/agent_model.dart';
 
 import 'geo_service.dart';
 

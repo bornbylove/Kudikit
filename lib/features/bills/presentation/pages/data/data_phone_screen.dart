@@ -6,7 +6,7 @@ import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/shared/widgets/contact_picker_bottom_sheet.dart';
 
 import 'package:kudipay/shared/widgets/network_logo.dart';
-import 'package:kudipay/model/bill/bill_model.dart';
+import 'package:kudipay/features/bills/domain/entities/bill_model.dart';
 import 'package:kudipay/features/bills/presentation/pages/data/data_plan_screen.dart';
 
 import 'package:kudipay/provider/provider.dart';

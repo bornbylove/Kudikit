@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/provider/agent/agent_registration_provider.dart';
+import 'package:kudipay/features/agent/presentation/controllers/agent_registration_provider.dart';
 
-import 'package:kudipay/presentation/agent/agent_registration_widgets.dart';
+import 'package:kudipay/features/agent/presentation/pages/agent_registration_widgets.dart';
 
 // =============================================================================
 // Step 4: Bank Account

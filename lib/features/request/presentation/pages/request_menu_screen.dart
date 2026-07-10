@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/presentation/request/my_request_screen.dart';
-import 'package:kudipay/presentation/request/request_money_main_screen.dart';
+import 'package:kudipay/features/request/presentation/pages/my_request_screen.dart';
+import 'package:kudipay/features/request/presentation/pages/request_money_main_screen.dart';
 
 class RequestMenuScreen extends StatelessWidget {
   const RequestMenuScreen({super.key});

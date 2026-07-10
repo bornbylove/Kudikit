@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
-import 'package:kudipay/presentation/transfer/bulk_transfer/bulk_transfer_success.dart';
-import 'package:kudipay/provider/transfer/bulk_transfer_provider.dart';
+import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_success.dart';
 
 class BulkTransferPinDialog extends ConsumerStatefulWidget {
   const BulkTransferPinDialog({super.key});

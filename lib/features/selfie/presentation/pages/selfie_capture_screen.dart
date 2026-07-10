@@ -5,7 +5,7 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:kudipay/presentation/selfie/face_overlay.dart';
+import 'package:kudipay/features/selfie/presentation/pages/face_overlay.dart';
 import 'package:kudipay/features/identity/presentation/pages/choose_id.dart';
 import 'package:permission_handler/permission_handler.dart';
 

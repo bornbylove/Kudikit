@@ -18,7 +18,7 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/shared/widgets/network_logo.dart';
 import 'package:kudipay/shared/widgets/shimmer_widget.dart';
-import 'package:kudipay/model/bill/bill_model.dart';
+import 'package:kudipay/features/bills/domain/entities/bill_model.dart';
 import 'package:kudipay/features/bills/presentation/pages/bill_transaction_detail.dart';
 import 'package:kudipay/provider/provider.dart';
 

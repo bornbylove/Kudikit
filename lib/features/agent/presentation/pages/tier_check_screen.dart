@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/page_transition.dart';
-import 'package:kudipay/presentation/kyc/kyc_flow_manager.dart';
-import 'package:kudipay/provider/tier/tier_provider.dart';
-import 'package:kudipay/model/tier/tier_model.dart';
+import 'package:kudipay/features/kyc/presentation/pages/kyc_flow_manager.dart';
+import 'package:kudipay/features/tier/presentation/controllers/tier_provider.dart';
+import 'package:kudipay/features/tier/domain/entities/tier_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:kudipay/presentation/agent/agent_registration_flow.dart';
-import 'package:kudipay/presentation/agent/agent_registration_widgets.dart';
+import 'package:kudipay/features/agent/presentation/pages/agent_registration_flow.dart';
+import 'package:kudipay/features/agent/presentation/pages/agent_registration_widgets.dart';
 
 // -- Screen: Tier 2 Required Gate ----------------------------------------------
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/shared_widget.dart';
-import 'package:kudipay/model/agent/agent_application_model.dart';
-import 'package:kudipay/provider/agent/agent_registration_provider.dart';
+import 'package:kudipay/features/agent/domain/entities/agent_application_model.dart';
+import 'package:kudipay/features/agent/presentation/controllers/agent_registration_provider.dart';
 
 class Step1BusinessInfoScreen extends ConsumerStatefulWidget {
   const Step1BusinessInfoScreen({super.key});

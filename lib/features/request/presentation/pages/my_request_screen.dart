@@ -4,9 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/shimmer_widget.dart';
-import 'package:kudipay/presentation/request/request_detail_screen.dart';
-import 'package:kudipay/presentation/request/request_money_main_screen.dart';
-import 'package:kudipay/provider/request/request_provider.dart';
+import 'package:kudipay/features/request/presentation/pages/request_detail_screen.dart';
+import 'package:kudipay/features/request/presentation/pages/request_money_main_screen.dart';
+import 'package:kudipay/features/request/presentation/controllers/request_provider.dart';
 import 'package:kudipay/features/request/domain/entities/request_model.dart';
 
 // --- Colour helpers ------------------------------------------------------------

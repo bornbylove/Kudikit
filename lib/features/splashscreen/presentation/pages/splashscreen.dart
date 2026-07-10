@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kudipay/shared/widgets/page_transition.dart';
 import 'package:kudipay/features/auth/presentation/pages/login_page.dart';
-import 'package:kudipay/presentation/onboarding/onboarding_screen.dart';
-import 'package:kudipay/presentation/homescreen/home_screen.dart';
-import 'package:kudipay/presentation/kyc/kyc_flow_manager.dart';
-import 'package:kudipay/provider/auth/auth_provider.dart';
-import 'package:kudipay/provider/onboarding/onboarding_provider.dart';
+import 'package:kudipay/features/onboarding/presentation/pages/onboarding_screen.dart';
+import 'package:kudipay/features/homescreen/presentation/pages/home_screen.dart';
+import 'package:kudipay/features/kyc/presentation/pages/kyc_flow_manager.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:kudipay/features/onboarding/presentation/controllers/onboarding_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});

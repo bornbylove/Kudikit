@@ -6,10 +6,10 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/transfer/domain/entities/transfer_entities.dart';
 import 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
 import 'package:kudipay/shared/widgets/contact_picker_bottom_sheet.dart';
-import 'package:kudipay/presentation/qrcode/qr_code_screen.dart';
+import 'package:kudipay/features/qrcode/presentation/pages/qr_code_screen.dart';
 import 'package:kudipay/provider/provider.dart';
-import 'package:kudipay/presentation/transfer/single_transfer/transfer_amount_screen.dart';
-import 'package:kudipay/presentation/transfer/single_transfer/bank_selection_bottom_sheet.dart';
+import 'package:kudipay/features/transfer/presentation/pages/single_transfer/transfer_amount_screen.dart';
+import 'package:kudipay/features/transfer/presentation/pages/single_transfer/bank_selection_bottom_sheet.dart';
 
 class TransferRecipientScreen extends ConsumerStatefulWidget {
   const TransferRecipientScreen({super.key});

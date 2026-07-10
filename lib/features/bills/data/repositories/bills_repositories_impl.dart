@@ -16,7 +16,7 @@
 import 'package:kudipay/features/bills/domain/entities/bill_entities.dart';
 import 'package:kudipay/features/bills/domain/usecases/repositories/bills_repository.dart';
 
-import 'package:kudipay/model/bill/bill_model.dart';
+import 'package:kudipay/features/bills/domain/entities/bill_model.dart';
 import 'package:kudipay/services/bill_service.dart';
 
 class BillsRepositoryImpl implements BillsRepository {

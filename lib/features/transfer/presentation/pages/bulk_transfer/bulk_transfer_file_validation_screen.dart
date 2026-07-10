@@ -3,10 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
-import 'package:kudipay/model/transfer/bulk_transfer_model.dart';
-import 'package:kudipay/presentation/transfer/bulk_transfer/bulk_transfer_preview.dart';
-import 'package:kudipay/presentation/transfer/bulk_transfer/bulk_transfer_upload_file_screen.dart';
-import 'package:kudipay/provider/transfer/bulk_transfer_provider.dart';
+import 'package:kudipay/features/transfer/domain/entities/bulk_transfer_model.dart';
+import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_preview.dart';
+import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_upload_file_screen.dart';
 
 class BulkTransferFileValidationScreen extends ConsumerStatefulWidget {
   final String fileName;

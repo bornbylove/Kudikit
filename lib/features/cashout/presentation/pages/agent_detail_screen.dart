@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kudipay/model/agent/agent_model.dart';
+import 'package:kudipay/features/agent/domain/entities/agent_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'enter_amount_screen.dart';
 

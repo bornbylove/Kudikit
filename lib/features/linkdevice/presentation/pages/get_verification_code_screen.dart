@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/presentation/linkdevice/sign_in_verify_email_screen.dart';
+import 'package:kudipay/features/linkdevice/presentation/pages/sign_in_verify_email_screen.dart';
 import 'package:kudipay/provider/provider.dart';
 
 class GetVerificationCodeScreen extends ConsumerStatefulWidget {

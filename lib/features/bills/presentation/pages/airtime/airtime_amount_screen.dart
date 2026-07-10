@@ -21,11 +21,11 @@ import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/shared/widgets/network_logo.dart';
-import 'package:kudipay/model/bill/bill_model.dart';
+import 'package:kudipay/features/bills/domain/entities/bill_model.dart';
 import 'package:kudipay/features/bills/presentation/pages/bill_transaction_detail.dart';
-import 'package:kudipay/provider/bill/bill_provider.dart';
-import 'package:kudipay/provider/kyc/kyc_provider.dart';
-import 'package:kudipay/provider/wallet/wallet_provider.dart';
+import 'package:kudipay/features/bills/presentation/controllers/bills_controllers.dart';
+import 'package:kudipay/features/kyc/presentation/controllers/kyc_controllers.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_provider.dart';
 
 class AirtimeAmountScreen extends ConsumerStatefulWidget {
   const AirtimeAmountScreen({super.key});

@@ -4,8 +4,8 @@ import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/model/bankmodel/bank_model.dart';
-import 'package:kudipay/presentation/bankdeposit/select_bank.dart';
-import 'package:kudipay/presentation/bankdeposit/ussd_code_display_screen.dart';
+import 'package:kudipay/features/bankdeposit/presentation/pages/select_bank.dart';
+import 'package:kudipay/features/bankdeposit/presentation/pages/ussd_code_display_screen.dart';
 import 'package:kudipay/provider/funding/funding_provider.dart';
 
 class BankUssdScreen extends ConsumerStatefulWidget {

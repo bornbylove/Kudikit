@@ -1,4 +1,4 @@
-import 'package:kudipay/usecases/passcode_state.dart';
+import 'package:kudipay/features/passcode/domain/passcode_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
 class PasscodeNotifier extends StateNotifier<PasscodeState> {

@@ -15,7 +15,7 @@ import 'package:kudipay/model/user/user_model_extension.dart';
 import '../../domain/auth_state.dart';
 import '../../domain/entities/user_entities.dart';
 
-export 'package:kudipay/model/auth/auth_state.dart';
+export 'package:kudipay/features/auth/domain/auth_state.dart';
 
 // =============================================================================
 // Dependency providers

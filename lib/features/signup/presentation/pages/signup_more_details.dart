@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
-import 'package:kudipay/presentation/tribe/choose_tribe.dart';
+import 'package:kudipay/features/tribe/presentation/pages/choose_tribe.dart';
 import 'package:kudipay/provider/provider.dart';
 
 class KnowYouBetterForm extends ConsumerStatefulWidget {

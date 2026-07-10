@@ -1,4 +1,4 @@
-import 'package:kudipay/model/request/request_model.dart';
+import 'package:kudipay/features/request/domain/entities/request_model.dart';
 import 'package:kudipay/model/user/user_info.dart';
 
 /// Notification preference categories used in routing args.

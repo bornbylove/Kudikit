@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/provider/request/request_provider.dart';
+import 'package:kudipay/features/request/presentation/controllers/request_provider.dart';
 import 'package:kudipay/features/request/domain/entities/request_model.dart';
 
 // ─── Colours ───────────────────────────────────────────────────────────────────

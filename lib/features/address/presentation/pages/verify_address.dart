@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/model/address/nigeria_state.dart';
+import 'package:kudipay/features/address/domain/entities/nigeria_state.dart';
 
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/features/identity/presentation/pages/upload_id.dart';

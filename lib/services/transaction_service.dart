@@ -13,7 +13,7 @@
 // interceptor chain).
 
 import 'package:kudipay/config/dio_client.dart';
-import 'package:kudipay/model/transaction/transaction_model.dart';
+import 'package:kudipay/features/transaction/domain/entities/transaction_model.dart';
 
 class TransactionService {
   final DioClient _client;

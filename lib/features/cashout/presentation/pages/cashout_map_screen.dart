@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:kudipay/model/agent/agent_model.dart';
-import 'package:kudipay/presentation/cashout/agent_detail_screen.dart';
+import 'package:kudipay/features/agent/domain/entities/agent_model.dart';
+import 'package:kudipay/features/cashout/presentation/pages/agent_detail_screen.dart';
 import 'package:kudipay/shared/widgets/agent_list_tile.dart';
-import 'package:kudipay/provider/cashout/cashout_provider.dart';
+import 'package:kudipay/features/cashout/presentation/controllers/cashout_provider.dart';
 
 class CashOutMapScreen extends ConsumerStatefulWidget {
   const CashOutMapScreen({super.key});

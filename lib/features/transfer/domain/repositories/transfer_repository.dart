@@ -1,7 +1,7 @@
 // lib/features/transfer/domain/repositories/transfer_repository.dart
 
 import 'package:kudipay/features/transfer/domain/entities/transfer_entities.dart';
-import 'package:kudipay/model/transfer/bulk_transfer_model.dart';
+import 'package:kudipay/features/transfer/domain/entities/bulk_transfer_model.dart';
 
 abstract interface class TransferRepository {
   /// Validates an account number and returns recipient info.

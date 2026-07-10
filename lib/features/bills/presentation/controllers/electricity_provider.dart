@@ -12,7 +12,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/config/dio_client.dart';
 import 'package:kudipay/core/providers/core_providers.dart';
-import 'package:kudipay/model/electricity/electricity_model.dart';
+import 'package:kudipay/features/bills/domain/entities/electricity_model.dart';
 
 // =============================================================================
 // Step enum

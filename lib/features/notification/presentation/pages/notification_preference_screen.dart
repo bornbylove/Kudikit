@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/shimmer_widget.dart';
 import 'package:kudipay/core/navigation/app_routes.dart';
-import 'package:kudipay/presentation/notification/notification_category_screen.dart';
-import 'package:kudipay/presentation/notification/notification_preferences.dart';
+import 'package:kudipay/features/notification/presentation/pages/notification_category_screen.dart';
+import 'package:kudipay/features/notification/presentation/pages/notification_preferences.dart';
 import 'package:kudipay/provider/provider.dart';
 
 class NotificationPreferenceScreen extends ConsumerWidget {

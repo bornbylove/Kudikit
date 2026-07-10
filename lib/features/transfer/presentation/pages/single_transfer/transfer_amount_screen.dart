@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/features/transfer/domain/entities/transfer_entities.dart';
-import 'package:kudipay/presentation/transfer/single_transfer/confirm_transfer_bottom_sheet.dart';
+import 'package:kudipay/features/transfer/presentation/pages/single_transfer/confirm_transfer_bottom_sheet.dart';
 
-import 'package:kudipay/presentation/transfer/single_transfer/transfer_success_dialogue.dart';
+import 'package:kudipay/features/transfer/presentation/pages/single_transfer/transfer_success_dialogue.dart';
 import 'package:kudipay/provider/provider.dart';
 
 class TransferAmountScreen extends ConsumerStatefulWidget {

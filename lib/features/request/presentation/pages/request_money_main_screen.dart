@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/shared/widgets/contact_list_item.dart';
 import 'package:kudipay/shared/widgets/recipient_tab.dart';
-import 'package:kudipay/model/request/request_model.dart';
-import 'package:kudipay/presentation/request/select_recipient_screen.dart';
+import 'package:kudipay/features/request/domain/entities/request_model.dart';
+import 'package:kudipay/features/request/presentation/pages/select_recipient_screen.dart';
 
 class RequestMoneyMainScreen extends StatefulWidget {
   const RequestMoneyMainScreen({super.key});

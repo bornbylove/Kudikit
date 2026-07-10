@@ -4,14 +4,14 @@ import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/core/navigation/navigation_helpers.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/model/tier/tier_model.dart';
+import 'package:kudipay/features/tier/domain/entities/tier_model.dart';
 import 'package:kudipay/features/identity/presentation/pages/choose_id.dart';
 import 'package:kudipay/features/identity/presentation/pages/upload_id.dart';
-import 'package:kudipay/presentation/address/verify_address.dart';
-import 'package:kudipay/presentation/selfie/selfie_instruction.dart';
-import 'package:kudipay/provider/auth/auth_provider.dart';
+import 'package:kudipay/features/address/presentation/pages/verify_address.dart';
+import 'package:kudipay/features/selfie/presentation/pages/selfie_instruction.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
 import 'package:kudipay/provider/connectivity/connectivity_provider.dart';
-import 'package:kudipay/provider/tier/tier_provider.dart';
+import 'package:kudipay/features/tier/presentation/controllers/tier_provider.dart';
 
 // =============================================================================
 // KycFlowManager

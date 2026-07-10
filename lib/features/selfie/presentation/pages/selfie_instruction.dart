@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/presentation/selfie/selfie_capture_screen.dart';
+import 'package:kudipay/features/selfie/presentation/pages/selfie_capture_screen.dart';
 
 class SelfieInstructionsScreen extends ConsumerWidget {
   const SelfieInstructionsScreen({super.key});

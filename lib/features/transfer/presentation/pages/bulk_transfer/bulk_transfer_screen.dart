@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/presentation/transfer/bulk_transfer/bulk_transfer_template_screen.dart';
-import 'package:kudipay/presentation/transfer/bulk_transfer/bulk_transfer_upload_file_screen.dart';
-import 'package:kudipay/presentation/transfer/single_transfer/add_recipient_screen.dart';
+import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_template_screen.dart';
+import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_upload_file_screen.dart';
+import 'package:kudipay/features/transfer/presentation/pages/single_transfer/add_recipient_screen.dart';
 
 class BulkTransferScreen extends ConsumerWidget {
   const BulkTransferScreen({super.key});

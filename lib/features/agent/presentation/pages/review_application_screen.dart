@@ -8,9 +8,9 @@ import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/core/utils/formatters.dart';
 import 'package:kudipay/shared/widgets/page_transition.dart';
-import 'package:kudipay/provider/agent/agent_registration_provider.dart';
+import 'package:kudipay/features/agent/presentation/controllers/agent_registration_provider.dart';
 
-import 'package:kudipay/presentation/agent/agent_registration_widgets.dart';
+import 'package:kudipay/features/agent/presentation/pages/agent_registration_widgets.dart';
 
 class ReviewApplicationScreen extends ConsumerWidget {
   const ReviewApplicationScreen({super.key});

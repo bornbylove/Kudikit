@@ -24,7 +24,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/core/providers/core_providers.dart';
-import 'package:kudipay/model/bill/bill_model.dart';
+import 'package:kudipay/features/bills/domain/entities/bill_model.dart';
 import 'package:kudipay/features/bills/data/repositories/bills_repositories_impl.dart';
 import 'package:kudipay/features/bills/domain/entities/bill_entities.dart';
 import 'package:kudipay/features/bills/domain/usecases/repositories/bills_repository.dart';
@@ -32,8 +32,8 @@ import 'package:kudipay/features/bills/domain/usecases/bills_usecases.dart';
 import 'package:kudipay/services/bill_service.dart';
 
 // Re-export cable TV and electricity providers unchanged
-export 'package:kudipay/provider/cable_tv/cable_tv_provider.dart';
-export 'package:kudipay/provider/electricity/electricity_provider.dart';
+export 'package:kudipay/features/bills/presentation/controllers/cable_tv_provider.dart';
+export 'package:kudipay/features/bills/presentation/controllers/electricity_provider.dart';
 
 // =============================================================================
 // DI — FIX #4: BillsService now receives DioClient, not raw auth token

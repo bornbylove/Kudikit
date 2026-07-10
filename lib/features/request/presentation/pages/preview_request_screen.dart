@@ -12,8 +12,8 @@ import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/kudi_appbar.dart';
 import 'package:kudipay/shared/widgets/contact_avatar.dart';
-import 'package:kudipay/model/request/request_model.dart';
-import 'package:kudipay/provider/request/request_provider.dart';
+import 'package:kudipay/features/request/domain/entities/request_model.dart';
+import 'package:kudipay/features/request/presentation/controllers/request_provider.dart';
 
 class PreviewRequestScreen extends ConsumerStatefulWidget {
   const PreviewRequestScreen({super.key});

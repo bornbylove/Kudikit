@@ -7,7 +7,7 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/model/user/user_model.dart';
-import 'package:kudipay/presentation/linkdevice/link_device_screen.dart';
+import 'package:kudipay/features/linkdevice/presentation/pages/link_device_screen.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/services/api_services.dart';
 import 'package:kudipay/services/storage_services.dart';

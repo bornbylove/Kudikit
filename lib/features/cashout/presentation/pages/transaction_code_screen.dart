@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/model/agent/cashout_transaction_model.dart';
-import 'package:kudipay/provider/cashout/cashout_provider.dart';
+import 'package:kudipay/features/agent/domain/entities/cashout_transaction_model.dart';
+import 'package:kudipay/features/cashout/presentation/controllers/cashout_provider.dart';
 import 'package:kudipay/services/transaction_code_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 

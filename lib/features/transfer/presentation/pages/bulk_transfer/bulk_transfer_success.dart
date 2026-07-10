@@ -4,8 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
-import 'package:kudipay/presentation/transfer/bulk_transfer/bulk_transfer_detail_screen.dart';
-import 'package:kudipay/provider/transfer/bulk_transfer_provider.dart';
+import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_detail_screen.dart';
 
 class BulkTransferSuccessDialog extends ConsumerStatefulWidget {
   const BulkTransferSuccessDialog({super.key});

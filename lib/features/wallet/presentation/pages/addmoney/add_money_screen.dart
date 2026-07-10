@@ -6,8 +6,8 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/model/addmoney/addmoney.dart';
 import 'package:kudipay/features/wallet/presentation/pages/addmoney/cash_deposit.dart';
 import 'package:kudipay/features/wallet/presentation/pages/addmoney/top_up_with_card.dart';
-import 'package:kudipay/presentation/bankdeposit/bank_ussd_screen.dart';
-import 'package:kudipay/presentation/qrcode/qr_code_screen.dart';
+import 'package:kudipay/features/bankdeposit/presentation/pages/bank_ussd_screen.dart';
+import 'package:kudipay/features/qrcode/presentation/pages/qr_code_screen.dart';
 import 'package:kudipay/provider/funding/funding_provider.dart';
 import 'package:kudipay/provider/refresh/refresh_provider.dart';
 

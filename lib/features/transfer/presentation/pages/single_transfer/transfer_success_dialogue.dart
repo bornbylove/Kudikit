@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
-import 'package:kudipay/presentation/transfer/single_transfer/transaction_detail.dart';
-import 'package:kudipay/features/transfer/presentation/controllers/p2p_transfer_provider.dart';
+import 'package:kudipay/features/transfer/presentation/pages/single_transfer/transaction_detail.dart';
 
 /// Full-screen success (or error) page shown after a transfer completes.
 /// Navigated to via [Navigator.pushReplacement] from [ProcessingPaymentScreen].

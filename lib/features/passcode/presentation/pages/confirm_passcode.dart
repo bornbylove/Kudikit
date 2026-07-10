@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/usecases/passcode_state.dart';
+import 'package:kudipay/features/passcode/domain/passcode_state.dart';
 import 'package:kudipay/core/navigation/navigation_helpers.dart';
-import 'package:kudipay/presentation/passcode/numeric_keypad.dart';
-import 'package:kudipay/presentation/passcode/passcode_dots.dart';
-import 'package:kudipay/presentation/passcode/passcode_notifier.dart';
+import 'package:kudipay/features/passcode/presentation/pages/numeric_keypad.dart';
+import 'package:kudipay/features/passcode/presentation/pages/passcode_dots.dart';
+import 'package:kudipay/features/passcode/presentation/controllers/passcode_notifier.dart';
 
 final passcodeProvider =
     StateNotifierProvider<PasscodeNotifier, PasscodeState>((ref) {

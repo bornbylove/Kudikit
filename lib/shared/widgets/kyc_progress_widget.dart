@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/navigation/app_routes.dart';
-import 'package:kudipay/provider/auth/auth_provider.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
 
 class KycProgressWidget extends ConsumerWidget {
   final bool showNavigationButtons;

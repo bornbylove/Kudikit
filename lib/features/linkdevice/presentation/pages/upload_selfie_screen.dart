@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:kudipay/presentation/linkdevice/verification_in_progress.dart';
+import 'package:kudipay/features/linkdevice/presentation/pages/verification_in_progress.dart';
 import 'dart:io';
 
 class UploadSelfieScreen extends ConsumerStatefulWidget {

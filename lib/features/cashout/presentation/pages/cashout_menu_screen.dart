@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/presentation/agent/become_agent_screen.dart';
-import 'package:kudipay/presentation/cashout/cashout_map_screen.dart';
+import 'package:kudipay/features/agent/presentation/pages/become_agent_screen.dart';
+import 'package:kudipay/features/cashout/presentation/pages/cashout_map_screen.dart';
 
 class CashoutMenuScreen extends StatelessWidget {
   const CashoutMenuScreen({super.key});

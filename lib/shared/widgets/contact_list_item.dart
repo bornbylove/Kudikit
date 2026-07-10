@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 
-import 'package:kudipay/model/request/request_model.dart';
+import 'package:kudipay/features/request/domain/entities/request_model.dart';
 
 import 'contact_avatar.dart';
 

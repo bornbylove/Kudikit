@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/model/tribe/tribe_card.dart';
-import 'package:kudipay/presentation/kyc/kyc_flow_manager.dart';
-import 'package:kudipay/provider/auth/auth_provider.dart';
-import 'package:kudipay/provider/tier/tier_provider.dart';
+import 'package:kudipay/features/tribe/domain/entities/tribe_card.dart';
+import 'package:kudipay/features/kyc/presentation/pages/kyc_flow_manager.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:kudipay/features/tier/presentation/controllers/tier_provider.dart';
 
 class TribeScreen extends ConsumerStatefulWidget {
   const TribeScreen({super.key});

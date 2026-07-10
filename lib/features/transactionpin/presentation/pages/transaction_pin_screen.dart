@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/presentation/account_ready/account_ready.dart';
-import 'package:kudipay/provider/transactionpin/transaction_pin_provider.dart';
+import 'package:kudipay/features/account_ready/presentation/pages/account_ready.dart';
+import 'package:kudipay/features/transactionpin/presentation/controllers/transaction_pin_provider.dart';
 
 class CreateTransactionPinScreen extends ConsumerStatefulWidget {
   /// Set to true when called from Settings (change PIN) to use different nav.

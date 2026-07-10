@@ -4,8 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'dart:io';
 
-import 'package:kudipay/model/tier/tier_model.dart';
-import 'package:kudipay/presentation/tier/upgrade_success_screen.dart';
+import 'package:kudipay/features/tier/domain/entities/tier_model.dart';
+import 'package:kudipay/features/tier/presentation/pages/upgrade_success_screen.dart';
 
 class UploadDocumentScreen extends StatefulWidget {
   final UpgradeTier tier;

@@ -4,8 +4,8 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/kudi_appbar.dart';
 import 'package:kudipay/shared/widgets/contact_list_item.dart';
 import 'package:kudipay/shared/widgets/recipient_tab.dart';
-import 'package:kudipay/presentation/request/request_money_screen.dart';
-import 'package:kudipay/provider/request/request_provider.dart';
+import 'package:kudipay/features/request/presentation/pages/request_money_screen.dart';
+import 'package:kudipay/features/request/presentation/controllers/request_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/features/request/domain/entities/request_model.dart';
 

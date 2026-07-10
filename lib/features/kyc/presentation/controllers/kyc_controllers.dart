@@ -19,7 +19,7 @@ import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 import 'package:kudipay/features/kyc/domain/repositories/kyc_repositories.dart';
 
 import 'package:kudipay/features/kyc/domain/usecases/kyc_usecases.dart';
-import 'package:kudipay/model/address/nigeria_state.dart';
+import 'package:kudipay/features/address/domain/entities/nigeria_state.dart';
 import 'package:kudipay/features/identity/domain/entities/document_data.dart';
 import 'package:kudipay/model/user/user_info.dart';
 

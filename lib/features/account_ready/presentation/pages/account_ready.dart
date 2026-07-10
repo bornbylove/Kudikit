@@ -5,9 +5,9 @@ import 'package:kudipay/core/navigation/app_routes.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 
-import 'package:kudipay/model/tier/tier_model.dart';
-import 'package:kudipay/provider/tier/tier_provider.dart';
-import 'package:kudipay/provider/wallet/wallet_provider.dart';
+import 'package:kudipay/features/tier/domain/entities/tier_model.dart';
+import 'package:kudipay/features/tier/presentation/controllers/tier_provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_provider.dart';
 
 // =============================================================================
 // AccountReadyScreen

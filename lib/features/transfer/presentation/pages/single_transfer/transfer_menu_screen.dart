@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/presentation/transfer/bulk_transfer/bulk_transfer_screen.dart';
+import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/navigation/app_routes.dart';

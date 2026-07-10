@@ -1,9 +1,9 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/presentation/homescreen/home_screen.dart';
-import 'package:kudipay/presentation/profile/profile_screen.dart';
-import 'package:kudipay/presentation/support/support_screen.dart';
-import 'package:kudipay/presentation/transaction/transaction_screen.dart';
+import 'package:kudipay/features/homescreen/presentation/pages/home_screen.dart';
+import 'package:kudipay/features/profile/presentation/pages/profile_screen.dart';
+import 'package:kudipay/features/support/presentation/pages/support_screen.dart';
+import 'package:kudipay/features/transaction/presentation/pages/transaction_screen.dart';
 import 'package:kudipay/provider/refresh/refresh_provider.dart';
 
 // BottomNavBar upgraded to ConsumerStatefulWidget so it can:

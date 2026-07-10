@@ -15,10 +15,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/transaction_pin_bottom_sheet.dart';
-import 'package:kudipay/model/cable_tv/cable_tv_model.dart';
+import 'package:kudipay/features/bills/domain/entities/cable_tv_model.dart';
 import 'package:kudipay/features/bills/presentation/pages/bill_payment_success.dart';
-import 'package:kudipay/provider/cable_tv/cable_tv_provider.dart';
-import 'package:kudipay/provider/wallet/wallet_provider.dart';
+import 'package:kudipay/features/bills/presentation/controllers/cable_tv_provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_provider.dart';
 
 // ============================================================================
 // CableTvBillerScreen  (Image 12)

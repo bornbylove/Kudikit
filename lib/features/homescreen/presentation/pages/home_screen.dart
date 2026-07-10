@@ -10,9 +10,9 @@ import 'package:kudipay/features/bills/presentation/pages/airtime/airtime_phone_
 import 'package:kudipay/features/bills/presentation/pages/cable_tv/cable_tv_screen.dart';
 import 'package:kudipay/features/bills/presentation/pages/data/data_phone_screen.dart';
 import 'package:kudipay/features/bills/presentation/pages/electricity/electricity_screen.dart';
-import 'package:kudipay/presentation/cashout/cashout_menu_screen.dart';
-import 'package:kudipay/presentation/request/request_menu_screen.dart';
-import 'package:kudipay/presentation/transfer/single_transfer/transfer_menu_screen.dart';
+import 'package:kudipay/features/cashout/presentation/pages/cashout_menu_screen.dart';
+import 'package:kudipay/features/request/presentation/pages/request_menu_screen.dart';
+import 'package:kudipay/features/transfer/presentation/pages/single_transfer/transfer_menu_screen.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/provider/refresh/refresh_provider.dart';
 import 'package:kudipay/core/theme/app_theme.dart';

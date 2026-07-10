@@ -10,7 +10,7 @@ import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/services/api_services.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/core/navigation/app_routes.dart';
-import 'package:kudipay/presentation/signup/signup_verify.dart';
+import 'package:kudipay/features/signup/presentation/pages/signup_verify.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
