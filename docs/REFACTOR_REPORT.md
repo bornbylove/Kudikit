@@ -98,20 +98,30 @@ re-exports the canonical router; `model/auth/auth_state.dart` shims to
 `features/auth/domain`). Routing is cleanly split into `app_route.dart` (router
 logic) vs `app_routes.dart` (route-name constants) — **not** a duplicate.
 
-> A full folder restructure was **deliberately not attempted** in this pass: moving
-> ~180 files touches nearly every import in the app and cannot be fully validated
-> without device runs. It is high-risk and conflicts with the "no breaking changes"
-> constraint. The recommended path below is incremental and verifiable per step.
+## Feature migration — progress
+
+Eight domains have now been relocated into `lib/features/<domain>/`, each as its own
+green, per-domain commit (screens → `presentation/pages`, providers/notifiers →
+`presentation/controllers`, models → `domain/entities`), with one-line barrel
+re-export shims left at every legacy path so importers keep compiling unchanged:
+
+`selfie · notification · tier · request · cashout · transaction · linkdevice · agent`
+
+`flutter analyze` is clean after each. **Remaining legacy domains** to migrate the
+same way: `address · bankdeposit · email · Identity · intro · onboarding · otp ·
+passcode · profile · qrcode · splashscreen · support · ticket · tribe · homescreen`
+plus their `provider/*` counterparts. Once every importer of a shim is repointed to
+the canonical path, the shim files can be deleted.
+
+> Note: the `request` domain used **relative** imports (`../../model/...`) rather than
+> `package:` imports — these must be converted to absolute paths when moved, since
+> barrel shims only cover `package:` imports. Watch for this in remaining domains.
 
 ## Recommendations (future scalability)
 
-1. **Finish the feature migration, one domain at a time.** For each remaining domain
-   (agent, cashout, request, tier, transaction, linkdevice, selfie, notification, …):
-   move its screens → `features/<domain>/presentation/pages`, its
-   `provider/<domain>` → `features/<domain>/presentation/controllers`, and its
-   `model/<domain>` → `features/<domain>/domain/entities`. Leave a one-line barrel
-   re-export at the old path (as already done for auth), run `flutter analyze`, and
-   commit per domain. This keeps every step green.
+1. **Continue the feature migration** for the remaining domains listed above, using
+   the same barrel-shim + per-domain-commit procedure. Run `flutter analyze` after
+   **each** domain (not batched) — it catches broken relative imports immediately.
 
 2. **Centralize the brand palette (biggest DRY win).** `AppColors.primaryTeal` is
    defined in `core/theme/app_theme.dart` but the raw literal `Color(0xFF069494)` is
@@ -122,8 +132,9 @@ logic) vs `app_routes.dart` (route-name constants) — **not** a duplicate.
 3. **Collapse the parallel state layer.** `provider/` (Riverpod providers) duplicates
    the role of `features/*/presentation/controllers`. Consolidate as each domain moves.
 
-4. **Relocate stray state files.** `lib/usecases/passcode_state.dart` and
-   `selfie_state.dart` belong inside their features, not a top-level `usecases/`.
+4. **Relocate stray state files.** `lib/usecases/selfie_state.dart` was moved into
+   `features/selfie/domain` in this pass; `lib/usecases/passcode_state.dart` still
+   belongs inside its feature (auth/passcode), not a top-level `usecases/`.
 
 5. **Standardize directory names.** `presentation/Identity/` → `identity/`,
    `provider/Identity_verify/` → `identity_verify/`, `provider/P2P_transfer/` →
