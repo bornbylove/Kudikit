@@ -123,20 +123,25 @@ Notable handling:
 - Domain **providers** for `bills` (bill/cable_tv/electricity), `wallet`, and
   `linkdevice` (device_linking) were consolidated into their features too.
 
-### Remaining (state layer only — no screens left)
-Cross-cutting infrastructure providers intentionally left in `lib/provider/` because
-they are **not** domain features and belong in `core/`: `connectivity`, `network/dio`,
-`refresh`, the `provider.dart` aggregator barrel, plus `add_money`/`funding` (wallet-
-adjacent, boundary needs a decision) and cross-cutting models (`bankmodel`, `device`,
-`user`, `addmoney`). These need dedup/ownership review, not a mechanical move.
+### Shims deleted — `lib/presentation/` and `lib/usecases/` are gone
+All ~147 barrel re-export shims have since been **deleted** and every importer
+repointed directly to its canonical `features/` path (shim chains resolved, the
+`provider.dart` aggregator barrel rewritten to export canonical controllers, resulting
+duplicate imports de-duped). `flutter analyze` clean, app builds.
+
+### Remaining (state layer only — no screens, no shims left)
+Cross-cutting infrastructure still under `lib/provider/` because it is **not** a domain
+feature and belongs in `core/`: `connectivity`, `network/dio`, `refresh`, the
+`provider.dart` aggregator barrel, plus `add_money`/`funding` (wallet-adjacent, boundary
+needs a decision). Cross-cutting models remain in `lib/model/` (`bankmodel`, `device`,
+`user/*`, `addmoney`) and real services in `lib/services/`. These need dedup/ownership
+review, not a mechanical move.
 
 ## Recommendations (future scalability)
 
-1. **Delete the shims once importers are repointed.** Every legacy `presentation/`,
-   `provider/`, and `model/` path is now a shim. In a follow-up, repoint each importer
-   to the canonical `features/` path (grep-and-replace, verify with `analyze`), then
-   delete the shim files — this removes `lib/presentation/`, `lib/usecases/`, and most
-   of `lib/model/` and `lib/provider/` entirely.
+1. ✅ **Shims deleted.** All migration shims were repointed and removed;
+   `lib/presentation/` and `lib/usecases/` no longer exist. Only cross-cutting infra
+   and shared models remain in `lib/provider/` and `lib/model/` (see above).
 
 2. **Centralize the brand palette (biggest DRY win).** `AppColors.primaryTeal` is
    defined in `core/theme/app_theme.dart` but the raw literal `Color(0xFF069494)` is
