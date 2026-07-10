@@ -1,3 +1,4 @@
 // lib/provider/transfer/bulk_transfer_provider.dart
-// ⚠️ MIGRATION SHIM — do not add new code here.
-export 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
+// Backward-compatibility re-export — canonical location:
+//   lib/features/transfer/presentation/controllers/bulk_transfer_provider.dart
+export 'package:kudipay/features/transfer/presentation/controllers/bulk_transfer_provider.dart';
