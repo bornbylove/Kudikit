@@ -11,6 +11,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -85,7 +86,7 @@ PreferredSizeWidget _receiptAppBar(BuildContext context) => AppBar(
           child: IconButton(
             icon: Icon(
               Icons.headset_mic_outlined,
-              color: const Color(0xFF069494),
+              color: AppColors.primaryTeal,
               size: AppLayout.scaleWidth(context, 24),
             ),
             onPressed: () {/* Contact support */},
@@ -396,7 +397,7 @@ class _DetailsCard extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: const Text('Transaction ID copied'),
-                        backgroundColor: const Color(0xFF069494),
+                        backgroundColor: AppColors.primaryTeal,
                         behavior: SnackBarBehavior.floating,
                         duration: const Duration(seconds: 2),
                         shape: RoundedRectangleBorder(
@@ -519,19 +520,20 @@ class _ActionButtons extends StatelessWidget {
               icon: Icon(
                 Icons.share_outlined,
                 size: AppLayout.scaleWidth(context, 18),
-                color: const Color(0xFF069494),
+                color: AppColors.primaryTeal,
               ),
               label: Text(
                 'Share',
                 style: TextStyle(
                   fontSize: AppLayout.fontSize(context, 15),
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF069494),
+                  color: AppColors.primaryTeal,
                 ),
               ),
               style: OutlinedButton.styleFrom(
                 backgroundColor: Colors.white,
-                side: const BorderSide(color: Color(0xFF069494), width: 1.5),
+                side:
+                    const BorderSide(color: AppColors.primaryTeal, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius:
                       BorderRadius.circular(AppLayout.scaleWidth(context, 28)),
@@ -574,7 +576,7 @@ class _ActionButtons extends StatelessWidget {
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    success ? const Color(0xFF069494) : const Color(0xFFE53935),
+                    success ? AppColors.primaryTeal : const Color(0xFFE53935),
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius:

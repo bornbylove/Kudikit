@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/config/dio_client.dart';
 import 'package:kudipay/core/providers/core_providers.dart';
@@ -164,7 +165,7 @@ class _BankSelectionBottomSheetState
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
-                      color: Color(0xFF069494),
+                      color: AppColors.primaryTeal,
                       width: 2,
                     ),
                   ),

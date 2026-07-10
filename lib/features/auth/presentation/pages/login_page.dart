@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:kudipay/core/theme/app_theme.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -234,7 +235,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     required String label,
     required bool selected,
   }) {
-    const brand = Color(0xFF069494);
+    const brand = AppColors.primaryTeal;
     return PopupMenuItem<String>(
       value: value,
       padding: EdgeInsets.symmetric(
@@ -432,9 +433,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       style: TextStyle(
                         fontSize: AppLayout.fontSize(context, 14),
                         fontWeight: FontWeight.w600,
-                        color: isOnline
-                            ? const Color(0xFF069494)
-                            : Colors.grey[400],
+                        color:
+                            isOnline ? AppColors.primaryTeal : Colors.grey[400],
                       ),
                     ),
                   ),
@@ -505,7 +505,7 @@ class _TopBar extends ConsumerWidget {
             style: TextStyle(
               fontSize: AppLayout.fontSize(context, 14),
               fontWeight: FontWeight.w500,
-              color: isOnline ? const Color(0xFF069494) : Colors.grey[400],
+              color: isOnline ? AppColors.primaryTeal : Colors.grey[400],
             ),
           ),
         ),
@@ -693,9 +693,9 @@ class _ContinueButton extends StatelessWidget {
           child: ElevatedButton(
             onPressed: disabled ? null : onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF069494),
+              backgroundColor: AppColors.primaryTeal,
               disabledBackgroundColor:
-                  const Color(0xFF069494).withValues(alpha: 0.5),
+                  AppColors.primaryTeal.withValues(alpha: 0.5),
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius:
@@ -748,7 +748,7 @@ class _SignUpRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: AppLayout.fontSize(context, 14),
                 fontWeight: FontWeight.w700,
-                color: isOnline ? const Color(0xFF069494) : Colors.grey[400],
+                color: isOnline ? AppColors.primaryTeal : Colors.grey[400],
               ),
             ),
           ),
@@ -876,7 +876,7 @@ class _ForgotPinSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const brand = Color(0xFF069494);
+    const brand = AppColors.primaryTeal;
 
     return Container(
       decoration: const BoxDecoration(

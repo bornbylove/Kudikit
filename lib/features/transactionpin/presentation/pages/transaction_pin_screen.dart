@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/account_ready/presentation/pages/account_ready.dart';
@@ -152,7 +153,7 @@ class _CreateTransactionPinScreenState
                 child: const Center(
                   child: CircularProgressIndicator(
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(Color(0xFF069494)),
+                        AlwaysStoppedAnimation<Color>(AppColors.primaryTeal),
                     strokeWidth: 3,
                   ),
                 ),
@@ -213,7 +214,7 @@ class _CreateTransactionPinScreenState
       height: 8,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: filled ? const Color(0xFF069494) : Colors.grey[300],
+        color: filled ? AppColors.primaryTeal : Colors.grey[300],
       ),
     );
   }
@@ -247,7 +248,7 @@ class _CreateTransactionPinScreenState
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: filled
-                    ? (state.showError ? Colors.red : const Color(0xFF069494))
+                    ? (state.showError ? Colors.red : AppColors.primaryTeal)
                     : Colors.grey[400],
               ),
             ),
@@ -345,10 +346,10 @@ class _CreateTransactionPinScreenState
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                    color: const Color(0xFF069494).withValues(alpha: 0.12),
+                    color: AppColors.primaryTeal.withValues(alpha: 0.12),
                     shape: BoxShape.circle),
                 child: const Icon(Icons.check_circle_rounded,
-                    color: Color(0xFF069494), size: 52),
+                    color: AppColors.primaryTeal, size: 52),
               ),
             ),
             const SizedBox(height: 20),
@@ -387,7 +388,7 @@ class _CreateTransactionPinScreenState
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF069494),
+                    backgroundColor: AppColors.primaryTeal,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(28)),
                     elevation: 0),

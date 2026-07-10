@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -42,12 +43,12 @@ class _PasscodeCreationScreenState
               width: AppLayout.scaleWidth(context, 80),
               height: AppLayout.scaleWidth(context, 80),
               decoration: BoxDecoration(
-                color: Color(0xFF069494).withValues(alpha: 0.1),
+                color: AppColors.primaryTeal.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.check_circle,
-                color: Color(0xFF069494),
+                color: AppColors.primaryTeal,
                 size: AppLayout.scaleWidth(context, 50),
               ),
             ),
@@ -81,7 +82,7 @@ class _PasscodeCreationScreenState
                   navigateToMainShell(context);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF069494),
+                  backgroundColor: AppColors.primaryTeal,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
                       AppLayout.scaleWidth(context, 12),
@@ -201,7 +202,8 @@ class _PasscodeCreationScreenState
               color: Colors.black.withValues(alpha: 0.3),
               child: const Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF069494)),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(AppColors.primaryTeal),
                   strokeWidth: 3,
                 ),
               ),

@@ -8,6 +8,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/features/bills/domain/entities/bill_model.dart';
 
 // ============================================================================
@@ -378,7 +379,7 @@ class _NetworkOption extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                   ),
                 ),
               ),

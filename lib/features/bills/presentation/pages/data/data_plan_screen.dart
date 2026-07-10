@@ -12,6 +12,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -221,7 +222,7 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: const Icon(Icons.wifi,
-                                    color: Color(0xFF069494), size: 22),
+                                    color: AppColors.primaryTeal, size: 22),
                               ),
                               SizedBox(
                                   width: AppLayout.scaleWidth(context, 12)),
@@ -250,14 +251,13 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
                                                   fontSize: AppLayout.fontSize(
                                                       context, 12),
                                                   fontWeight: FontWeight.w700,
-                                                  color:
-                                                      const Color(0xFF069494),
+                                                  color: AppColors.primaryTeal,
                                                 ),
                                               ),
                                               const Icon(
                                                 Icons.keyboard_arrow_down,
                                                 size: 16,
-                                                color: Color(0xFF069494),
+                                                color: AppColors.primaryTeal,
                                               ),
                                             ],
                                           ),
@@ -296,13 +296,13 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
                           ),
                           child: TabBar(
                             controller: _validityTab,
-                            labelColor: const Color(0xFF069494),
+                            labelColor: AppColors.primaryTeal,
                             unselectedLabelColor: const Color(0xFF9E9E9E),
                             labelStyle: const TextStyle(
                                 fontWeight: FontWeight.w600, fontSize: 14),
                             unselectedLabelStyle: const TextStyle(
                                 fontWeight: FontWeight.w400, fontSize: 14),
-                            indicatorColor: const Color(0xFF069494),
+                            indicatorColor: AppColors.primaryTeal,
                             indicatorSize: TabBarIndicatorSize.label,
                             tabs: _tabs.map((t) => Tab(text: t)).toList(),
                           ),
@@ -378,7 +378,7 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
                                             .proceedToSelectPlan(),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor:
-                                              const Color(0xFF069494),
+                                              AppColors.primaryTeal,
                                           elevation: 0,
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(
@@ -462,9 +462,9 @@ class _DataPlansScreenState extends ConsumerState<DataPlansScreen>
                       ? _onContinue
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF069494),
+                    backgroundColor: AppColors.primaryTeal,
                     disabledBackgroundColor:
-                        const Color(0xFF069494).withValues(alpha: 0.35),
+                        AppColors.primaryTeal.withValues(alpha: 0.35),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
@@ -576,8 +576,7 @@ class _DataPlanTile extends StatelessWidget {
           color: isSelected ? const Color(0xFFE8F5EE) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color:
-                isSelected ? const Color(0xFF069494) : const Color(0xFFEEEEEE),
+            color: isSelected ? AppColors.primaryTeal : const Color(0xFFEEEEEE),
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: [
@@ -596,7 +595,7 @@ class _DataPlanTile extends StatelessWidget {
               height: 56,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF069494)
+                    ? AppColors.primaryTeal
                     : const Color(0xFFF0F7F2),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -607,7 +606,7 @@ class _DataPlanTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: AppLayout.fontSize(context, 13),
                     fontWeight: FontWeight.w800,
-                    color: isSelected ? Colors.white : const Color(0xFF069494),
+                    color: isSelected ? Colors.white : AppColors.primaryTeal,
                   ),
                 ),
               ),
@@ -633,7 +632,7 @@ class _DataPlanTile extends StatelessWidget {
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? const Color(0xFF069494).withValues(alpha: 0.15)
+                          ? AppColors.primaryTeal.withValues(alpha: 0.15)
                           : const Color(0xFFF5F5F5),
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -643,7 +642,7 @@ class _DataPlanTile extends StatelessWidget {
                         fontSize: AppLayout.fontSize(context, 11),
                         fontWeight: FontWeight.w500,
                         color: isSelected
-                            ? const Color(0xFF069494)
+                            ? AppColors.primaryTeal
                             : const Color(0xFF9E9E9E),
                       ),
                     ),
@@ -659,14 +658,14 @@ class _DataPlanTile extends StatelessWidget {
                 fontSize: AppLayout.fontSize(context, 15),
                 fontWeight: FontWeight.w700,
                 color: isSelected
-                    ? const Color(0xFF069494)
+                    ? AppColors.primaryTeal
                     : const Color(0xFF1A1A2E),
               ),
             ),
             if (isSelected) ...[
               SizedBox(width: AppLayout.scaleWidth(context, 8)),
               const Icon(Icons.check_circle,
-                  color: Color(0xFF069494), size: 20),
+                  color: AppColors.primaryTeal, size: 20),
             ],
           ],
         ),
@@ -761,7 +760,7 @@ class ConfirmDataBottomSheet extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: AppLayout.fontSize(context, 36),
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF069494),
+                  color: AppColors.primaryTeal,
                 ),
               ),
               const SizedBox(height: 4),
@@ -817,7 +816,7 @@ class ConfirmDataBottomSheet extends ConsumerWidget {
                         padding: EdgeInsets.symmetric(
                             vertical: AppLayout.scaleHeight(context, 14)),
                         side: const BorderSide(
-                            color: Color(0xFF069494), width: 1.5),
+                            color: AppColors.primaryTeal, width: 1.5),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),
                       ),
@@ -826,7 +825,7 @@ class ConfirmDataBottomSheet extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: AppLayout.fontSize(context, 15),
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                         ),
                       ),
                     ),
@@ -838,7 +837,7 @@ class ConfirmDataBottomSheet extends ConsumerWidget {
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.symmetric(
                             vertical: AppLayout.scaleHeight(context, 14)),
-                        backgroundColor: const Color(0xFF069494),
+                        backgroundColor: AppColors.primaryTeal,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),
@@ -1046,7 +1045,7 @@ class _DataSuccessBottomSheetState extends State<DataSuccessBottomSheet> {
                     width: 44,
                     height: 44,
                     decoration: const BoxDecoration(
-                        color: Color(0xFF069494), shape: BoxShape.circle),
+                        color: AppColors.primaryTeal, shape: BoxShape.circle),
                     child:
                         const Icon(Icons.check, color: Colors.white, size: 22),
                   ),
@@ -1109,7 +1108,7 @@ class _DataSuccessBottomSheetState extends State<DataSuccessBottomSheet> {
                           value: _addToBeneficiary,
                           onChanged: (val) =>
                               setState(() => _addToBeneficiary = val),
-                          activeThumbColor: const Color(0xFF069494),
+                          activeThumbColor: AppColors.primaryTeal,
                         ),
                       ],
                     ),
@@ -1140,7 +1139,7 @@ class _DataSuccessBottomSheetState extends State<DataSuccessBottomSheet> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide:
-                                const BorderSide(color: Color(0xFF069494)),
+                                const BorderSide(color: AppColors.primaryTeal),
                           ),
                         ),
                       ),
@@ -1160,7 +1159,7 @@ class _DataSuccessBottomSheetState extends State<DataSuccessBottomSheet> {
                         padding: EdgeInsets.symmetric(
                             vertical: AppLayout.scaleHeight(context, 14)),
                         side: const BorderSide(
-                            color: Color(0xFF069494), width: 1.5),
+                            color: AppColors.primaryTeal, width: 1.5),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),
                       ),
@@ -1169,7 +1168,7 @@ class _DataSuccessBottomSheetState extends State<DataSuccessBottomSheet> {
                         style: TextStyle(
                           fontSize: AppLayout.fontSize(context, 15),
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                         ),
                       ),
                     ),
@@ -1181,7 +1180,7 @@ class _DataSuccessBottomSheetState extends State<DataSuccessBottomSheet> {
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.symmetric(
                             vertical: AppLayout.scaleHeight(context, 14)),
-                        backgroundColor: const Color(0xFF069494),
+                        backgroundColor: AppColors.primaryTeal,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),

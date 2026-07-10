@@ -17,6 +17,7 @@
 // ===========================================================================
 
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 
 class AppLoadingIndicator extends StatelessWidget {
@@ -27,7 +28,7 @@ class AppLoadingIndicator extends StatelessWidget {
   /// Standard on-page indicator (teal on light background)
   const AppLoadingIndicator({
     super.key,
-    this.color = const Color(0xFF069494),
+    this.color = AppColors.primaryTeal,
     this.size = 22,
     this.strokeWidth = 1,
   });
@@ -62,7 +63,7 @@ class AppLoadingIndicator extends StatelessWidget {
 class _FullPageLoadingIndicator extends AppLoadingIndicator {
   const _FullPageLoadingIndicator({super.key})
       : super(
-          color: const Color(0xFF069494),
+          color: AppColors.primaryTeal,
           size: 28,
           strokeWidth: 2,
         );

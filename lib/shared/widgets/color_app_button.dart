@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 
 import '../../core/constants/constant.dart';
 
@@ -18,9 +19,8 @@ class ColorAppButton extends StatelessWidget {
         style: TextButton.styleFrom(
           padding:
               const EdgeInsets.symmetric(horizontal: kDefaultPadding * 1.5),
-          backgroundColor: const Color(0xFF069494),
-          disabledBackgroundColor:
-              const Color(0xFF069494).withValues(alpha: 0.5),
+          backgroundColor: AppColors.primaryTeal,
+          disabledBackgroundColor: AppColors.primaryTeal.withValues(alpha: 0.5),
           shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(28))),
         ),

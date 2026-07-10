@@ -5,6 +5,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/core/navigation/navigation_helpers.dart';
 
@@ -140,7 +141,7 @@ class _BillPaymentSuccessScreenState extends State<BillPaymentSuccessScreen>
                         ),
                         child: const Icon(
                           Icons.check_circle_outline_rounded,
-                          color: Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                           size: 52,
                         ),
                       ),
@@ -169,7 +170,7 @@ class _BillPaymentSuccessScreenState extends State<BillPaymentSuccessScreen>
                             style: TextStyle(
                               fontSize: AppLayout.fontSize(context, 32),
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF069494),
+                              color: AppColors.primaryTeal,
                               fontFamily: 'PolySans',
                             ),
                           ),
@@ -190,14 +191,14 @@ class _BillPaymentSuccessScreenState extends State<BillPaymentSuccessScreen>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(Icons.check_circle,
-                                    color: Color(0xFF069494), size: 14),
+                                    color: AppColors.primaryTeal, size: 14),
                                 const SizedBox(width: 5),
                                 Text(
                                   'Payment Successful',
                                   style: TextStyle(
                                     fontSize: AppLayout.fontSize(context, 13),
                                     fontWeight: FontWeight.w600,
-                                    color: const Color(0xFF069494),
+                                    color: AppColors.primaryTeal,
                                   ),
                                 ),
                               ],
@@ -352,9 +353,9 @@ class _BillPaymentSuccessScreenState extends State<BillPaymentSuccessScreen>
                           ),
                         ),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFF069494),
+                          foregroundColor: AppColors.primaryTeal,
                           side: const BorderSide(
-                              color: Color(0xFF069494), width: 1.5),
+                              color: AppColors.primaryTeal, width: 1.5),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(28),
                           ),
@@ -370,7 +371,7 @@ class _BillPaymentSuccessScreenState extends State<BillPaymentSuccessScreen>
                       child: ElevatedButton(
                         onPressed: () => navigateToMainShell(context),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF069494),
+                          backgroundColor: AppColors.primaryTeal,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(28),

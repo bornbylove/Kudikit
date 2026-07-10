@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
@@ -92,7 +93,7 @@ class _BulkTransferPinDialogState extends ConsumerState<BulkTransferPinDialog> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: index < _pin.length
-                        ? const Color(0xFF069494)
+                        ? AppColors.primaryTeal
                         : const Color(0xFFE0E0E0),
                   ),
                 );
@@ -108,7 +109,7 @@ class _BulkTransferPinDialogState extends ConsumerState<BulkTransferPinDialog> {
                 width: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: Color(0xFF069494),
+                  color: AppColors.primaryTeal,
                 ),
               )
             else

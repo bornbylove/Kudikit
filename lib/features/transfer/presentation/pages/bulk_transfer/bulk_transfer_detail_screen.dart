@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -80,7 +81,7 @@ class BulkTransferDetailsScreen extends ConsumerWidget {
                     ),
                     child: Icon(
                       Icons.account_balance,
-                      color: const Color(0xFF069494),
+                      color: AppColors.primaryTeal,
                       size: AppLayout.scaleWidth(context, 32),
                     ),
                   ),
@@ -126,7 +127,7 @@ class BulkTransferDetailsScreen extends ConsumerWidget {
                       children: [
                         Icon(
                           Icons.check_circle,
-                          color: const Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                           size: AppLayout.scaleWidth(context, 16),
                         ),
                         SizedBox(width: AppLayout.scaleWidth(context, 6)),
@@ -134,7 +135,7 @@ class BulkTransferDetailsScreen extends ConsumerWidget {
                           'successful',
                           style: TextStyle(
                             fontSize: AppLayout.fontSize(context, 13),
-                            color: const Color(0xFF069494),
+                            color: AppColors.primaryTeal,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -196,7 +197,7 @@ class BulkTransferDetailsScreen extends ConsumerWidget {
                     context,
                     'Status',
                     'Successful',
-                    valueColor: const Color(0xFF069494),
+                    valueColor: AppColors.primaryTeal,
                   ),
                 ],
               ),
@@ -282,7 +283,7 @@ class BulkTransferDetailsScreen extends ConsumerWidget {
                                   'Completed',
                                   style: TextStyle(
                                     fontSize: AppLayout.fontSize(context, 11),
-                                    color: const Color(0xFF069494),
+                                    color: AppColors.primaryTeal,
                                   ),
                                 ),
                               ],
@@ -309,7 +310,7 @@ class BulkTransferDetailsScreen extends ConsumerWidget {
                       },
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(
-                          color: Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                           width: 1.5,
                         ),
                         shape: RoundedRectangleBorder(
@@ -321,7 +322,7 @@ class BulkTransferDetailsScreen extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: AppLayout.fontSize(context, 16),
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                         ),
                       ),
                     ),
@@ -336,7 +337,7 @@ class BulkTransferDetailsScreen extends ConsumerWidget {
                         _downloadReceipt(context, ref);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF069494),
+                        backgroundColor: AppColors.primaryTeal,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(27),
                         ),
@@ -407,7 +408,7 @@ class BulkTransferDetailsScreen extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Transfer summary copied to clipboard'),
-        backgroundColor: const Color(0xFF069494),
+        backgroundColor: AppColors.primaryTeal,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: const Duration(seconds: 2),
@@ -427,7 +428,7 @@ class BulkTransferDetailsScreen extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Receipt copied to clipboard'),
-        backgroundColor: const Color(0xFF069494),
+        backgroundColor: AppColors.primaryTeal,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: const Duration(seconds: 2),

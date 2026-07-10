@@ -50,7 +50,7 @@ class ContactListItem extends StatelessWidget {
                   if (contact.status == ContactStatus.onApp)
                     Icon(
                       Icons.check,
-                      color: Color(0xFF069494),
+                      color: AppColors.primaryTeal,
                       size: 14,
                     ),
                   if (contact.status == ContactStatus.invite) _InviteBadge(),
@@ -68,9 +68,11 @@ class ContactListItem extends StatelessWidget {
                 height: 22,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isSelected ? Color(0xFF069494) : Colors.transparent,
+                  color:
+                      isSelected ? AppColors.primaryTeal : Colors.transparent,
                   border: Border.all(
-                    color: isSelected ? Color(0xFF069494) : AppColors.divider,
+                    color:
+                        isSelected ? AppColors.primaryTeal : AppColors.divider,
                     width: 1.5,
                   ),
                 ),
@@ -133,7 +135,7 @@ class ContactListItemFull extends StatelessWidget {
                       if (contact.status == ContactStatus.onApp)
                         Icon(
                           Icons.check,
-                          color: Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                           size: 14,
                         ),
                       if (contact.status == ContactStatus.invite)
@@ -155,9 +157,9 @@ class ContactListItemFull extends StatelessWidget {
               height: 22,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isSelected ? Color(0xFF069494) : Colors.transparent,
+                color: isSelected ? AppColors.primaryTeal : Colors.transparent,
                 border: Border.all(
-                  color: isSelected ? Color(0xFF069494) : AppColors.divider,
+                  color: isSelected ? AppColors.primaryTeal : AppColors.divider,
                   width: 1.5,
                 ),
               ),
@@ -187,7 +189,7 @@ class _InviteBadge extends StatelessWidget {
         color: AppColors.inviteBadgeBackground,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Color(0xFF069494).withValues(alpha: 0.3),
+          color: AppColors.primaryTeal.withValues(alpha: 0.3),
           width: 0.5,
         ),
       ),

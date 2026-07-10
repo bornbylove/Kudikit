@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:intl/intl.dart';
@@ -48,7 +49,7 @@ class _ScheduledTransferScreenState
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF069494),
+              primary: AppColors.primaryTeal,
               onPrimary: Colors.white,
               onSurface: Colors.black87,
             ),
@@ -74,7 +75,7 @@ class _ScheduledTransferScreenState
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF069494),
+              primary: AppColors.primaryTeal,
               onPrimary: Colors.white,
               onSurface: Colors.black87,
             ),
@@ -234,7 +235,7 @@ class _ScheduledTransferScreenState
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(
-                          color: Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                           width: 2,
                         ),
                       ),
@@ -274,7 +275,7 @@ class _ScheduledTransferScreenState
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(
-                          color: Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                           width: 2,
                         ),
                       ),
@@ -325,7 +326,7 @@ class _ScheduledTransferScreenState
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(
-                          color: Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                           width: 2,
                         ),
                       ),
@@ -382,7 +383,7 @@ class _ScheduledTransferScreenState
                         _sendReminder = value;
                       });
                     },
-                    activeThumbColor: const Color(0xFF069494),
+                    activeThumbColor: AppColors.primaryTeal,
                   ),
                 ],
               ),
@@ -457,7 +458,7 @@ class _ScheduledTransferScreenState
                             '${recipient?.name ?? 'recipient'} '
                             'scheduled for $label',
                           ),
-                          backgroundColor: const Color(0xFF069494),
+                          backgroundColor: AppColors.primaryTeal,
                           behavior: SnackBarBehavior.floating,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)),
@@ -469,7 +470,7 @@ class _ScheduledTransferScreenState
                   : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: canSchedule
-                    ? const Color(0xFF069494)
+                    ? AppColors.primaryTeal
                     : const Color(0xFFB2DFDB),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),

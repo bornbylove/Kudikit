@@ -10,6 +10,7 @@
 //     route, not just the splash screen.
 
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/routes/app_route.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -56,7 +57,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'PolySans',
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF069494),
+          seedColor: AppColors.primaryTeal,
         ),
       ),
       // CHANGED: replaced home: with onGenerateRoute + initialRoute so all

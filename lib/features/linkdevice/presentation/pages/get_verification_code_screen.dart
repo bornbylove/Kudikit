@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/linkdevice/presentation/pages/sign_in_verify_email_screen.dart';
@@ -40,7 +41,7 @@ class _GetVerificationCodeScreenState
             Container(
               color: Colors.black26,
               child: const Center(
-                child: CircularProgressIndicator(color: Color(0xFF069494)),
+                child: CircularProgressIndicator(color: AppColors.primaryTeal),
               ),
             ),
         ],
@@ -129,7 +130,7 @@ class _GetVerificationCodeScreenState
           color: isSelected ? const Color(0xFFE8F5E9) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? const Color(0xFF069494) : Colors.transparent,
+            color: isSelected ? AppColors.primaryTeal : Colors.transparent,
             width: 0.3,
           ),
           boxShadow: [
@@ -147,13 +148,13 @@ class _GetVerificationCodeScreenState
               height: AppLayout.scaleWidth(context, 43),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF069494).withValues(alpha: 0.35)
+                    ? AppColors.primaryTeal.withValues(alpha: 0.35)
                     : const Color(0xFFF5F5F5),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? const Color(0xFF069494) : Colors.black54,
+                color: isSelected ? AppColors.primaryTeal : Colors.black54,
                 size: AppLayout.scaleWidth(context, 22),
               ),
             ),
@@ -183,7 +184,7 @@ class _GetVerificationCodeScreenState
             ),
             Icon(
               isSelected ? Icons.arrow_forward_ios : Icons.arrow_forward_ios,
-              color: isSelected ? const Color(0xFF069494) : Colors.black26,
+              color: isSelected ? AppColors.primaryTeal : Colors.black26,
               size: AppLayout.scaleWidth(context, 18),
             ),
           ],
@@ -228,7 +229,7 @@ class _GetVerificationCodeScreenState
                   }
                 },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF069494),
+            backgroundColor: AppColors.primaryTeal,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(28),
             ),

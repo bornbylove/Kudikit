@@ -11,6 +11,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -279,13 +280,13 @@ class _ElectricityScreenState extends ConsumerState<ElectricityScreen> {
                                               padding: EdgeInsets.all(10),
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 2,
-                                                color: Color(0xFF069494),
+                                                color: AppColors.primaryTeal,
                                               ),
                                             ),
                                           )
                                         : state.accountDetail != null
                                             ? const Icon(Icons.check_circle,
-                                                color: Color(0xFF069494),
+                                                color: AppColors.primaryTeal,
                                                 size: 20)
                                             : null,
                                   ),
@@ -303,7 +304,7 @@ class _ElectricityScreenState extends ConsumerState<ElectricityScreen> {
                                 'Beneficiaries',
                                 style: TextStyle(
                                   fontSize: AppLayout.fontSize(context, 13),
-                                  color: const Color(0xFF069494),
+                                  color: AppColors.primaryTeal,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -489,7 +490,7 @@ class _ElectricityScreenState extends ConsumerState<ElectricityScreen> {
                 child: ElevatedButton(
                   onPressed: state.canContinue ? _showConfirmSheet : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF069494),
+                    backgroundColor: AppColors.primaryTeal,
                     disabledBackgroundColor: const Color(0xFFA8D5D5),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -591,7 +592,7 @@ class _MeterTypeTab extends StatelessWidget {
           margin: const EdgeInsets.all(3),
           height: 38,
           decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF069494) : Colors.transparent,
+            color: isSelected ? AppColors.primaryTeal : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           alignment: Alignment.center,
@@ -916,7 +917,7 @@ class _ConfirmPaymentSheetState extends ConsumerState<_ConfirmPaymentSheet> {
                 style: TextStyle(
                   fontSize: AppLayout.fontSize(context, 28),
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF069494),
+                  color: AppColors.primaryTeal,
                   fontFamily: 'PolySans',
                 ),
               ),
@@ -1031,7 +1032,7 @@ class _ConfirmPaymentSheetState extends ConsumerState<_ConfirmPaymentSheet> {
                       setState(() => _showActions = true);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF069494),
+                      backgroundColor: AppColors.primaryTeal,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(28),
@@ -1058,7 +1059,7 @@ class _ConfirmPaymentSheetState extends ConsumerState<_ConfirmPaymentSheet> {
                           onPressed: () => Navigator.pop(context),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(
-                                color: Color(0xFF069494), width: 1.5),
+                                color: AppColors.primaryTeal, width: 1.5),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(28),
                             ),
@@ -1068,7 +1069,7 @@ class _ConfirmPaymentSheetState extends ConsumerState<_ConfirmPaymentSheet> {
                             style: TextStyle(
                               fontSize: AppLayout.fontSize(context, 15),
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF069494),
+                              color: AppColors.primaryTeal,
                             ),
                           ),
                         ),
@@ -1160,7 +1161,7 @@ class _ConfirmPaymentSheetState extends ConsumerState<_ConfirmPaymentSheet> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF069494),
+                            backgroundColor: AppColors.primaryTeal,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(28),

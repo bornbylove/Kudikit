@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -89,7 +90,7 @@ class _AddMoneyScreenState extends ConsumerState<AddMoneyScreen> {
   ) {
     if (optionsState.isLoading && optionsState.options.isEmpty) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF069494)),
+        child: CircularProgressIndicator(color: AppColors.primaryTeal),
       );
     }
 
@@ -99,7 +100,7 @@ class _AddMoneyScreenState extends ConsumerState<AddMoneyScreen> {
 
     return RefreshIndicator(
       onRefresh: () => ref.read(refreshProvider.notifier).refreshAll(),
-      color: const Color(0xFF069494),
+      color: AppColors.primaryTeal,
       backgroundColor: Colors.white,
       strokeWidth: 1.5,
       displacement: 60,
@@ -214,7 +215,7 @@ class _AddMoneyScreenState extends ConsumerState<AddMoneyScreen> {
                 vertical: AppLayout.scaleHeight(context, 16),
               ),
               child: const CircularProgressIndicator(
-                color: Color(0xFF069494),
+                color: AppColors.primaryTeal,
                 strokeWidth: 1,
               ),
             ),
@@ -277,7 +278,7 @@ class _AddMoneyScreenState extends ConsumerState<AddMoneyScreen> {
                   width: AppLayout.scaleWidth(context, 20),
                   height: AppLayout.scaleWidth(context, 20),
                   colorFilter: const ColorFilter.mode(
-                    Color(0xFF069494),
+                    AppColors.primaryTeal,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -413,7 +414,7 @@ class _AddMoneyScreenState extends ConsumerState<AddMoneyScreen> {
           width: AppLayout.scaleWidth(context, 15),
           height: AppLayout.scaleWidth(context, 15),
           colorFilter: const ColorFilter.mode(
-            Color(0xFF069494),
+            AppColors.primaryTeal,
             BlendMode.srcIn,
           ),
         ),
@@ -468,7 +469,7 @@ class _AddMoneyScreenState extends ConsumerState<AddMoneyScreen> {
                 ),
                 label: const Text('Retry'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF069494),
+                  backgroundColor: AppColors.primaryTeal,
                   padding: EdgeInsets.symmetric(
                     horizontal: AppLayout.scaleWidth(context, 32),
                     vertical: AppLayout.scaleHeight(context, 12),
@@ -583,7 +584,7 @@ class _AddMoneyScreenState extends ConsumerState<AddMoneyScreen> {
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF069494),
+                backgroundColor: AppColors.primaryTeal,
                 minimumSize: Size(
                   double.infinity,
                   AppLayout.scaleHeight(context, 50),
@@ -643,7 +644,7 @@ class _AddMoneyScreenState extends ConsumerState<AddMoneyScreen> {
                   width: AppLayout.scaleWidth(context, 16),
                   height: AppLayout.scaleWidth(context, 16),
                   colorFilter: const ColorFilter.mode(
-                    Color(0xFF069494),
+                    AppColors.primaryTeal,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -662,7 +663,7 @@ class _AddMoneyScreenState extends ConsumerState<AddMoneyScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Copied to clipboard'),
-        backgroundColor: const Color(0xFF069494),
+        backgroundColor: AppColors.primaryTeal,
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
         margin: EdgeInsets.only(

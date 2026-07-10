@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
@@ -150,7 +151,7 @@ class _EnterNewEmailScreenState extends ConsumerState<EnterNewEmailScreen> {
                                   const SnackBar(
                                     content:
                                         Text('Email changed successfully!'),
-                                    backgroundColor: Color(0xFF069494),
+                                    backgroundColor: AppColors.primaryTeal,
                                   ),
                                 );
 
@@ -171,7 +172,7 @@ class _EnterNewEmailScreenState extends ConsumerState<EnterNewEmailScreen> {
                             }
                           },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF069494),
+                      backgroundColor: AppColors.primaryTeal,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -26,7 +27,7 @@ class _CardTopUpFormScreenState extends ConsumerState<CardTopUpFormScreen> {
   bool _pinVisible = false;
   bool _isFormValid = false;
 
-  static const _primaryColor = Color(0xFF069494);
+  static const _primaryColor = AppColors.primaryTeal;
 
   // ─── Lifecycle ───────────────────────────────────────────────────────────────
 

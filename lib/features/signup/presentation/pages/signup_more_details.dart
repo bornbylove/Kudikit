@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
@@ -152,7 +153,7 @@ class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
                       strokeWidth: AppLayout.scaleWidth(context, 2),
                       backgroundColor: const Color(0xFFE0E0E0),
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF069494)),
+                          AppColors.primaryTeal),
                     ),
                   ),
                   Positioned.fill(
@@ -331,7 +332,7 @@ class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
                       child: ElevatedButton(
                         onPressed: _handleContinue,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF069494),
+                          backgroundColor: AppColors.primaryTeal,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(28),
                           ),

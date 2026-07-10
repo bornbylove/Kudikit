@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/selfie/presentation/pages/selfie_capture_screen.dart';
@@ -35,7 +36,7 @@ class SelfieInstructionsScreen extends ConsumerWidget {
                       strokeWidth: AppLayout.scaleWidth(context, 2),
                       backgroundColor: const Color(0xFFE0E0E0),
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF069494)),
+                          AppColors.primaryTeal),
                     ),
                   ),
                   Positioned.fill(
@@ -166,7 +167,7 @@ class SelfieInstructionsScreen extends ConsumerWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF069494),
+                  backgroundColor: AppColors.primaryTeal,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
                         AppLayout.scaleWidth(context, 28)),

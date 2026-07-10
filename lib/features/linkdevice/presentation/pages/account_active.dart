@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/core/navigation/navigation_helpers.dart';
@@ -67,8 +68,8 @@ class AccountActiveScreen extends ConsumerWidget {
     return Container(
       width: AppLayout.scaleWidth(context, 120),
       height: AppLayout.scaleWidth(context, 120),
-      decoration:
-          const BoxDecoration(color: Color(0xFF069494), shape: BoxShape.circle),
+      decoration: const BoxDecoration(
+          color: AppColors.primaryTeal, shape: BoxShape.circle),
       child: Icon(Icons.check,
           color: Colors.white, size: AppLayout.scaleWidth(context, 60)),
     );
@@ -88,7 +89,7 @@ class AccountActiveScreen extends ConsumerWidget {
         child: ElevatedButton(
           onPressed: () => navigateToMainShell(context),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF069494),
+            backgroundColor: AppColors.primaryTeal,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
             elevation: 0,

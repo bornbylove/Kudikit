@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:image_picker/image_picker.dart';
@@ -100,7 +101,7 @@ class _VerifyIdentityScreenState extends ConsumerState<VerifyIdentityScreen> {
                       strokeWidth: 3,
                       backgroundColor: Colors.grey[200],
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xFF069494),
+                        AppColors.primaryTeal,
                       ),
                     ),
                   ),
@@ -342,7 +343,7 @@ class _VerifyIdentityScreenState extends ConsumerState<VerifyIdentityScreen> {
                     }
                   : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF069494),
+                backgroundColor: AppColors.primaryTeal,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -366,7 +367,7 @@ class _VerifyIdentityScreenState extends ConsumerState<VerifyIdentityScreen> {
               'Back',
               style: TextStyle(
                 fontSize: AppLayout.fontSize(context, 14),
-                color: const Color(0xFF069494),
+                color: AppColors.primaryTeal,
                 fontWeight: FontWeight.w500,
               ),
             ),

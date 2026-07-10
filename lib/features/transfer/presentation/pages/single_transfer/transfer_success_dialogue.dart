@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -183,7 +184,7 @@ class _TransactionSuccessBottomSheetState
                           vertical: AppLayout.scaleHeight(context, 15),
                         ),
                         side: const BorderSide(
-                          color: Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                           width: 1.5,
                         ),
                         shape: RoundedRectangleBorder(
@@ -195,7 +196,7 @@ class _TransactionSuccessBottomSheetState
                         style: TextStyle(
                           fontSize: AppLayout.fontSize(context, 15),
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                         ),
                       ),
                     ),
@@ -208,7 +209,7 @@ class _TransactionSuccessBottomSheetState
                         padding: EdgeInsets.symmetric(
                           vertical: AppLayout.scaleHeight(context, 15),
                         ),
-                        backgroundColor: const Color(0xFF069494),
+                        backgroundColor: AppColors.primaryTeal,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -292,7 +293,7 @@ class _TransactionSuccessBottomSheetState
                     padding: EdgeInsets.symmetric(
                       vertical: AppLayout.scaleHeight(context, 15),
                     ),
-                    backgroundColor: const Color(0xFF069494),
+                    backgroundColor: AppColors.primaryTeal,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),

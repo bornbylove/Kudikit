@@ -66,7 +66,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   static const _svgHeadset = 'assets/icons/headset.svg';
   static const _svgBell = 'assets/icons/bell.svg';
 
-  static const _teal = Color(0xFF069494);
+  static const _teal = AppColors.primaryTeal;
 
   // ---------------------------------------------------------------------------
   // Bill items list — defined once, index-stable

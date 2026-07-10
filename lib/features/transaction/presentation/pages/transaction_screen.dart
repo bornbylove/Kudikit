@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/formatters.dart';
@@ -207,7 +208,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                     .read(transactionProvider.notifier)
                     .loadTransactions(refresh: true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF069494),
+                  backgroundColor: AppColors.primaryTeal,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(32),
                   ),
@@ -253,7 +254,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       // Use the central orchestrator so wallet + transactions refresh together.
       // The user sees one unified pull gesture that syncs all data at once.
       onRefresh: () => ref.read(refreshProvider.notifier).refreshAll(),
-      color: const Color(0xFF069494),
+      color: AppColors.primaryTeal,
       child: ListView(
         controller: _scrollController,
         padding: EdgeInsets.symmetric(
@@ -341,7 +342,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       ),
       child: Icon(
         isDebit ? Icons.arrow_upward : Icons.arrow_downward,
-        color: const Color(0xFF069494),
+        color: AppColors.primaryTeal,
         size: 20,
       ),
     );
@@ -385,7 +386,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             fontWeight: FontWeight.w600,
             color: transaction.type == TransactionType.debit
                 ? Colors.black87
-                : const Color(0xFF069494),
+                : AppColors.primaryTeal,
           ),
         ),
         const SizedBox(height: 4),
@@ -414,7 +415,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   Color _getStatusColor(TransactionStatus status) {
     switch (status) {
       case TransactionStatus.successful:
-        return const Color(0xFF069494);
+        return AppColors.primaryTeal;
       case TransactionStatus.failed:
         return Colors.red;
       case TransactionStatus.pending:
@@ -483,7 +484,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Download link copied to clipboard'),
-              backgroundColor: const Color(0xFF069494),
+              backgroundColor: AppColors.primaryTeal,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),

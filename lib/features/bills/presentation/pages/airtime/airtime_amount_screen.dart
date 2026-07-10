@@ -15,6 +15,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -217,7 +218,7 @@ class _AirtimeAmountScreenState extends ConsumerState<AirtimeAmountScreen> {
                         style: TextStyle(
                           fontSize: AppLayout.fontSize(context, 13),
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                         ),
                       ),
                     ),
@@ -253,7 +254,7 @@ class _AirtimeAmountScreenState extends ConsumerState<AirtimeAmountScreen> {
                             ),
                             child: const Icon(
                               Icons.sim_card_outlined,
-                              color: Color(0xFF069494),
+                              color: AppColors.primaryTeal,
                               size: 22,
                             ),
                           ),
@@ -283,13 +284,13 @@ class _AirtimeAmountScreenState extends ConsumerState<AirtimeAmountScreen> {
                                               fontSize: AppLayout.fontSize(
                                                   context, 12),
                                               fontWeight: FontWeight.w700,
-                                              color: const Color(0xFF069494),
+                                              color: AppColors.primaryTeal,
                                             ),
                                           ),
                                           const Icon(
                                             Icons.keyboard_arrow_down,
                                             size: 16,
-                                            color: Color(0xFF069494),
+                                            color: AppColors.primaryTeal,
                                           ),
                                         ],
                                       ),
@@ -420,12 +421,12 @@ class _AirtimeAmountScreenState extends ConsumerState<AirtimeAmountScreen> {
                                   duration: const Duration(milliseconds: 150),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? const Color(0xFF069494)
+                                        ? AppColors.primaryTeal
                                         : const Color(0xFFF5F5F5),
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
                                       color: isSelected
-                                          ? const Color(0xFF069494)
+                                          ? AppColors.primaryTeal
                                           : const Color(0xFFE8E8E8),
                                     ),
                                   ),
@@ -472,9 +473,9 @@ class _AirtimeAmountScreenState extends ConsumerState<AirtimeAmountScreen> {
                       ? _onContinue
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF069494),
+                    backgroundColor: AppColors.primaryTeal,
                     disabledBackgroundColor:
-                        const Color(0xFF069494).withValues(alpha: 0.35),
+                        AppColors.primaryTeal.withValues(alpha: 0.35),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
@@ -595,7 +596,7 @@ class ConfirmAirtimeBottomSheet extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: AppLayout.fontSize(context, 36),
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF069494),
+                  color: AppColors.primaryTeal,
                 ),
               ),
 
@@ -641,7 +642,7 @@ class ConfirmAirtimeBottomSheet extends ConsumerWidget {
                         padding: EdgeInsets.symmetric(
                             vertical: AppLayout.scaleHeight(context, 14)),
                         side: const BorderSide(
-                            color: Color(0xFF069494), width: 1.5),
+                            color: AppColors.primaryTeal, width: 1.5),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),
                       ),
@@ -650,7 +651,7 @@ class ConfirmAirtimeBottomSheet extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: AppLayout.fontSize(context, 15),
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                         ),
                       ),
                     ),
@@ -662,7 +663,7 @@ class ConfirmAirtimeBottomSheet extends ConsumerWidget {
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.symmetric(
                             vertical: AppLayout.scaleHeight(context, 14)),
-                        backgroundColor: const Color(0xFF069494),
+                        backgroundColor: AppColors.primaryTeal,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),
@@ -771,7 +772,7 @@ class _AirtimeSuccessBottomSheetState extends State<AirtimeSuccessBottomSheet> {
                     width: 44,
                     height: 44,
                     decoration: const BoxDecoration(
-                      color: Color(0xFF069494),
+                      color: AppColors.primaryTeal,
                       shape: BoxShape.circle,
                     ),
                     child:
@@ -829,7 +830,7 @@ class _AirtimeSuccessBottomSheetState extends State<AirtimeSuccessBottomSheet> {
                           value: _addToBeneficiary,
                           onChanged: (val) =>
                               setState(() => _addToBeneficiary = val),
-                          activeThumbColor: const Color(0xFF069494),
+                          activeThumbColor: AppColors.primaryTeal,
                         ),
                       ],
                     ),
@@ -860,7 +861,7 @@ class _AirtimeSuccessBottomSheetState extends State<AirtimeSuccessBottomSheet> {
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide:
-                                const BorderSide(color: Color(0xFF069494)),
+                                const BorderSide(color: AppColors.primaryTeal),
                           ),
                         ),
                       ),
@@ -881,7 +882,7 @@ class _AirtimeSuccessBottomSheetState extends State<AirtimeSuccessBottomSheet> {
                         padding: EdgeInsets.symmetric(
                             vertical: AppLayout.scaleHeight(context, 14)),
                         side: const BorderSide(
-                            color: Color(0xFF069494), width: 1.5),
+                            color: AppColors.primaryTeal, width: 1.5),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),
                       ),
@@ -890,7 +891,7 @@ class _AirtimeSuccessBottomSheetState extends State<AirtimeSuccessBottomSheet> {
                         style: TextStyle(
                           fontSize: AppLayout.fontSize(context, 15),
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                         ),
                       ),
                     ),
@@ -902,7 +903,7 @@ class _AirtimeSuccessBottomSheetState extends State<AirtimeSuccessBottomSheet> {
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.symmetric(
                             vertical: AppLayout.scaleHeight(context, 14)),
-                        backgroundColor: const Color(0xFF069494),
+                        backgroundColor: AppColors.primaryTeal,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24)),

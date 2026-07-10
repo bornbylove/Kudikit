@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:intl/intl.dart';
@@ -230,13 +231,13 @@ class ConfirmTransferBottomSheet extends ConsumerWidget {
                     CircleAvatar(
                       radius: AppLayout.scaleWidth(context, 20),
                       backgroundColor:
-                          const Color(0xFF069494).withValues(alpha: 0.15),
+                          AppColors.primaryTeal.withValues(alpha: 0.15),
                       child: Text(
                         _initials(senderName),
                         style: TextStyle(
                           fontSize: AppLayout.fontSize(context, 12),
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                         ),
                       ),
                     ),
@@ -287,7 +288,7 @@ class ConfirmTransferBottomSheet extends ConsumerWidget {
                           vertical: AppLayout.scaleHeight(context, 14),
                         ),
                         side: const BorderSide(
-                          color: Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                           width: 1.5,
                         ),
                         shape: RoundedRectangleBorder(
@@ -299,7 +300,7 @@ class ConfirmTransferBottomSheet extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: AppLayout.fontSize(context, 15),
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                         ),
                       ),
                     ),
@@ -315,7 +316,7 @@ class ConfirmTransferBottomSheet extends ConsumerWidget {
                         padding: EdgeInsets.symmetric(
                           vertical: AppLayout.scaleHeight(context, 14),
                         ),
-                        backgroundColor: const Color(0xFF069494),
+                        backgroundColor: AppColors.primaryTeal,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),

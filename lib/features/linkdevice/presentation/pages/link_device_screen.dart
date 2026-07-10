@@ -32,7 +32,7 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
       // FIX: Use Column instead of Stack so the button never overlaps the body.
       body: state.isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF069494)),
+              child: CircularProgressIndicator(color: AppColors.primaryTeal),
             )
           : SafeArea(
               child: Column(
@@ -119,7 +119,7 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
         children: [
           Icon(
             Icons.shield_outlined,
-            color: const Color(0xFF069494),
+            color: AppColors.primaryTeal,
             size: AppLayout.scaleWidth(context, 18),
           ),
           SizedBox(width: AppLayout.scaleWidth(context, 8)),
@@ -163,7 +163,7 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF069494),
+                backgroundColor: AppColors.primaryTeal,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -193,7 +193,7 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
               'I don\'t have access to my old phone',
               style: TextStyle(
                 fontSize: AppLayout.fontSize(context, 14),
-                color: const Color(0xFF069494),
+                color: AppColors.primaryTeal,
                 fontWeight: FontWeight.w500,
               ),
             ),

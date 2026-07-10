@@ -7,6 +7,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/core/navigation/navigation_helpers.dart';
@@ -75,7 +76,7 @@ class BillTransactionDetail extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Transaction ID copied'),
-        backgroundColor: const Color(0xFF069494),
+        backgroundColor: AppColors.primaryTeal,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: const Duration(seconds: 2),
@@ -141,7 +142,7 @@ class BillTransactionDetail extends StatelessWidget {
                       ),
                       child: const Icon(
                         Icons.check_circle_outline_rounded,
-                        color: Color(0xFF069494),
+                        color: AppColors.primaryTeal,
                         size: 42,
                       ),
                     ),
@@ -152,7 +153,7 @@ class BillTransactionDetail extends StatelessWidget {
                       style: TextStyle(
                         fontSize: AppLayout.fontSize(context, 15),
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF069494),
+                        color: AppColors.primaryTeal,
                       ),
                     ),
                     SizedBox(height: AppLayout.scaleHeight(context, 4)),
@@ -281,9 +282,9 @@ class BillTransactionDetail extends StatelessWidget {
                           ),
                         ),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color(0xFF069494),
+                          foregroundColor: AppColors.primaryTeal,
                           side: const BorderSide(
-                              color: Color(0xFF069494), width: 1.5),
+                              color: AppColors.primaryTeal, width: 1.5),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(28),
                           ),
@@ -298,7 +299,7 @@ class BillTransactionDetail extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () => navigateToMainShell(context),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF069494),
+                          backgroundColor: AppColors.primaryTeal,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(28),

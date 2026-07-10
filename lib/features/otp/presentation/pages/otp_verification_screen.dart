@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:kudipay/core/theme/app_theme.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -66,7 +67,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
             Container(
               color: Colors.black26,
               child: const Center(
-                child: CircularProgressIndicator(color: Color(0xFF069494)),
+                child: CircularProgressIndicator(color: AppColors.primaryTeal),
               ),
             ),
         ],
@@ -97,7 +98,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
           //   width: 8,
           //   height: 8,
           //   decoration: BoxDecoration(
-          //     color: isOnline ? const Color(0xFF069494) : Colors.red,
+          //     color: isOnline ? AppColors.primaryTeal : Colors.red,
           //     shape: BoxShape.circle,
           //   ),
           // ),
@@ -276,7 +277,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               : () => ConnectivitySnackBar.showNoInternet(context),
           style: ElevatedButton.styleFrom(
             backgroundColor:
-                isOnline ? const Color(0xFF069494) : Colors.grey[400],
+                isOnline ? AppColors.primaryTeal : Colors.grey[400],
             minimumSize: Size(
               double.infinity,
               AppLayout.scaleHeight(context, 50),

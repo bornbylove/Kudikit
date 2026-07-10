@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -87,7 +88,7 @@ class _UploadDocumentScreenState extends State<UploadDocumentScreen> {
                 ListTile(
                   leading: Icon(
                     Icons.camera_alt,
-                    color: const Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                     size: AppLayout.scaleWidth(context, 24),
                   ),
                   title: Text(
@@ -105,7 +106,7 @@ class _UploadDocumentScreenState extends State<UploadDocumentScreen> {
                 ListTile(
                   leading: Icon(
                     Icons.photo_library,
-                    color: const Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                     size: AppLayout.scaleWidth(context, 24),
                   ),
                   title: Text(
@@ -320,7 +321,7 @@ class _UploadDocumentScreenState extends State<UploadDocumentScreen> {
                               style: GoogleFonts.openSans(
                                 fontSize: AppLayout.fontSize(context, 14),
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF069494),
+                                color: AppColors.primaryTeal,
                               ),
                             ),
                           ),
@@ -359,7 +360,7 @@ class _UploadDocumentScreenState extends State<UploadDocumentScreen> {
           child: ElevatedButton(
             onPressed: _uploadedFile != null ? _submitDocument : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF069494),
+              backgroundColor: AppColors.primaryTeal,
               disabledBackgroundColor: Colors.grey[300],
               foregroundColor: Colors.white,
               padding: EdgeInsets.symmetric(

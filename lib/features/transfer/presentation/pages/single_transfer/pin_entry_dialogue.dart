@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
@@ -23,7 +24,8 @@ class ProcessingPaymentScreen extends StatelessWidget {
               height: 40,
               child: CircularProgressIndicator(
                 strokeWidth: 1,
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF069494)),
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(AppColors.primaryTeal),
                 backgroundColor: Color(0xFFD0EDED),
               ),
             ),
@@ -223,7 +225,7 @@ class _PinEntryBottomSheetState extends ConsumerState<PinEntryBottomSheet> {
           height: AppLayout.scaleWidth(context, 14),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isFilled ? const Color(0xFF069494) : Colors.grey[300],
+            color: isFilled ? AppColors.primaryTeal : Colors.grey[300],
           ),
         );
       }),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:image_picker/image_picker.dart';
@@ -54,7 +55,7 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
             Container(
               color: Colors.black26,
               child: const Center(
-                child: CircularProgressIndicator(color: Color(0xFF069494)),
+                child: CircularProgressIndicator(color: AppColors.primaryTeal),
               ),
             ),
         ],
@@ -88,7 +89,7 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
                       strokeWidth: 3,
                       backgroundColor: Colors.grey[200],
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF069494)),
+                          AppColors.primaryTeal),
                     ),
                   ),
                   Text(
@@ -279,7 +280,7 @@ class _UploadIdScreenState extends ConsumerState<UploadIdScreen> {
                   MaterialPageRoute(builder: (_) => const UploadSelfieScreen()))
               : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF069494),
+            backgroundColor: AppColors.primaryTeal,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
             elevation: 0,

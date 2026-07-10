@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 
 class PasscodeDotsIndicator extends StatelessWidget {
   final int length;
@@ -36,7 +37,7 @@ class PasscodeDotsIndicator extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: index < filledCount
-                    ? (showError ? Colors.red : const Color(0xFF069494))
+                    ? (showError ? Colors.red : AppColors.primaryTeal)
                     : Colors.grey[300],
               ),
             ),

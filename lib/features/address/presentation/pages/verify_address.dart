@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/address/domain/entities/nigeria_state.dart';
@@ -214,7 +215,7 @@ class AddressVerificationScreen extends ConsumerWidget {
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF069494),
+                    backgroundColor: AppColors.primaryTeal,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                           AppLayout.scaleWidth(context, 28)),

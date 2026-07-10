@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/request/domain/entities/request_model.dart';
@@ -43,7 +44,7 @@ class RequestSentScreen extends StatelessWidget {
               width: AppLayout.scaleWidth(context, 80),
               height: AppLayout.scaleWidth(context, 80),
               decoration: const BoxDecoration(
-                color: Color(0xFF069494),
+                color: AppColors.primaryTeal,
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -105,7 +106,7 @@ class RequestSentScreen extends StatelessWidget {
                           width: AppLayout.scaleWidth(context, 40),
                           height: AppLayout.scaleWidth(context, 40),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF069494),
+                            color: AppColors.primaryTeal,
                             borderRadius: BorderRadius.circular(
                                 AppLayout.scaleWidth(context, 8)),
                           ),
@@ -229,7 +230,7 @@ class RequestSentScreen extends StatelessWidget {
                   Navigator.popUntil(context, (route) => route.isFirst);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF069494),
+                  backgroundColor: AppColors.primaryTeal,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(
                     vertical: AppLayout.scaleHeight(context, 16),
@@ -267,7 +268,7 @@ class RequestSentScreen extends StatelessWidget {
                   style: GoogleFonts.openSans(
                     fontSize: AppLayout.fontSize(context, 16),
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                   ),
                 ),
               ),

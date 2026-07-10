@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -267,7 +268,7 @@ class _BulkTransferOtpSheetState extends ConsumerState<BulkTransferOtpSheet> {
                       fontFamily: 'PolySans',
                       fontSize: AppLayout.fontSize(context, 32),
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF069494),
+                      color: AppColors.primaryTeal,
                     ),
                   );
                 },
@@ -353,7 +354,7 @@ class _BulkTransferOtpSheetState extends ConsumerState<BulkTransferOtpSheet> {
                         fontFamily: 'PolySans',
                         fontSize: AppLayout.fontSize(context, 13),
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF069494),
+                        color: AppColors.primaryTeal,
                       ),
                     ),
                   ),
@@ -379,7 +380,7 @@ class _BulkTransferOtpSheetState extends ConsumerState<BulkTransferOtpSheet> {
                   style: TextStyle(
                     fontFamily: 'PolySans',
                     fontSize: AppLayout.fontSize(context, 13),
-                    color: const Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -397,7 +398,7 @@ class _BulkTransferOtpSheetState extends ConsumerState<BulkTransferOtpSheet> {
                   style: TextStyle(
                     fontFamily: 'PolySans',
                     fontSize: AppLayout.fontSize(context, 13),
-                    color: const Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                     fontWeight: FontWeight.w500,
                     decoration: TextDecoration.underline,
                   ),
@@ -412,7 +413,7 @@ class _BulkTransferOtpSheetState extends ConsumerState<BulkTransferOtpSheet> {
                   height: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.5,
-                    color: Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                   ),
                 ),
               ],
@@ -479,7 +480,7 @@ class _OtpBox extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
-                color: hasError ? Colors.red : const Color(0xFF069494),
+                color: hasError ? Colors.red : AppColors.primaryTeal,
                 width: 1.5,
               ),
             ),

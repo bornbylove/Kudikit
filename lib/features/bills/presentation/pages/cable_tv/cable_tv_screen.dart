@@ -11,6 +11,7 @@
 //   by the type widening.
 
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -442,14 +443,14 @@ class _CableTvScreenState extends ConsumerState<CableTvScreen> {
                                               padding: EdgeInsets.all(10),
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 2,
-                                                color: Color(0xFF069494),
+                                                color: AppColors.primaryTeal,
                                               ),
                                             ),
                                           )
                                         : state.accountDetail != null
                                             ? const Icon(
                                                 Icons.check_circle,
-                                                color: Color(0xFF069494),
+                                                color: AppColors.primaryTeal,
                                                 size: 20,
                                               )
                                             : null,
@@ -503,7 +504,7 @@ class _CableTvScreenState extends ConsumerState<CableTvScreen> {
                                   : 'Active',
                               valueColor: state.accountDetail!.isExpired
                                   ? Colors.red.shade500
-                                  : const Color(0xFF069494),
+                                  : AppColors.primaryTeal,
                             ),
                           ],
                         ],
@@ -615,9 +616,9 @@ class _CableTvScreenState extends ConsumerState<CableTvScreen> {
                 child: ElevatedButton(
                   onPressed: state.canContinue ? _showConfirmSheet : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF069494),
+                    backgroundColor: AppColors.primaryTeal,
                     disabledBackgroundColor:
-                        const Color(0xFF069494).withValues(alpha: 0.35),
+                        AppColors.primaryTeal.withValues(alpha: 0.35),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
@@ -854,7 +855,7 @@ class _PlanSelectionSheet extends ConsumerWidget {
                                             AppLayout.fontSize(context, 15),
                                         fontWeight: FontWeight.w500,
                                         color: isSelected
-                                            ? const Color(0xFF069494)
+                                            ? AppColors.primaryTeal
                                             : const Color(0xFF1A1A2E))),
                                 SizedBox(
                                     height: AppLayout.scaleHeight(context, 2)),
@@ -868,7 +869,7 @@ class _PlanSelectionSheet extends ConsumerWidget {
                           ),
                           if (isSelected)
                             const Icon(Icons.check_circle,
-                                color: Color(0xFF069494), size: 20),
+                                color: AppColors.primaryTeal, size: 20),
                         ],
                       ),
                     ),
@@ -943,7 +944,7 @@ class _ConfirmCableTvSheet extends ConsumerWidget {
                   style: TextStyle(
                       fontSize: AppLayout.fontSize(context, 28),
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF069494),
+                      color: AppColors.primaryTeal,
                       fontFamily: 'PolySans')),
               SizedBox(height: AppLayout.scaleHeight(context, 4)),
               Text(state.selectedProvider.name,
@@ -1005,7 +1006,7 @@ class _ConfirmCableTvSheet extends ConsumerWidget {
                       value: state.autoRenew,
                       onChanged: (_) =>
                           ref.read(cableTvProvider.notifier).toggleAutoRenew(),
-                      activeThumbColor: const Color(0xFF069494),
+                      activeThumbColor: AppColors.primaryTeal,
                       inactiveTrackColor: const Color(0xFFE0E0E0),
                       inactiveThumbColor: Colors.white,
                     ),
@@ -1064,7 +1065,7 @@ class _ConfirmCableTvSheet extends ConsumerWidget {
                         onPressed: () => Navigator.pop(context),
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(
-                              color: Color(0xFF069494), width: 1.5),
+                              color: AppColors.primaryTeal, width: 1.5),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(28)),
                         ),
@@ -1072,7 +1073,7 @@ class _ConfirmCableTvSheet extends ConsumerWidget {
                             style: TextStyle(
                                 fontSize: AppLayout.fontSize(context, 15),
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF069494))),
+                                color: AppColors.primaryTeal)),
                       ),
                     ),
                   ),
@@ -1136,14 +1137,14 @@ class _ConfirmCableTvSheet extends ConsumerWidget {
                                     const BillSuccessDetail(
                                         label: 'Auto-Renew',
                                         value: 'Enabled',
-                                        valueColor: Color(0xFF069494)),
+                                        valueColor: AppColors.primaryTeal),
                                 ],
                               ),
                             ));
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF069494),
+                          backgroundColor: AppColors.primaryTeal,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(28)),

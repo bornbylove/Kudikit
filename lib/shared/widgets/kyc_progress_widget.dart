@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/navigation/app_routes.dart';
 import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
@@ -101,14 +102,14 @@ class KycProgressWidget extends ConsumerWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF069494),
+            AppColors.primaryTeal,
             Color(0xFF4DB6AC),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF069494).withValues(alpha: 0.3),
+            color: AppColors.primaryTeal.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -233,7 +234,7 @@ class KycProgressWidget extends ConsumerWidget {
                     ),
                     child: const Icon(
                       Icons.check_circle,
-                      color: Color(0xFF069494),
+                      color: AppColors.primaryTeal,
                       size: 24,
                     ),
                   ),
@@ -290,7 +291,7 @@ class KycProgressWidget extends ConsumerWidget {
               ),
               child: Icon(
                 isCompleted ? Icons.check : icon,
-                color: isCompleted ? const Color(0xFF069494) : Colors.white,
+                color: isCompleted ? AppColors.primaryTeal : Colors.white,
                 size: 22,
               ),
             ),
@@ -318,7 +319,7 @@ class KycProgressWidget extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                   ),
                 ),
               )

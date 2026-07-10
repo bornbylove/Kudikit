@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/shimmer_widget.dart';
@@ -76,7 +77,7 @@ class NotificationPreferenceScreen extends ConsumerWidget {
                         .read(notificationPreferencesProvider.notifier)
                         .loadPreferences(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF069494),
+                      backgroundColor: AppColors.primaryTeal,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
@@ -224,7 +225,7 @@ class NotificationPreferenceScreen extends ConsumerWidget {
               ),
               child: Icon(
                 icon,
-                color: const Color(0xFF069494),
+                color: AppColors.primaryTeal,
                 size: AppLayout.scaleWidth(context, 20),
               ),
             ),

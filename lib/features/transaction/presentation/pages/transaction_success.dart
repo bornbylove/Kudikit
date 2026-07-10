@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -50,7 +51,7 @@ class TransactionReceiptScreen extends ConsumerWidget {
         IconButton(
           icon: Icon(
             Icons.headset_mic_outlined,
-            color: const Color(0xFF069494),
+            color: AppColors.primaryTeal,
             size: AppLayout.scaleWidth(context, 24),
           ),
           onPressed: () {
@@ -113,7 +114,7 @@ class TransactionReceiptScreen extends ConsumerWidget {
             ),
             child: Icon(
               Icons.account_balance,
-              color: const Color(0xFF069494).withValues(alpha: 0.35),
+              color: AppColors.primaryTeal.withValues(alpha: 0.35),
               size: AppLayout.scaleWidth(context, 15),
             ),
           ),
@@ -285,7 +286,7 @@ class TransactionReceiptScreen extends ConsumerWidget {
             ),
             style: OutlinedButton.styleFrom(
               foregroundColor: const Color(0xFFF9F9F9),
-              side: const BorderSide(color: Color(0xFF069494), width: 1),
+              side: const BorderSide(color: AppColors.primaryTeal, width: 1),
               backgroundColor: const Color(0xFFf9f9f9),
               minimumSize: Size(
                 0,
@@ -321,7 +322,7 @@ class TransactionReceiptScreen extends ConsumerWidget {
               ),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF069494),
+              backgroundColor: AppColors.primaryTeal,
               foregroundColor: Colors.white,
               minimumSize: Size(
                 0,

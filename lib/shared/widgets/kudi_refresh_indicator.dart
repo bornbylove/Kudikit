@@ -22,6 +22,7 @@
 // =============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 
 class KudiRefreshIndicator extends StatelessWidget {
   const KudiRefreshIndicator({
@@ -46,7 +47,7 @@ class KudiRefreshIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: onRefresh,
-      color: const Color(0xFF069494), // Kudi teal
+      color: AppColors.primaryTeal, // Kudi teal
       backgroundColor: Colors.white,
       strokeWidth: 2.5,
       displacement: displacement,

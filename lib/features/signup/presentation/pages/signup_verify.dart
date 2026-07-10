@@ -9,6 +9,7 @@
 //   - No logic changes — only naming clarity.
 
 import 'dart:async';
+import 'package:kudipay/core/theme/app_theme.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -242,18 +243,18 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
       height: 56,
       textStyle: const TextStyle(
         fontSize: 20,
-        color: Color(0xFF069494),
+        color: AppColors.primaryTeal,
         fontWeight: FontWeight.w600,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(width: 0.5, color: const Color(0xFF069494)),
+        border: Border.all(width: 0.5, color: AppColors.primaryTeal),
       ),
     );
 
     final focusedPinTheme = defaultPinTheme.copyDecorationWith(
-      border: Border.all(color: const Color(0xFF069494), width: 2),
+      border: Border.all(color: AppColors.primaryTeal, width: 2),
       borderRadius: BorderRadius.circular(10),
     );
 
@@ -295,7 +296,7 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
                       strokeWidth: AppLayout.scaleWidth(context, 2),
                       backgroundColor: const Color(0xFFE0E0E0),
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF069494)),
+                          AppColors.primaryTeal),
                     ),
                   ),
                   Positioned.fill(
@@ -470,7 +471,7 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                   color: isOnline
-                                      ? const Color(0xFF069494)
+                                      ? AppColors.primaryTeal
                                       : Colors.grey,
                                 ),
                               ),
@@ -484,7 +485,7 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF069494),
+                            color: AppColors.primaryTeal,
                           ),
                         ),
                       ),

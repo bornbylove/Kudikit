@@ -161,7 +161,7 @@ class _TransferRecipientScreenState
             color: Color(0xFF339992),
           ),
         ),
-        labelColor: const Color(0xFF069494),
+        labelColor: AppColors.primaryTeal,
         unselectedLabelColor: Colors.black54,
         labelStyle: TextStyle(
           fontSize: AppLayout.fontSize(context, 14),
@@ -263,7 +263,7 @@ class _TransferRecipientScreenState
                   color: hasError
                       ? Colors.red
                       : hasRecipient
-                          ? const Color(0xFF069494)
+                          ? AppColors.primaryTeal
                           : Colors.grey[300]!,
                 ),
               ),
@@ -273,14 +273,14 @@ class _TransferRecipientScreenState
                   color: hasError
                       ? Colors.red
                       : hasRecipient
-                          ? const Color(0xFF069494)
+                          ? AppColors.primaryTeal
                           : Colors.grey[300]!,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(
-                  color: Color(0xFF069494),
+                  color: AppColors.primaryTeal,
                   width: 0.5,
                 ),
               ),
@@ -290,7 +290,7 @@ class _TransferRecipientScreenState
                       width: AppLayout.scaleWidth(context, 10),
                       height: AppLayout.scaleWidth(context, 10),
                       colorFilter: const ColorFilter.mode(
-                        Color(0xFF069494),
+                        AppColors.primaryTeal,
                         BlendMode.srcIn,
                       ),
                     )
@@ -329,7 +329,7 @@ class _TransferRecipientScreenState
               decoration: BoxDecoration(
                 border: Border.all(
                     color: _selectedBank != null
-                        ? const Color(0xFF069494)
+                        ? AppColors.primaryTeal
                         : Colors.grey[300]!,
                     width: 0.5),
                 borderRadius: BorderRadius.circular(8),
@@ -400,7 +400,7 @@ class _TransferRecipientScreenState
                     width: AppLayout.scaleWidth(context, 12),
                     height: AppLayout.scaleWidth(context, 12),
                     colorFilter: const ColorFilter.mode(
-                      Color(0xFF069494),
+                      AppColors.primaryTeal,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -409,7 +409,7 @@ class _TransferRecipientScreenState
                     state.transferData.recipient!.name.toUpperCase(),
                     style: TextStyle(
                       fontSize: AppLayout.fontSize(context, 13),
-                      color: const Color(0xFF069494),
+                      color: AppColors.primaryTeal,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -436,7 +436,7 @@ class _TransferRecipientScreenState
                     }
                   : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF069494),
+                backgroundColor: AppColors.primaryTeal,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -508,7 +508,7 @@ class _TransferRecipientScreenState
                   color: hasError
                       ? Colors.red
                       : hasRecipient
-                          ? const Color(0xFF069494)
+                          ? AppColors.primaryTeal
                           : Colors.grey[300]!,
                 ),
               ),
@@ -518,19 +518,19 @@ class _TransferRecipientScreenState
                   color: hasError
                       ? Colors.red
                       : hasRecipient
-                          ? const Color(0xFF069494)
+                          ? AppColors.primaryTeal
                           : Colors.grey[300]!,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(
-                  color: Color(0xFF069494),
+                  color: AppColors.primaryTeal,
                   width: 2,
                 ),
               ),
               suffixIcon: hasRecipient
-                  ? const Icon(Icons.check_circle, color: Color(0xFF069494))
+                  ? const Icon(Icons.check_circle, color: AppColors.primaryTeal)
                   : null,
               counterText: '',
             ),
@@ -591,7 +591,7 @@ class _TransferRecipientScreenState
                 children: [
                   Icon(
                     Icons.check_circle,
-                    color: const Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                     size: AppLayout.scaleWidth(context, 16),
                   ),
                   SizedBox(width: AppLayout.scaleWidth(context, 8)),
@@ -599,7 +599,7 @@ class _TransferRecipientScreenState
                     state.transferData.recipient!.name.toUpperCase(),
                     style: TextStyle(
                       fontSize: AppLayout.fontSize(context, 13),
-                      color: const Color(0xFF069494),
+                      color: AppColors.primaryTeal,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -658,7 +658,7 @@ class _TransferRecipientScreenState
                     }
                   : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF069494),
+                backgroundColor: AppColors.primaryTeal,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),
@@ -711,7 +711,7 @@ class _TransferRecipientScreenState
           children: [
             Icon(
               icon,
-              color: const Color(0xFF069494),
+              color: AppColors.primaryTeal,
               size: AppLayout.scaleWidth(context, 18),
             ),
             SizedBox(width: AppLayout.scaleWidth(context, 8)),
@@ -719,7 +719,7 @@ class _TransferRecipientScreenState
               label,
               style: TextStyle(
                 fontSize: AppLayout.fontSize(context, 13),
-                color: const Color(0xFF069494),
+                color: AppColors.primaryTeal,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -778,7 +778,7 @@ class _TransferRecipientScreenState
           label,
           style: TextStyle(
             fontSize: AppLayout.fontSize(context, 13),
-            color: isActive ? const Color(0xFF069494) : Colors.black54,
+            color: isActive ? AppColors.primaryTeal : Colors.black54,
             fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
           ),
         ),
@@ -787,7 +787,7 @@ class _TransferRecipientScreenState
           Container(
             width: AppLayout.scaleWidth(context, 40),
             height: 2,
-            color: const Color(0xFF069494),
+            color: AppColors.primaryTeal,
           ),
       ],
     );

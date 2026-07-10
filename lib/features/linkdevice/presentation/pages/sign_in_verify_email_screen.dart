@@ -18,6 +18,7 @@
 // Resend timer: 60-second countdown, matches project convention
 
 import 'dart:async';
+import 'package:kudipay/core/theme/app_theme.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -164,7 +165,7 @@ class _SignInVerifyEmailScreenState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Code resent to ${widget.maskedEmail}'),
-          backgroundColor: const Color(0xFF069494),
+          backgroundColor: AppColors.primaryTeal,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
@@ -219,7 +220,7 @@ class _SignInVerifyEmailScreenState
               color: Colors.black26,
               child: const Center(
                 child: CircularProgressIndicator(
-                  color: Color(0xFF069494),
+                  color: AppColors.primaryTeal,
                 ),
               ),
             ),
@@ -369,7 +370,7 @@ class _SignInVerifyEmailScreenState
           borderRadius:
               BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
           borderSide: const BorderSide(
-            color: Color(0xFF069494),
+            color: AppColors.primaryTeal,
             width: 0.5,
           ),
         ),
@@ -431,7 +432,7 @@ class _SignInVerifyEmailScreenState
               'Resend code',
               style: TextStyle(
                 fontSize: AppLayout.fontSize(context, 14),
-                color: isOnline ? const Color(0xFF069494) : Colors.grey,
+                color: isOnline ? AppColors.primaryTeal : Colors.grey,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -468,7 +469,7 @@ class _SignInVerifyEmailScreenState
                   }
                 },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF069494),
+            backgroundColor: AppColors.primaryTeal,
             disabledBackgroundColor: Colors.grey.shade300,
             shape: RoundedRectangleBorder(
               borderRadius:

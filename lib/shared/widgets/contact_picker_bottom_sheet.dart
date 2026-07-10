@@ -20,6 +20,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/network_logo.dart';
 import 'package:kudipay/shared/widgets/shimmer_widget.dart';
@@ -261,7 +262,7 @@ class _ContactPickerBottomSheetState extends State<_ContactPickerBottomSheet> {
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF069494),
+                        color: AppColors.primaryTeal,
                       ),
                     ),
                   ),
@@ -379,7 +380,7 @@ class _ContactPickerBottomSheetState extends State<_ContactPickerBottomSheet> {
             ),
             child: const Icon(
               Icons.contacts_outlined,
-              color: Color(0xFF069494),
+              color: AppColors.primaryTeal,
               size: 36,
             ),
           ),
@@ -410,7 +411,7 @@ class _ContactPickerBottomSheetState extends State<_ContactPickerBottomSheet> {
             child: ElevatedButton(
               onPressed: _loadContacts,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF069494),
+                backgroundColor: AppColors.primaryTeal,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
@@ -481,7 +482,7 @@ class _ContactPickerBottomSheetState extends State<_ContactPickerBottomSheet> {
                 await ContactService.instance.openSettings();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF069494),
+                backgroundColor: AppColors.primaryTeal,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
@@ -561,7 +562,8 @@ class _ContactPickerBottomSheetState extends State<_ContactPickerBottomSheet> {
             child: OutlinedButton(
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFF069494), width: 1.5),
+                side:
+                    const BorderSide(color: AppColors.primaryTeal, width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -571,7 +573,7 @@ class _ContactPickerBottomSheetState extends State<_ContactPickerBottomSheet> {
                 style: TextStyle(
                   fontSize: AppLayout.fontSize(context, 15),
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF069494),
+                  color: AppColors.primaryTeal,
                 ),
               ),
             ),
@@ -613,7 +615,7 @@ class _ContactPickerBottomSheetState extends State<_ContactPickerBottomSheet> {
           ElevatedButton(
             onPressed: _loadContacts,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF069494),
+              backgroundColor: AppColors.primaryTeal,
               elevation: 0,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28)),
@@ -748,7 +750,7 @@ class _SectionHeader extends StatelessWidget {
         style: TextStyle(
           fontSize: AppLayout.fontSize(context, 13),
           fontWeight: FontWeight.w700,
-          color: const Color(0xFF069494),
+          color: AppColors.primaryTeal,
           letterSpacing: 0.5,
         ),
       ),
@@ -1004,7 +1006,7 @@ class _AlphabetIndex extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF069494),
+                      color: AppColors.primaryTeal,
                     ),
                   ),
                 ),

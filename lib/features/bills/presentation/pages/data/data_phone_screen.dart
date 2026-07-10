@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -233,7 +234,7 @@ class _DataPhoneScreenState extends ConsumerState<DataPhoneScreen>
                                     ),
                                     child: const Icon(
                                       Icons.person_search_outlined,
-                                      color: Color(0xFF069494),
+                                      color: AppColors.primaryTeal,
                                       size: 22,
                                     ),
                                   ),
@@ -257,7 +258,7 @@ class _DataPhoneScreenState extends ConsumerState<DataPhoneScreen>
                                         fontSize:
                                             AppLayout.fontSize(context, 13),
                                         fontWeight: FontWeight.w600,
-                                        color: const Color(0xFF069494),
+                                        color: AppColors.primaryTeal,
                                       ),
                                     ),
                                     const SizedBox(width: 6),
@@ -265,7 +266,7 @@ class _DataPhoneScreenState extends ConsumerState<DataPhoneScreen>
                                       width: 5,
                                       height: 5,
                                       decoration: const BoxDecoration(
-                                        color: Color(0xFF069494),
+                                        color: AppColors.primaryTeal,
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -334,13 +335,13 @@ class _DataPhoneScreenState extends ConsumerState<DataPhoneScreen>
                             children: [
                               TabBar(
                                 controller: _tabController,
-                                labelColor: const Color(0xFF069494),
+                                labelColor: AppColors.primaryTeal,
                                 unselectedLabelColor: const Color(0xFF9E9E9E),
                                 labelStyle: const TextStyle(
                                     fontWeight: FontWeight.w600, fontSize: 14),
                                 unselectedLabelStyle: const TextStyle(
                                     fontWeight: FontWeight.w400, fontSize: 14),
-                                indicatorColor: const Color(0xFF069494),
+                                indicatorColor: AppColors.primaryTeal,
                                 indicatorSize: TabBarIndicatorSize.label,
                                 tabs: const [
                                   Tab(text: 'Recent'),
@@ -356,7 +357,7 @@ class _DataPhoneScreenState extends ConsumerState<DataPhoneScreen>
                                     beneficiariesState.isLoading
                                         ? const Center(
                                             child: CircularProgressIndicator(
-                                              color: Color(0xFF069494),
+                                              color: AppColors.primaryTeal,
                                               strokeWidth: 2,
                                             ),
                                           )
@@ -418,9 +419,9 @@ class _DataPhoneScreenState extends ConsumerState<DataPhoneScreen>
                   onPressed:
                       state.canProceedFromPhone ? () => _proceed() : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF069494),
+                    backgroundColor: AppColors.primaryTeal,
                     disabledBackgroundColor:
-                        const Color(0xFF069494).withValues(alpha: 0.35),
+                        AppColors.primaryTeal.withValues(alpha: 0.35),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
@@ -471,7 +472,7 @@ class _ContactTabPrompt extends StatelessWidget {
               ),
               child: const Icon(
                 Icons.contacts_outlined,
-                color: Color(0xFF069494),
+                color: AppColors.primaryTeal,
                 size: 26,
               ),
             ),
@@ -481,7 +482,7 @@ class _ContactTabPrompt extends StatelessWidget {
               style: TextStyle(
                 fontSize: AppLayout.fontSize(context, 14),
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF069494),
+                color: AppColors.primaryTeal,
               ),
             ),
             const SizedBox(height: 4),

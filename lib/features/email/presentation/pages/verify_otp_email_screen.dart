@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
@@ -150,7 +151,7 @@ class _VerifyEmailOtpScreenState extends ConsumerState<VerifyEmailOtpScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Code resent successfully'),
-                                  backgroundColor: Color(0xFF069494),
+                                  backgroundColor: AppColors.primaryTeal,
                                 ),
                               );
                             }
@@ -164,7 +165,7 @@ class _VerifyEmailOtpScreenState extends ConsumerState<VerifyEmailOtpScreen> {
                       'Resend code',
                       style: TextStyle(
                         fontSize: AppLayout.fontSize(context, 14),
-                        color: const Color(0xFF069494),
+                        color: AppColors.primaryTeal,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -208,7 +209,7 @@ class _VerifyEmailOtpScreenState extends ConsumerState<VerifyEmailOtpScreen> {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF069494),
+                    backgroundColor: AppColors.primaryTeal,
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(

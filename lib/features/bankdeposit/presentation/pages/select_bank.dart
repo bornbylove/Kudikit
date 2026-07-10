@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/shimmer_widget.dart';
@@ -331,7 +332,7 @@ class _SelectBankScreenState extends ConsumerState<SelectBankScreen> {
                 style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF069494),
+                backgroundColor: AppColors.primaryTeal,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius:
@@ -368,7 +369,7 @@ class _SelectBankScreenState extends ConsumerState<SelectBankScreen> {
       case 'globus':
         return const Color(0xFFD32F2F);
       default:
-        return const Color(0xFF069494);
+        return AppColors.primaryTeal;
     }
   }
 

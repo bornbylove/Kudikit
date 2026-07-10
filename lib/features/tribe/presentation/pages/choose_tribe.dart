@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/tribe/domain/entities/tribe_card.dart';
@@ -86,7 +87,7 @@ class _KudikitTribeScreenState extends ConsumerState<TribeScreen> {
                       strokeWidth: AppLayout.scaleWidth(context, 2),
                       backgroundColor: const Color(0xFFE0E0E0),
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF069494)),
+                          AppColors.primaryTeal),
                     ),
                   ),
                   Positioned.fill(
@@ -136,7 +137,7 @@ class _KudikitTribeScreenState extends ConsumerState<TribeScreen> {
                   // ── Tier 1 — Basic Tribe ───────────────────────────────
                   TribeCard(
                     icon: Icons.shield,
-                    iconColor: const Color(0xFF069494),
+                    iconColor: AppColors.primaryTeal,
                     title: 'Basic Tribe',
                     tier: 'Tier 1',
                     subtitle: 'For everyday transactions',
@@ -220,9 +221,9 @@ class _KudikitTribeScreenState extends ConsumerState<TribeScreen> {
                 onPressed:
                     (selectedTribe != null && !_isSaving) ? _onContinue : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF069494),
+                  backgroundColor: AppColors.primaryTeal,
                   disabledBackgroundColor:
-                      const Color(0xFF069494).withValues(alpha: 0.5),
+                      AppColors.primaryTeal.withValues(alpha: 0.5),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28),
                   ),

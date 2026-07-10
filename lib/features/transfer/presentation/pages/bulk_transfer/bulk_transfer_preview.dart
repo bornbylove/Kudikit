@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -60,7 +61,7 @@ class _BulkTransferPreviewScreenState
                       strokeWidth: AppLayout.scaleWidth(context, 2),
                       backgroundColor: const Color(0xFFE0E0E0),
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF069494)),
+                          AppColors.primaryTeal),
                     ),
                   ),
                   Positioned.fill(
@@ -95,14 +96,14 @@ class _BulkTransferPreviewScreenState
                     padding: EdgeInsets.all(AppLayout.scaleWidth(context, 24)),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF069494), Color(0xFF2A6B4D)],
+                        colors: [AppColors.primaryTeal, Color(0xFF2A6B4D)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF069494).withValues(alpha: 0.3),
+                          color: AppColors.primaryTeal.withValues(alpha: 0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -200,13 +201,13 @@ class _BulkTransferPreviewScreenState
                         icon: Icon(
                           Icons.edit,
                           size: AppLayout.scaleWidth(context, 18),
-                          color: const Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                         ),
                         label: Text(
                           'Edit',
                           style: TextStyle(
                             fontSize: AppLayout.fontSize(context, 14),
-                            color: const Color(0xFF069494),
+                            color: AppColors.primaryTeal,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -245,7 +246,7 @@ class _BulkTransferPreviewScreenState
                               _isReviewChecked = value ?? false;
                             });
                           },
-                          activeColor: const Color(0xFF069494),
+                          activeColor: AppColors.primaryTeal,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4),
                           ),
@@ -381,7 +382,7 @@ class _BulkTransferPreviewScreenState
                 : null,
             style: ElevatedButton.styleFrom(
               backgroundColor:
-                  isEnabled ? const Color(0xFF069494) : const Color(0xFFB8E6CC),
+                  isEnabled ? AppColors.primaryTeal : const Color(0xFFB8E6CC),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(28),
               ),

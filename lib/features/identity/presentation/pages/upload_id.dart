@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:kudipay/core/providers/core_providers.dart';
@@ -159,7 +160,7 @@ class UploadIdCardScreen extends ConsumerWidget {
                                   'Upload Document',
                                   style: TextStyle(
                                     fontSize: AppLayout.fontSize(context, 14),
-                                    color: const Color(0xFF069494),
+                                    color: AppColors.primaryTeal,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -205,7 +206,7 @@ class UploadIdCardScreen extends ConsumerWidget {
                               barrierDismissible: false,
                               builder: (context) => const Center(
                                 child: CircularProgressIndicator(
-                                  color: Color(0xFF069494),
+                                  color: AppColors.primaryTeal,
                                 ),
                               ),
                             );
@@ -290,7 +291,7 @@ class UploadIdCardScreen extends ConsumerWidget {
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF069494),
+                      backgroundColor: AppColors.primaryTeal,
                       disabledBackgroundColor: Colors.grey[300],
                       padding: EdgeInsets.symmetric(
                         vertical: AppLayout.scaleHeight(context, 18),

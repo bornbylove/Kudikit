@@ -89,7 +89,7 @@ class _RequestMoneyMainScreenState extends State<RequestMoneyMainScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Adding ${_phoneController.text.trim()} as recipient'),
-          backgroundColor: Color(0xFF069494),
+          backgroundColor: AppColors.primaryTeal,
           behavior: SnackBarBehavior.floating,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -399,8 +399,9 @@ class _RequestMoneyMainScreenState extends State<RequestMoneyMainScreen>
       child: ElevatedButton(
         onPressed: _canContinue ? _onContinue : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFF069494),
-          disabledBackgroundColor: Color(0xFF069494).withValues(alpha: 0.45),
+          backgroundColor: AppColors.primaryTeal,
+          disabledBackgroundColor:
+              AppColors.primaryTeal.withValues(alpha: 0.45),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),

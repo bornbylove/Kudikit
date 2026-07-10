@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/shimmer_widget.dart';
@@ -80,7 +81,7 @@ class NotificationCategoryScreen extends ConsumerWidget {
                         .read(notificationPreferencesProvider.notifier)
                         .loadPreferences(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF069494),
+                      backgroundColor: AppColors.primaryTeal,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
@@ -324,7 +325,7 @@ class NotificationCategoryScreen extends ConsumerWidget {
                 }
               },
               activeThumbColor: Colors.white,
-              activeTrackColor: const Color(0xFF069494),
+              activeTrackColor: AppColors.primaryTeal,
               inactiveThumbColor: Colors.white,
               inactiveTrackColor: Colors.grey[300],
             ),

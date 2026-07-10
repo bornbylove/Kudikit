@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/tier/domain/entities/tier_model.dart';
@@ -283,7 +284,7 @@ class _RequirementRow extends StatelessWidget {
             Icon(
               Icons.check,
               size: AppLayout.scaleWidth(context, 16),
-              color: const Color(0xFF069494),
+              color: AppColors.primaryTeal,
             ),
         ],
       ),
@@ -311,7 +312,7 @@ class _BenefitRow extends StatelessWidget {
           Icon(
             Icons.check,
             size: AppLayout.scaleWidth(context, 16),
-            color: const Color(0xFF069494),
+            color: AppColors.primaryTeal,
           ),
           SizedBox(width: AppLayout.scaleWidth(context, 12)),
           Expanded(
@@ -357,12 +358,11 @@ class _BottomButton extends StatelessWidget {
           child: ElevatedButton(
             onPressed: isLoading || isCurrentTier ? null : onTap,
             style: ElevatedButton.styleFrom(
-              backgroundColor: isCurrentTier
-                  ? Colors.grey.shade400
-                  : const Color(0xFF069494),
+              backgroundColor:
+                  isCurrentTier ? Colors.grey.shade400 : AppColors.primaryTeal,
               disabledBackgroundColor: isCurrentTier
                   ? Colors.grey.shade400
-                  : const Color(0xFF069494).withValues(alpha: 0.55),
+                  : AppColors.primaryTeal.withValues(alpha: 0.55),
               foregroundColor: Colors.white,
               disabledForegroundColor: Colors.white70,
               elevation: 0,

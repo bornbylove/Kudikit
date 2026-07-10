@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/navigation/app_routes.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -244,7 +245,7 @@ class VerificationInProgressScreen extends ConsumerWidget {
             children: [
               Icon(
                 Icons.phone_outlined,
-                color: const Color(0xFF069494),
+                color: AppColors.primaryTeal,
                 size: AppLayout.scaleWidth(context, 24),
               ),
               SizedBox(width: AppLayout.scaleWidth(context, 12)),
@@ -284,14 +285,14 @@ class VerificationInProgressScreen extends ConsumerWidget {
                     'Contact support',
                     style: TextStyle(
                       fontSize: AppLayout.fontSize(context, 14),
-                      color: const Color(0xFF069494),
+                      color: AppColors.primaryTeal,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   SizedBox(width: AppLayout.scaleWidth(context, 4)),
                   Icon(
                     Icons.arrow_forward,
-                    color: const Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                     size: AppLayout.scaleWidth(context, 16),
                   ),
                 ],

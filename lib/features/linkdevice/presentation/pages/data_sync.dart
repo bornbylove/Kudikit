@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/linkdevice/presentation/pages/enable_biometrics.dart';
@@ -34,7 +35,7 @@ class _DataSyncScreenState extends ConsumerState<DataSyncScreen> {
             Container(
               color: Colors.black26,
               child: const Center(
-                child: CircularProgressIndicator(color: Color(0xFF069494)),
+                child: CircularProgressIndicator(color: AppColors.primaryTeal),
               ),
             ),
         ],
@@ -146,7 +147,7 @@ class _DataSyncScreenState extends ConsumerState<DataSyncScreen> {
           Checkbox(
             value: value,
             onChanged: (newValue) => onChanged(newValue ?? false),
-            activeColor: const Color(0xFF069494),
+            activeColor: AppColors.primaryTeal,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(4),
             ),
@@ -214,7 +215,7 @@ class _DataSyncScreenState extends ConsumerState<DataSyncScreen> {
                       }
                     },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF069494),
+                backgroundColor: AppColors.primaryTeal,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -245,7 +246,7 @@ class _DataSyncScreenState extends ConsumerState<DataSyncScreen> {
               'Skip',
               style: TextStyle(
                 fontSize: AppLayout.fontSize(context, 14),
-                color: const Color(0xFF069494),
+                color: AppColors.primaryTeal,
                 fontWeight: FontWeight.w500,
               ),
             ),

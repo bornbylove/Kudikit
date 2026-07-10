@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/features/homescreen/presentation/pages/home_screen.dart';
 import 'package:kudipay/features/profile/presentation/pages/profile_screen.dart';
 import 'package:kudipay/features/support/presentation/pages/support_screen.dart';
@@ -62,7 +63,7 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
           },
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
-          selectedItemColor: const Color(0xFF069494),
+          selectedItemColor: AppColors.primaryTeal,
           unselectedItemColor: Colors.grey[400],
           selectedFontSize: 12,
           unselectedFontSize: 12,

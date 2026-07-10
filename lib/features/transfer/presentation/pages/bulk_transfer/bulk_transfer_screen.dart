@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_template_screen.dart';
@@ -42,7 +43,7 @@ class BulkTransferScreen extends ConsumerWidget {
                       strokeWidth: AppLayout.scaleWidth(context, 2),
                       backgroundColor: const Color(0xFFE0E0E0),
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF069494)),
+                          AppColors.primaryTeal),
                     ),
                   ),
                   Positioned.fill(
@@ -98,12 +99,12 @@ class BulkTransferScreen extends ConsumerWidget {
               _buildMethodOption(
                 context: context,
                 icon: Icons.person_add_outlined,
-                iconColor: const Color(0xFF069494),
+                iconColor: AppColors.primaryTeal,
                 iconBgColor: const Color(0xFFE8F5E9),
                 title: 'Add manually',
                 subtitle: 'Add recipient one by one by adding their details',
                 badgeText: 'Most flexible',
-                badgeColor: const Color(0xFF069494),
+                badgeColor: AppColors.primaryTeal,
                 recommendedText: 'Best for 1-5 recipients',
                 onTap: () {
                   Navigator.push(

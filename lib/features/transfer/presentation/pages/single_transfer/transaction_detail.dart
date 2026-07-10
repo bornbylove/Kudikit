@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/navigation/app_routes.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -55,7 +56,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
                       ),
                       child: Icon(
                         Icons.account_balance,
-                        color: const Color(0xFF069494),
+                        color: AppColors.primaryTeal,
                         size: AppLayout.scaleWidth(context, 32),
                       ),
                     ),
@@ -101,7 +102,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
                         children: [
                           Icon(
                             Icons.check_circle,
-                            color: const Color(0xFF069494),
+                            color: AppColors.primaryTeal,
                             size: AppLayout.scaleWidth(context, 16),
                           ),
                           SizedBox(width: AppLayout.scaleWidth(context, 6)),
@@ -109,7 +110,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
                             'successful',
                             style: TextStyle(
                               fontSize: AppLayout.fontSize(context, 13),
-                              color: const Color(0xFF069494),
+                              color: AppColors.primaryTeal,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -188,7 +189,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
                           vertical: AppLayout.scaleHeight(context, 16),
                         ),
                         side: const BorderSide(
-                          color: Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                           width: 1.5,
                         ),
                         shape: RoundedRectangleBorder(
@@ -200,7 +201,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: AppLayout.fontSize(context, 16),
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                         ),
                       ),
                     ),
@@ -213,7 +214,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
                         padding: EdgeInsets.symmetric(
                           vertical: AppLayout.scaleHeight(context, 16),
                         ),
-                        backgroundColor: const Color(0xFF069494),
+                        backgroundColor: AppColors.primaryTeal,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(28),
                         ),
@@ -340,7 +341,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Receipt details copied to clipboard'),
-        backgroundColor: const Color(0xFF069494),
+        backgroundColor: AppColors.primaryTeal,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: const Duration(seconds: 2),
@@ -355,7 +356,7 @@ class TransactionDetailsScreen extends ConsumerWidget {
       SnackBar(
         content:
             const Text('Transaction ID copied — use it to request a receipt'),
-        backgroundColor: const Color(0xFF069494),
+        backgroundColor: AppColors.primaryTeal,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: const Duration(seconds: 3),

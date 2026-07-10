@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -50,7 +51,7 @@ class BulkTransferTemplatesScreen extends ConsumerWidget {
                       strokeWidth: AppLayout.scaleWidth(context, 2),
                       backgroundColor: const Color(0xFFE0E0E0),
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF069494)),
+                          AppColors.primaryTeal),
                     ),
                   ),
                   Positioned.fill(
@@ -107,7 +108,8 @@ class BulkTransferTemplatesScreen extends ConsumerWidget {
               loading: () => const Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 80),
-                  child: CircularProgressIndicator(color: Color(0xFF069494)),
+                  child:
+                      CircularProgressIndicator(color: AppColors.primaryTeal),
                 ),
               ),
               error: (_, __) => Center(
@@ -210,7 +212,7 @@ class BulkTransferTemplatesScreen extends ConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Template "${template.name}" deleted'),
-                  backgroundColor: const Color(0xFF069494),
+                  backgroundColor: AppColors.primaryTeal,
                 ),
               );
             },
@@ -378,7 +380,7 @@ class _TemplateCard extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onUseTemplate,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF069494),
+                backgroundColor: AppColors.primaryTeal,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),

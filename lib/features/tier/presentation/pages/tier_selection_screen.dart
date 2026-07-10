@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -61,16 +62,16 @@ class TierSelectionScreen extends ConsumerWidget {
             Container(
               padding: EdgeInsets.all(AppLayout.scaleWidth(context, 12)),
               decoration: BoxDecoration(
-                color: const Color(0xFF069494).withValues(alpha: 0.1),
+                color: AppColors.primaryTeal.withValues(alpha: 0.1),
                 borderRadius:
                     BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
-                border: Border.all(color: const Color(0xFF069494)),
+                border: Border.all(color: AppColors.primaryTeal),
               ),
               child: Row(
                 children: [
                   Icon(
                     Icons.info_outline,
-                    color: const Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                     size: AppLayout.scaleWidth(context, 20),
                   ),
                   SizedBox(width: AppLayout.scaleWidth(context, 12)),
@@ -79,7 +80,7 @@ class TierSelectionScreen extends ConsumerWidget {
                       'You are currently on ${_getTierName(currentTier)}',
                       style: GoogleFonts.openSans(
                         fontSize: AppLayout.fontSize(context, 14),
-                        color: const Color(0xFF069494),
+                        color: AppColors.primaryTeal,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

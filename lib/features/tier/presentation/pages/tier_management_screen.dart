@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -332,14 +333,14 @@ class TierManagementScreen extends ConsumerWidget {
             borderRadius:
                 BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
           ),
-          side: const BorderSide(color: Color(0xFF069494), width: 2),
+          side: const BorderSide(color: AppColors.primaryTeal, width: 2),
         ),
         child: Text(
           'View All Tiers',
           style: GoogleFonts.openSans(
             fontSize: AppLayout.fontSize(context, 16),
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF069494),
+            color: AppColors.primaryTeal,
           ),
         ),
       ),

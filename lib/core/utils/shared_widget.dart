@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'dart:math' as math;
 
-const kTeal = Color(0xFF069494);
+const kTeal = AppColors.primaryTeal;
 const kBgGrey = Color(0xFFf9f9f9);
 const kTextDark = Color(0xFF151717);
 const kTextMid = Color(0xFF666666);

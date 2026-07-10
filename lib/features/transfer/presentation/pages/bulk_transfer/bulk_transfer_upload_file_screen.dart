@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/services.dart';
@@ -59,7 +60,7 @@ class _BulkTransferUploadFileScreenState
                       strokeWidth: AppLayout.scaleWidth(context, 2),
                       backgroundColor: const Color(0xFFE0E0E0),
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF069494)),
+                          AppColors.primaryTeal),
                     ),
                   ),
                   Positioned.fill(
@@ -99,7 +100,7 @@ class _BulkTransferUploadFileScreenState
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                     width: 2,
                   ),
                 ),
@@ -114,7 +115,7 @@ class _BulkTransferUploadFileScreenState
                       ),
                       child: Icon(
                         Icons.upload_outlined,
-                        color: const Color(0xFF069494),
+                        color: AppColors.primaryTeal,
                         size: AppLayout.scaleWidth(context, 32),
                       ),
                     ),
@@ -253,7 +254,7 @@ class _BulkTransferUploadFileScreenState
       children: [
         Icon(
           Icons.check_circle_outline,
-          color: const Color(0xFF069494),
+          color: AppColors.primaryTeal,
           size: AppLayout.scaleWidth(context, 18),
         ),
         SizedBox(width: AppLayout.scaleWidth(context, 12)),
@@ -319,7 +320,7 @@ class _BulkTransferUploadFileScreenState
         context: context,
         barrierDismissible: false,
         builder: (_) => const Center(
-          child: CircularProgressIndicator(color: Color(0xFF069494)),
+          child: CircularProgressIndicator(color: AppColors.primaryTeal),
         ),
       );
     }
@@ -495,7 +496,7 @@ class _BulkTransferUploadFileScreenState
         content: Text(
           'CSV template copied to clipboard — paste into Excel or Sheets',
         ),
-        backgroundColor: Color(0xFF069494),
+        backgroundColor: AppColors.primaryTeal,
       ),
     );
   }

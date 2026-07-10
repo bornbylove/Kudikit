@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/features/passcode/domain/passcode_state.dart';
@@ -38,12 +39,12 @@ class _PasscodeConfirmationScreenState
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFF069494).withValues(alpha: 0.1),
+                color: AppColors.primaryTeal.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.check_circle,
-                color: Color(0xFF069494),
+                color: AppColors.primaryTeal,
                 size: 50,
               ),
             ),
@@ -77,7 +78,7 @@ class _PasscodeConfirmationScreenState
                   navigateToMainShell(context);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF069494),
+                  backgroundColor: AppColors.primaryTeal,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -196,7 +197,8 @@ class _PasscodeConfirmationScreenState
               color: Colors.black.withValues(alpha: 0.3),
               child: const Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF069494)),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(AppColors.primaryTeal),
                   strokeWidth: 3,
                 ),
               ),

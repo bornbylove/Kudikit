@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -204,7 +205,7 @@ class _SelfieCaptureScreenState extends ConsumerState<SelfieCaptureScreen> {
                       padding:
                           EdgeInsets.all(AppLayout.scaleWidth(context, 16)),
                       decoration: BoxDecoration(
-                        color: Color(0xFF069494),
+                        color: AppColors.primaryTeal,
                         borderRadius: BorderRadius.circular(
                             AppLayout.scaleWidth(context, 20)),
                       ),
@@ -330,11 +331,11 @@ class _SelfieCaptureScreenState extends ConsumerState<SelfieCaptureScreen> {
               width: AppLayout.scaleWidth(context, 80),
               height: AppLayout.scaleWidth(context, 80),
               decoration: BoxDecoration(
-                color: Color(0xFF069494).withValues(alpha: 0.1),
+                color: AppColors.primaryTeal.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.check_circle,
-                  color: Color(0xFF069494),
+                  color: AppColors.primaryTeal,
                   size: AppLayout.scaleWidth(context, 50)),
             ),
             SizedBox(height: AppLayout.scaleHeight(context, 24)),
@@ -376,7 +377,7 @@ class _SelfieCaptureScreenState extends ConsumerState<SelfieCaptureScreen> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF069494),
+                  backgroundColor: AppColors.primaryTeal,
                   padding: EdgeInsets.all(AppLayout.scaleWidth(context, 16)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(

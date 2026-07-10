@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 
 import '../../core/constants/constant.dart';
 
@@ -21,7 +22,7 @@ class WhiteAppButton extends StatelessWidget {
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(28)),
             side: BorderSide(
-              color: Color(0xFF069494), // 👈 border color
+              color: AppColors.primaryTeal, // 👈 border color
               width: 0.5, // 👈 border width
             ),
           ),
@@ -32,7 +33,7 @@ class WhiteAppButton extends StatelessWidget {
             text,
             style: const TextStyle(
               fontSize: 20,
-              color: Color(0xFF069494),
+              color: AppColors.primaryTeal,
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w500,
             ),

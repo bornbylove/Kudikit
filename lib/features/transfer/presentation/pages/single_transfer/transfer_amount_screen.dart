@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:intl/intl.dart';
@@ -98,7 +99,7 @@ class _TransferAmountScreenState extends ConsumerState<TransferAmountScreen> {
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF069494),
+                  backgroundColor: AppColors.primaryTeal,
                 ),
                 child: const Text('Go Back'),
               ),
@@ -189,7 +190,7 @@ class _TransferAmountScreenState extends ConsumerState<TransferAmountScreen> {
         children: [
           CircleAvatar(
             radius: AppLayout.scaleWidth(context, 20),
-            backgroundColor: const Color(0xFF069494),
+            backgroundColor: AppColors.primaryTeal,
             child: Icon(
               Icons.person,
               color: Colors.white,
@@ -375,7 +376,7 @@ class _TransferAmountScreenState extends ConsumerState<TransferAmountScreen> {
                       fontWeight:
                           isSelected ? FontWeight.w600 : FontWeight.w400,
                       color:
-                          isSelected ? const Color(0xFF069494) : Colors.black54,
+                          isSelected ? AppColors.primaryTeal : Colors.black54,
                     ),
                   ),
                 ),
@@ -432,7 +433,7 @@ class _TransferAmountScreenState extends ConsumerState<TransferAmountScreen> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(
-                  color: Color(0xFF069494),
+                  color: AppColors.primaryTeal,
                   width: 2,
                 ),
               ),
@@ -510,7 +511,7 @@ class _TransferAmountScreenState extends ConsumerState<TransferAmountScreen> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(
-                  color: Color(0xFF069494),
+                  color: AppColors.primaryTeal,
                   width: 2,
                 ),
               ),
@@ -548,7 +549,7 @@ class _TransferAmountScreenState extends ConsumerState<TransferAmountScreen> {
                 : null,
             style: ElevatedButton.styleFrom(
               backgroundColor:
-                  canSend ? const Color(0xFF069494) : const Color(0xFFB2DFDB),
+                  canSend ? AppColors.primaryTeal : const Color(0xFFB2DFDB),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),

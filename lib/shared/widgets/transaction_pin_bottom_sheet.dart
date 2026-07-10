@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/services/transaction_pin_service.dart';
@@ -207,7 +208,7 @@ class _TransactionPinBottomSheetState
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                            color: Color(0xFF069494), strokeWidth: 2.5))),
+                            color: AppColors.primaryTeal, strokeWidth: 2.5))),
 
               SizedBox(height: AppLayout.scaleHeight(context, 20)),
 
@@ -254,7 +255,7 @@ class _TransactionPinBottomSheetState
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: filled
-                    ? (_showError ? Colors.red : const Color(0xFF069494))
+                    ? (_showError ? Colors.red : AppColors.primaryTeal)
                     : Colors.grey[400],
               ),
             ),

@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -66,7 +67,7 @@ class _RequestMoneyScreenState extends ConsumerState<RequestMoneyScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF069494),
+              primary: AppColors.primaryTeal,
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
@@ -225,7 +226,7 @@ class _RequestMoneyScreenState extends ConsumerState<RequestMoneyScreen> {
                             isSelected ? const Color(0xFFE8F5E9) : Colors.white,
                         border: Border.all(
                           color: isSelected
-                              ? const Color(0xFF069494)
+                              ? AppColors.primaryTeal
                               : Colors.grey[300]!,
                         ),
                         borderRadius: BorderRadius.circular(20),
@@ -236,7 +237,7 @@ class _RequestMoneyScreenState extends ConsumerState<RequestMoneyScreen> {
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: isSelected
-                              ? const Color(0xFF069494)
+                              ? AppColors.primaryTeal
                               : Colors.grey[700],
                         ),
                       ),
@@ -360,7 +361,7 @@ class _RequestMoneyScreenState extends ConsumerState<RequestMoneyScreen> {
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: _useTodayDate
-                                ? const Color(0xFF069494)
+                                ? AppColors.primaryTeal
                                 : Colors.grey[700],
                           ),
                         ),
@@ -391,7 +392,7 @@ class _RequestMoneyScreenState extends ConsumerState<RequestMoneyScreen> {
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: !_useTodayDate
-                                ? const Color(0xFF069494)
+                                ? AppColors.primaryTeal
                                 : Colors.grey[700],
                           ),
                         ),
@@ -411,7 +412,7 @@ class _RequestMoneyScreenState extends ConsumerState<RequestMoneyScreen> {
                         alignment: Alignment.center,
                         child: const Icon(
                           Icons.calendar_today,
-                          color: Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                           size: 20,
                         ),
                       ),
@@ -480,7 +481,7 @@ class _RequestMoneyScreenState extends ConsumerState<RequestMoneyScreen> {
                           _isPrivate = value;
                         });
                       },
-                      activeThumbColor: const Color(0xFF069494),
+                      activeThumbColor: AppColors.primaryTeal,
                     ),
                   ],
                 ),
@@ -505,7 +506,7 @@ class _RequestMoneyScreenState extends ConsumerState<RequestMoneyScreen> {
           child: ElevatedButton(
             onPressed: canContinue ? _continue : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF069494),
+              backgroundColor: AppColors.primaryTeal,
               disabledBackgroundColor: const Color(0xFFE0E0E0),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),

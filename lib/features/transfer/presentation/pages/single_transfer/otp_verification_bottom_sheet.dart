@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/navigation/app_routes.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -130,7 +131,7 @@ class _OtpVerificationBottomSheetState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('OTP sent to ${widget.maskedPhone}'),
-          backgroundColor: const Color(0xFF069494),
+          backgroundColor: AppColors.primaryTeal,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
@@ -185,7 +186,7 @@ class _OtpVerificationBottomSheetState
                   style: TextStyle(
                     fontSize: AppLayout.fontSize(context, 36),
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                   ),
                 ),
 
@@ -243,7 +244,7 @@ class _OtpVerificationBottomSheetState
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: const BorderSide(
-                              color: Color(0xFF069494),
+                              color: AppColors.primaryTeal,
                               width: 2,
                             ),
                           ),
@@ -285,7 +286,7 @@ class _OtpVerificationBottomSheetState
                         style: TextStyle(
                           fontSize: AppLayout.fontSize(context, 13),
                           color: _countdown == 0
-                              ? const Color(0xFF069494)
+                              ? AppColors.primaryTeal
                               : Colors.grey,
                           fontWeight: FontWeight.w600,
                         ),
@@ -319,7 +320,7 @@ class _OtpVerificationBottomSheetState
                         'OTP sent to ${widget.maskedPhone}',
                         style: TextStyle(
                           fontSize: AppLayout.fontSize(context, 13),
-                          color: const Color(0xFF069494),
+                          color: AppColors.primaryTeal,
                         ),
                       ),
                     ],
@@ -337,7 +338,7 @@ class _OtpVerificationBottomSheetState
                     'Having problem?',
                     style: TextStyle(
                       fontSize: AppLayout.fontSize(context, 14),
-                      color: const Color(0xFF069494),
+                      color: AppColors.primaryTeal,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -346,7 +347,7 @@ class _OtpVerificationBottomSheetState
                 if (_isVerifying) ...[
                   SizedBox(height: AppLayout.scaleHeight(context, 16)),
                   const CircularProgressIndicator(
-                    color: Color(0xFF069494),
+                    color: AppColors.primaryTeal,
                   ),
                 ],
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/constants/id_type.dart';
@@ -46,7 +47,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
             Container(
               color: Colors.black26,
               child: const Center(
-                child: CircularProgressIndicator(color: Color(0xFF069494)),
+                child: CircularProgressIndicator(color: AppColors.primaryTeal),
               ),
             ),
         ],
@@ -80,7 +81,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
                       strokeWidth: 3,
                       backgroundColor: Colors.grey[200],
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xFF069494),
+                        AppColors.primaryTeal,
                       ),
                     ),
                   ),
@@ -241,7 +242,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
           borderRadius:
               BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
           border: Border.all(
-            color: isSelected ? const Color(0xFF069494) : Colors.grey[300]!,
+            color: isSelected ? AppColors.primaryTeal : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -251,7 +252,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
             style: TextStyle(
               fontSize: AppLayout.fontSize(context, 16),
               fontWeight: FontWeight.w600,
-              color: isSelected ? const Color(0xFF069494) : Colors.grey[700],
+              color: isSelected ? AppColors.primaryTeal : Colors.grey[700],
             ),
           ),
         ),
@@ -320,7 +321,8 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
             focusedBorder: OutlineInputBorder(
               borderRadius:
                   BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
-              borderSide: const BorderSide(color: Color(0xFF069494), width: 2),
+              borderSide:
+                  const BorderSide(color: AppColors.primaryTeal, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius:
@@ -355,7 +357,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
             children: [
               Icon(
                 Icons.check_circle,
-                color: const Color(0xFF069494),
+                color: AppColors.primaryTeal,
                 size: AppLayout.scaleWidth(context, 20),
               ),
               SizedBox(width: AppLayout.scaleWidth(context, 8)),
@@ -411,7 +413,7 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
         child: ElevatedButton(
           onPressed: isEnabled ? _handleNext : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF069494),
+            backgroundColor: AppColors.primaryTeal,
             disabledBackgroundColor: Colors.grey[300],
             minimumSize: Size(
               double.infinity,
