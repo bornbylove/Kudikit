@@ -117,7 +117,7 @@ import 'package:kudipay/presentation/linkdevice/data_sync.dart'; // DataSyncScre
 
 // Support / Tickets
 import 'package:kudipay/presentation/support/support_screen.dart';
-import 'package:kudipay/presentation/ticket/features/tickets/presentation/screens/tickets_screen.dart';
+import 'package:kudipay/features/ticket/features/tickets/presentation/screens/tickets_screen.dart';
 
 // Tribe
 import 'package:kudipay/presentation/tribe/choose_tribe.dart'; // TribeScreen
