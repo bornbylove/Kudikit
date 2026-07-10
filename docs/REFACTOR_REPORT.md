@@ -155,9 +155,10 @@ adjacent, boundary needs a decision) and cross-cutting models (`bankmodel`, `dev
    `features/passcode/domain`, both shimmed); the directory can be deleted once its two
    shims are repointed.
 
-5. **Standardize directory names.** `presentation/Identity/` → `identity/`,
-   `provider/Identity_verify/` → `identity_verify/`, `provider/P2P_transfer/` →
-   `p2p_transfer/` (folder names are cosmetic but reinforce the convention).
+5. **Standardize directory names.** ✅ Done — the non-conforming `Identity/`,
+   `IDdocument/`, `Identity_verify/`, and `P2P_transfer/` directories were deleted and
+   their importers repointed to the lowercase `features/identity` and
+   `features/transfer` paths. No capitalized directories remain under `lib/`.
 
 6. **Wire up or remove the stubbed services.** `id_verification_services.dart` and the
    `_client`-injected notifiers have real logic behind commented-out API calls.
