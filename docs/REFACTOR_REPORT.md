@@ -143,11 +143,12 @@ review, not a mechanical move.
    `lib/presentation/` and `lib/usecases/` no longer exist. Only cross-cutting infra
    and shared models remain in `lib/provider/` and `lib/model/` (see above).
 
-2. **Centralize the brand palette (biggest DRY win).** `AppColors.primaryTeal` is
-   defined in `core/theme/app_theme.dart` but the raw literal `Color(0xFF069494)` is
-   hardcoded **439 times across 90 files**. Replace with `AppColors.primaryTeal` in a
-   dedicated, reviewed pass. Do the same for the other repeated hex literals
-   (`0xFF9E9E9E`, `0xFF1A1A2E`, `0xFFF9F9F9`, …).
+2. ✅ **Brand color centralized.** All 439 `Color(0xFF069494)` literals across 88 files
+   were replaced with `AppColors.primaryTeal` (only the two `AppColors` definitions keep
+   the raw hex). Still worth doing the same for the other repeated hex literals
+   (`0xFF9E9E9E` neutral-grey, `0xFF1A1A2E` ink, `0xFFF9F9F9` background, …) — add them
+   to `AppColors` and sweep. Note the ticket module has its **own** `AppColors`
+   (`AppColors.primary`); consider merging it into the core theme.
 
 3. **Finish collapsing the parallel state layer.** Most domain providers now live in
    `features/*/presentation/controllers`. The remainder in `lib/provider/` is either
