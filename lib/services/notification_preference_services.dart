@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:kudipay/presentation/notification/notification_preferences.dart';
@@ -69,7 +70,7 @@ class NotificationPreferencesService {
       );
       return response.statusCode == 200;
     } catch (e) {
-      print('Error updating preferences: $e');
+      debugPrint('Error updating preferences: $e');
       return false;
     }
   }
@@ -93,7 +94,7 @@ class NotificationPreferencesService {
       );
       return response.statusCode == 200;
     } catch (e) {
-      print('Error updating preference: $e');
+      debugPrint('Error updating preference: $e');
       return false;
     }
   }
@@ -108,7 +109,7 @@ class NotificationPreferencesService {
         json.encode(preferences.toJson()),
       );
     } catch (e) {
-      print('Error saving preferences locally: $e');
+      debugPrint('Error saving preferences locally: $e');
     }
   }
 
@@ -121,7 +122,7 @@ class NotificationPreferencesService {
         return NotificationPreferences.fromJson(json.decode(data));
       }
     } catch (e) {
-      print('Error loading local preferences: $e');
+      debugPrint('Error loading local preferences: $e');
     }
     return NotificationPreferences();
   }

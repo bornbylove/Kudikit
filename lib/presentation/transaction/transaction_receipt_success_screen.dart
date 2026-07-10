@@ -52,7 +52,7 @@ class TransactionReceiptScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
-      appBar: _ReceiptAppBar(context),
+      appBar: _receiptAppBar(context),
       body: receipt == null
           ? const Center(child: Text('No receipt available'))
           : _ReceiptBody(receipt: receipt),
@@ -62,7 +62,7 @@ class TransactionReceiptScreen extends ConsumerWidget {
 
 // ─── AppBar ───────────────────────────────────────────────────────────────────
 
-PreferredSizeWidget _ReceiptAppBar(BuildContext context) => AppBar(
+PreferredSizeWidget _receiptAppBar(BuildContext context) => AppBar(
       backgroundColor: const Color(0xFFF9F9F9),
       elevation: 0,
       surfaceTintColor: Colors.transparent,

@@ -445,8 +445,9 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
 
   void _handleNext() {
     final state = ref.read(idVerificationProvider);
-    if (state.status != VerificationStatus.success || state.data == null)
+    if (state.status != VerificationStatus.success || state.data == null) {
       return;
+    }
 
     // Build a UserInfo from the data returned by the ID verification step.
     // The mock (and real) API returns first_name, last_name, date_of_birth,

@@ -17,14 +17,14 @@ class BillPaymentSuccessScreen extends StatefulWidget {
   final String? prepaidToken;
 
   const BillPaymentSuccessScreen({
-    Key? key,
+    super.key,
     required this.title,
     required this.providerName,
     required this.amount,
     required this.transactionId,
     required this.details,
     this.prepaidToken,
-  }) : super(key: key);
+  });
 
   @override
   State<BillPaymentSuccessScreen> createState() =>

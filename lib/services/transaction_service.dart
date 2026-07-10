@@ -46,13 +46,15 @@ class TransactionService {
 
       final body = response.data!;
       // Accept both { transactions: [...] } and a bare list
-      final raw = (body['transactions'] ?? body['data'] ?? body) as List<dynamic>;
+      final raw =
+          (body['transactions'] ?? body['data'] ?? body) as List<dynamic>;
       return raw
           .map((j) => Transaction.fromJson(j as Map<String, dynamic>))
           .toList();
     } catch (e) {
       if (e is KudiNetworkException || e is KudiTimeoutException) rethrow;
-      throw TransactionException('Failed to load transactions: ${e.toString()}');
+      throw TransactionException(
+          'Failed to load transactions: ${e.toString()}');
     }
   }
 

@@ -12,11 +12,11 @@ class OtpVerificationBottomSheet extends ConsumerStatefulWidget {
   final Future<void> Function()? onResend;
 
   const OtpVerificationBottomSheet({
-    Key? key,
+    super.key,
     required this.amount,
     this.maskedPhone = '*******8790',
     this.onResend,
-  }) : super(key: key);
+  });
 
   static void show(BuildContext context,
       {required double amount,

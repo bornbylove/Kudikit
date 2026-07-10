@@ -8,12 +8,11 @@ import 'package:kudipay/core/utils/responsive.dart';
 class _ShimmerBox extends StatelessWidget {
   final double width;
   final double height;
-  final double radius;
+  final double radius = 8;
 
   const _ShimmerBox({
     required this.width,
     required this.height,
-    this.radius = 8,
   });
 
   @override

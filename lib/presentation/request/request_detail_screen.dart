@@ -677,10 +677,12 @@ class _RequestDetailScreenState extends ConsumerState<RequestDetailScreen> {
 
   String _timeAgo(DateTime dt) {
     final diff = DateTime.now().difference(dt);
-    if (diff.inDays > 0)
+    if (diff.inDays > 0) {
       return '${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago';
-    if (diff.inHours > 0)
+    }
+    if (diff.inHours > 0) {
       return '${diff.inHours} hour${diff.inHours > 1 ? 's' : ''} ago';
+    }
     return 'Just now';
   }
 }

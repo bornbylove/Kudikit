@@ -40,9 +40,9 @@ class BankSelectionBottomSheet extends ConsumerStatefulWidget {
   final Function(Bank) onBankSelected;
 
   const BankSelectionBottomSheet({
-    Key? key,
+    super.key,
     required this.onBankSelected,
-  }) : super(key: key);
+  });
 
   static void show(BuildContext context,
       {required Function(Bank) onBankSelected}) {

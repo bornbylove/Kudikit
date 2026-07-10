@@ -216,7 +216,7 @@ class _GetVerificationCodeScreenState
                   // FIX: read fresh state after await instead of using
                   // stale captured state.
                   final fresh = ref.read(deviceLinkingProvider);
-                  if (mounted && fresh.data?.isCodeSent == true) {
+                  if (context.mounted && fresh.data?.isCodeSent == true) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(

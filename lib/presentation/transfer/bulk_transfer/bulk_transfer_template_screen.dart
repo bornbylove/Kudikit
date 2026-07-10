@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -233,12 +233,11 @@ class _TemplateCard extends StatelessWidget {
   final VoidCallback onDelete;
 
   const _TemplateCard({
-    Key? key,
     required this.template,
     required this.currencyFormat,
     required this.onUseTemplate,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -556,7 +556,7 @@ class _DataPlanTile extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  _DataPlanTile({
+  const _DataPlanTile({
     required this.plan,
     required this.isSelected,
     required this.onTap,
@@ -686,12 +686,12 @@ class ConfirmDataBottomSheet extends ConsumerWidget {
   final VoidCallback onSend;
 
   const ConfirmDataBottomSheet({
-    Key? key,
+    super.key,
     required this.phoneNumber,
     required this.network,
     required this.plan,
     required this.onSend,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -982,11 +982,11 @@ class DataSuccessBottomSheet extends StatefulWidget {
   final VoidCallback onDetails;
 
   const DataSuccessBottomSheet({
-    Key? key,
+    super.key,
     required this.plan,
     required this.onDone,
     required this.onDetails,
-  }) : super(key: key);
+  });
 
   @override
   State<DataSuccessBottomSheet> createState() => _DataSuccessBottomSheetState();

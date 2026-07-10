@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -13,11 +12,10 @@ import 'package:kudipay/presentation/ticket/features/tickets/presentation/screen
 class _Category {
   final String title;
   final String svgAsset; // path in assets/icons/
-  final int articleCount;
+  final int articleCount = 12;
   const _Category({
     required this.title,
     required this.svgAsset,
-    this.articleCount = 12,
   });
 }
 
@@ -550,6 +548,8 @@ class _SupportScreenState extends State<SupportScreen> {
     );
   }
 
+  // Preserved report-issue entry point; pending re-wiring to a UI trigger.
+  // ignore: unused_element
   void _showReportSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,

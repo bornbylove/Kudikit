@@ -116,6 +116,8 @@ class ElectricityState {
 // =============================================================================
 
 class ElectricityNotifier extends StateNotifier<ElectricityState> {
+  // Injected client reserved for the live electricity API (see stubbed calls below).
+  // ignore: unused_field
   final DioClient _client;
 
   Timer? _meterDebounce;

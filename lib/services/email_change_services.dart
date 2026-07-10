@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:kudipay/model/device/device_metadata.dart';
 import 'package:kudipay/services/device_info_services.dart';
@@ -177,7 +178,7 @@ class EmailChangeService {
       final user = await _storageService.getUserModel();
       return user?.email;
     } catch (e) {
-      print('Error getting current email: $e');
+      debugPrint('Error getting current email: $e');
     }
     return null;
   }

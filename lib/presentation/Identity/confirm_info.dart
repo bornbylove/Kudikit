@@ -210,7 +210,7 @@ class _ConfirmInfoScreenState extends ConsumerState<ConfirmInfoScreen> {
                     width: AppLayout.scaleWidth(context, 32),
                     height: AppLayout.scaleWidth(context, 32),
                     child: CircularProgressIndicator(
-                     value: 1.0,
+                      value: 1.0,
                       strokeWidth: AppLayout.scaleWidth(context, 2.5),
                       backgroundColor: Colors.grey[200],
                       valueColor: const AlwaysStoppedAnimation<Color>(

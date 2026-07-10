@@ -41,7 +41,8 @@ class AppLoadingIndicator extends StatelessWidget {
   });
 
   /// Full-page centered loading state
-  factory AppLoadingIndicator.fullPage({Key? key}) = _FullPageLoadingIndicator;
+  const factory AppLoadingIndicator.fullPage({Key? key}) =
+      _FullPageLoadingIndicator;
 
   @override
   Widget build(BuildContext context) {

@@ -171,7 +171,7 @@ class _BulkTransferSuccessDialogState
                           ],
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),

@@ -360,7 +360,7 @@ class _AddRecipientsManuallyScreenState
               },
             ),
           );
-        }).toList(),
+        }),
 
         // Add Recipient Button — available in both distribution modes
         if (state.recipients.length < 15)
@@ -841,14 +841,13 @@ class _RecipientCard extends ConsumerStatefulWidget {
   final Function(BulkTransferRecipient) onUpdate;
 
   const _RecipientCard({
-    Key? key,
     required this.recipientNumber,
     this.recipient,
     this.showAmount = false,
     required this.onAccountTypeChanged,
     this.onDelete,
     required this.onUpdate,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<_RecipientCard> createState() => _RecipientCardState();

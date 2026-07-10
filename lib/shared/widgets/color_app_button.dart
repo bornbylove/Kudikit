@@ -7,8 +7,7 @@ class ColorAppButton extends StatelessWidget {
 
   final GestureTapCallback press;
 
-  const ColorAppButton({Key? key, required this.press, required this.text})
-      : super(key: key);
+  const ColorAppButton({super.key, required this.press, required this.text});
   @override
   Widget build(BuildContext context) {
     // const padding = EdgeInsets.symmetric(horizontal: 16, vertical: 8);

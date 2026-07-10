@@ -122,8 +122,7 @@ class _AddMoneyScreenState extends ConsumerState<AddMoneyScreen> {
                     ),
                     child: _buildAddMoneyOption(context, option),
                   ),
-                )
-                .toList(),
+                ),
           ],
         ),
       ),

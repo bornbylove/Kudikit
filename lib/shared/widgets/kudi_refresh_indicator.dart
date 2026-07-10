@@ -25,11 +25,11 @@ import 'package:flutter/material.dart';
 
 class KudiRefreshIndicator extends StatelessWidget {
   const KudiRefreshIndicator({
-    Key? key,
+    super.key,
     required this.onRefresh,
     required this.child,
     this.displacement = 60.0,
-  }) : super(key: key);
+  });
 
   /// The async callback that performs the actual data fetch.
   /// The spinner stays visible until the returned Future completes.

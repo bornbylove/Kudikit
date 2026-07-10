@@ -125,7 +125,7 @@ class _AmountCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(AppLayout.scaleWidth(context, 20)),
       decoration: BoxDecoration(
-        color: AppColors.primaryTeal ,
+        color: AppColors.primaryTeal,
         borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 16)),
       ),
       child: Column(
@@ -181,7 +181,8 @@ class _RecipientRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: AppLayout.scaleHeight(context, 4)),
+      padding:
+          EdgeInsets.symmetric(vertical: AppLayout.scaleHeight(context, 4)),
       child: Row(
         children: [
           ContactAvatar(
@@ -200,7 +201,7 @@ class _RecipientRow extends StatelessWidget {
                     if (contact.status == ContactStatus.onApp)
                       Icon(
                         Icons.check,
-                        color: AppColors.primaryTeal ,
+                        color: AppColors.primaryTeal,
                         size: AppLayout.scaleWidth(context, 14),
                       ),
                   ],
@@ -253,7 +254,7 @@ class _DeliveryMethodCard extends StatelessWidget {
         color: AppColors.backgroundGreen,
         borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
         border: Border.all(
-          color: AppColors.primaryTeal .withValues(alpha: 0.25),
+          color: AppColors.primaryTeal.withValues(alpha: 0.25),
           width: 1,
         ),
       ),
@@ -263,7 +264,7 @@ class _DeliveryMethodCard extends StatelessWidget {
             width: AppLayout.scaleWidth(context, 40),
             height: AppLayout.scaleWidth(context, 40),
             decoration: BoxDecoration(
-              color: AppColors.primaryTeal ,
+              color: AppColors.primaryTeal,
               borderRadius:
                   BorderRadius.circular(AppLayout.scaleWidth(context, 10)),
             ),
@@ -339,7 +340,8 @@ class _DetailRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: AppLayout.scaleHeight(context, 12)),
+      padding:
+          EdgeInsets.symmetric(vertical: AppLayout.scaleHeight(context, 12)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -347,7 +349,8 @@ class _DetailRow extends StatelessWidget {
           Row(
             children: [
               if (trailing != null) ...[
-                Icon(trailing, size: AppLayout.scaleWidth(context, 14),
+                Icon(trailing,
+                    size: AppLayout.scaleWidth(context, 14),
                     color: AppColors.textDark),
                 SizedBox(width: AppLayout.scaleWidth(context, 4)),
               ],
@@ -410,7 +413,7 @@ class _PreviewBottomBar extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: onSend,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryTeal ,
+                  backgroundColor: AppColors.primaryTeal,
                   foregroundColor: AppColors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
@@ -431,9 +434,9 @@ class _PreviewBottomBar extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: onEdit,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primaryTeal ,
-                  side: const BorderSide(
-                      color: AppColors.primaryTeal , width: 1),
+                  foregroundColor: AppColors.primaryTeal,
+                  side:
+                      const BorderSide(color: AppColors.primaryTeal, width: 1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
                         AppLayout.scaleWidth(context, 28)),
@@ -444,7 +447,7 @@ class _PreviewBottomBar extends StatelessWidget {
                   style: TextStyle(
                     fontSize: AppLayout.fontSize(context, 15),
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primaryTeal ,
+                    color: AppColors.primaryTeal,
                   ),
                 ),
               ),
@@ -486,7 +489,7 @@ class _RequestSentView extends StatelessWidget {
                         width: AppLayout.scaleWidth(context, 64),
                         height: AppLayout.scaleWidth(context, 64),
                         decoration: const BoxDecoration(
-                          color: AppColors.primaryTeal ,
+                          color: AppColors.primaryTeal,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -598,11 +601,10 @@ class _SentBottomBar extends StatelessWidget {
           child: ElevatedButton(
             onPressed: () {
               // Pop back to home
-              Navigator.of(context)
-                  .popUntil((route) => route.isFirst);
+              Navigator.of(context).popUntil((route) => route.isFirst);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryTeal ,
+              backgroundColor: AppColors.primaryTeal,
               foregroundColor: AppColors.white,
               elevation: 0,
               shape: RoundedRectangleBorder(

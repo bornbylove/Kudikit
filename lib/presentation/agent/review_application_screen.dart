@@ -43,8 +43,7 @@ class ReviewApplicationScreen extends ConsumerWidget {
         centerTitle: true,
         actions: [
           Padding(
-            padding:
-                EdgeInsets.only(right: AppLayout.scaleWidth(context, 16)),
+            padding: EdgeInsets.only(right: AppLayout.scaleWidth(context, 16)),
             child: KudiCircularProgress(progress: state.progressPercent),
           ),
         ],
@@ -81,7 +80,7 @@ class ReviewApplicationScreen extends ConsumerWidget {
               rows: [
                 _ReviewRow(
                     label: 'Business Name',
-                   value: app.businessName,
+                    value: app.businessName,
                     onEdit: () => notifier.goToStep(0)),
                 _ReviewRow(
                     label: 'Business Type',
@@ -170,8 +169,8 @@ class ReviewApplicationScreen extends ConsumerWidget {
                 padding: EdgeInsets.all(AppLayout.scaleWidth(context, 12)),
                 decoration: BoxDecoration(
                   color: Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(
-                      AppLayout.scaleWidth(context, 10)),
+                  borderRadius:
+                      BorderRadius.circular(AppLayout.scaleWidth(context, 10)),
                 ),
                 child: Text(
                   state.errorMessage!,
@@ -365,8 +364,7 @@ class ApplicationSubmittedScreen extends ConsumerWidget {
         centerTitle: true,
         actions: [
           Padding(
-            padding:
-                EdgeInsets.only(right: AppLayout.scaleWidth(context, 16)),
+            padding: EdgeInsets.only(right: AppLayout.scaleWidth(context, 16)),
             child: const KudiCircularProgress(progress: 1.0),
           ),
         ],
@@ -667,8 +665,7 @@ class _StatCard extends StatelessWidget {
       padding: EdgeInsets.all(AppLayout.scaleWidth(context, 14)),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius:
-            BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
+        borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -695,8 +692,7 @@ class _StatCard extends StatelessWidget {
           SizedBox(height: AppLayout.scaleHeight(context, 4)),
           Text(sub,
               style: TextStyle(
-                  fontSize: AppLayout.fontSize(context, 11),
-                  color: subColor)),
+                  fontSize: AppLayout.fontSize(context, 11), color: subColor)),
         ],
       ),
     );
@@ -731,8 +727,7 @@ class _MiniStat extends StatelessWidget {
                   BorderRadius.circular(AppLayout.scaleWidth(context, 10)),
             ),
             child: Icon(icon,
-                color: iconColor,
-                size: AppLayout.scaleWidth(context, 20)),
+                color: iconColor, size: AppLayout.scaleWidth(context, 20)),
           ),
           SizedBox(height: AppLayout.scaleHeight(context, 6)),
           Text(label,
@@ -845,8 +840,8 @@ class _RequestCard extends StatelessWidget {
                 backgroundColor: AppColors.primaryTeal,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                      AppLayout.scaleWidth(context, 12)),
+                  borderRadius:
+                      BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
                 ),
               ),
               child: Text(

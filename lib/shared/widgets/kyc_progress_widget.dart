@@ -8,10 +8,10 @@ class KycProgressWidget extends ConsumerWidget {
   final bool compact;
 
   const KycProgressWidget({
-    Key? key,
+    super.key,
     this.showNavigationButtons = true,
     this.compact = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -340,7 +340,7 @@ class KycProgressWidget extends ConsumerWidget {
     return Colors.red;
   }
 
-  String _getNextStepMessage(user) {
+  String _getNextStepMessage(dynamic user) {
     if (!user.isSelfieVerified) return 'Next: Complete selfie capture';
     if (!user.isVerified) return 'Next: Verify your /NIN';
     if (!user.isAddressVerified) return 'Next: Verify your address';

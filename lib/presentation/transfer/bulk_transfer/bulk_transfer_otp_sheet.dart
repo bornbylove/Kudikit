@@ -68,8 +68,12 @@ class _BulkTransferOtpSheetState extends ConsumerState<BulkTransferOtpSheet> {
   @override
   void dispose() {
     _timer?.cancel();
-    for (final c in _controllers) c.dispose();
-    for (final f in _focusNodes) f.dispose();
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    for (final f in _focusNodes) {
+      f.dispose();
+    }
     super.dispose();
   }
 
@@ -128,7 +132,9 @@ class _BulkTransferOtpSheetState extends ConsumerState<BulkTransferOtpSheet> {
     setState(() {
       _hasError = false;
       _errorMessage = '';
-      for (final c in _controllers) c.clear();
+      for (final c in _controllers) {
+        c.clear();
+      }
     });
     _startTimer();
     _focusNodes[0].requestFocus();

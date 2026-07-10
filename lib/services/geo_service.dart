@@ -43,8 +43,10 @@ class GeoService {
 
     // 3 — Fetch precise position
     _currentPosition = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.bestForNavigation,
-      timeLimit: const Duration(seconds: 10),
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        timeLimit: Duration(seconds: 10),
+      ),
     );
 
     return _currentPosition;

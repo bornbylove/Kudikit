@@ -5,8 +5,8 @@ import 'package:kudipay/core/navigation/navigation_helpers.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/model/tier/tier_model.dart';
-import 'package:kudipay/presentation/Identity/chooseID.dart';
-import 'package:kudipay/presentation/Identity/upload_ID.dart';
+import 'package:kudipay/presentation/Identity/choose_id.dart';
+import 'package:kudipay/presentation/Identity/upload_id.dart';
 import 'package:kudipay/presentation/address/verify_address.dart';
 import 'package:kudipay/presentation/selfie/selfie_instruction.dart';
 import 'package:kudipay/provider/auth/auth_provider.dart';
@@ -50,15 +50,14 @@ class KycFlowManager extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user              = ref.watch(currentUserProvider);
-    final tierState         = ref.watch(tierProvider);
+    final user = ref.watch(currentUserProvider);
+    final tierState = ref.watch(tierProvider);
     final connectivityState = ref.watch(connectivityStateProvider);
 
     // -- Offline guard --------------------------------------------------------
     if (!connectivityState.isConnected) {
       return _OfflineScreen(
-        onRetry: () =>
-            ref.read(connectivityStateProvider.notifier).refresh(),
+        onRetry: () => ref.read(connectivityStateProvider.notifier).refresh(),
         onBack: () => Navigator.pop(context),
       );
     }
@@ -69,7 +68,7 @@ class KycFlowManager extends ConsumerWidget {
     }
 
     // -- Resolve the next incomplete step and navigate ------------------------
-    final tier       = tierState.currentTier;
+    final tier = tierState.currentTier;
     final nextScreen = _resolveNextScreen(tier, user);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -92,29 +91,28 @@ class KycFlowManager extends ConsumerWidget {
   // ---------------------------------------------------------------------------
   Widget _resolveNextScreen(TierLevel tier, dynamic user) {
     switch (tier) {
-
       // -- Tier 1 (Basic) -----------------------------------------------------
       // Steps: Selfie ? BVN or NIN
       case TierLevel.basic:
-        if (!user.isSelfieVerified)   return const SelfieInstructionsScreen();
-        if (!user.isBvnVerified)      return const IdVerificationScreen();
+        if (!user.isSelfieVerified) return const SelfieInstructionsScreen();
+        if (!user.isBvnVerified) return const IdVerificationScreen();
         return const MainShellRedirect();
 
       // -- Tier 2 (Pro) -------------------------------------------------------
       // Steps: Selfie ? BVN AND NIN ? ID document upload
       case TierLevel.pro:
-        if (!user.isSelfieVerified)   return const SelfieInstructionsScreen();
-        if (!user.isBvnVerified)      return const IdVerificationScreen();
+        if (!user.isSelfieVerified) return const SelfieInstructionsScreen();
+        if (!user.isBvnVerified) return const IdVerificationScreen();
         if (!user.isDocumentVerified) return const UploadIdCardScreen();
         return const MainShellRedirect();
 
       // -- Tier 3 (Mega) ------------------------------------------------------
       // Steps: Selfie ? BVN AND NIN ? ID document upload ? Address
       case TierLevel.mega:
-        if (!user.isSelfieVerified)   return const SelfieInstructionsScreen();
-        if (!user.isBvnVerified)      return const IdVerificationScreen();
+        if (!user.isSelfieVerified) return const SelfieInstructionsScreen();
+        if (!user.isBvnVerified) return const IdVerificationScreen();
         if (!user.isDocumentVerified) return const UploadIdCardScreen();
-        if (!user.isAddressVerified)  return const AddressVerificationScreen();
+        if (!user.isAddressVerified) return const AddressVerificationScreen();
         return const MainShellRedirect();
     }
   }
@@ -126,20 +124,20 @@ class KycFlowManager extends ConsumerWidget {
     switch (tier) {
       case TierLevel.basic:
         if (!user.isSelfieVerified) return 'Preparing selfie verification...';
-        if (!user.isBvnVerified)    return 'Preparing identity verification...';
+        if (!user.isBvnVerified) return 'Preparing identity verification...';
         return 'Preparing your dashboard...';
 
       case TierLevel.pro:
-        if (!user.isSelfieVerified)   return 'Preparing selfie verification...';
-        if (!user.isBvnVerified)      return 'Preparing identity verification...';
+        if (!user.isSelfieVerified) return 'Preparing selfie verification...';
+        if (!user.isBvnVerified) return 'Preparing identity verification...';
         if (!user.isDocumentVerified) return 'Preparing document upload...';
         return 'Preparing your dashboard...';
 
       case TierLevel.mega:
-        if (!user.isSelfieVerified)   return 'Preparing selfie verification...';
-        if (!user.isBvnVerified)      return 'Preparing identity verification...';
+        if (!user.isSelfieVerified) return 'Preparing selfie verification...';
+        if (!user.isBvnVerified) return 'Preparing identity verification...';
         if (!user.isDocumentVerified) return 'Preparing document upload...';
-        if (!user.isAddressVerified)  return 'Preparing address verification...';
+        if (!user.isAddressVerified) return 'Preparing address verification...';
         return 'Preparing your dashboard...';
     }
   }
@@ -304,8 +302,8 @@ class _OfflineScreen extends StatelessWidget {
                 padding: EdgeInsets.all(AppLayout.scaleWidth(context, 16)),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(
-                      AppLayout.scaleWidth(context, 12)),
+                  borderRadius:
+                      BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
                   border: Border.all(color: Colors.blue.shade100),
                 ),
                 child: Column(

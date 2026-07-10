@@ -14,7 +14,10 @@ class VerifyIdentityScreen extends ConsumerStatefulWidget {
 }
 
 class _VerifyIdentityScreenState extends ConsumerState<VerifyIdentityScreen> {
+  // Captured documents retained for the pending verification-submit call.
+  // ignore: unused_field
   File? _idDocument;
+  // ignore: unused_field
   File? _selfie;
   bool _isIdUploaded = false;
   bool _isSelfieUploaded = false;

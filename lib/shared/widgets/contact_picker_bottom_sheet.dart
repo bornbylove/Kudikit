@@ -92,8 +92,9 @@ class _ContactPickerBottomSheetState extends State<_ContactPickerBottomSheet> {
 
     if (permStatus == ContactPermissionStatus.permanentlyDenied ||
         permStatus == ContactPermissionStatus.restricted) {
-      if (mounted)
+      if (mounted) {
         setState(() => _pickerState = _PickerState.permanentlyDenied);
+      }
       return;
     }
 

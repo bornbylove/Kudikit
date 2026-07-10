@@ -7,8 +7,7 @@ class WhiteAppButton extends StatelessWidget {
 
   final GestureTapCallback press;
 
-  const WhiteAppButton({Key? key, required this.press, required this.text})
-      : super(key: key);
+  const WhiteAppButton({super.key, required this.press, required this.text});
   @override
   Widget build(BuildContext context) {
     return SizedBox(

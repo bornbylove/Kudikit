@@ -266,7 +266,9 @@ class _DateRangeCard extends ConsumerWidget {
                         valueFontSize: valueSz,
                         onPicked: (d) {
                           if (draft.customStart != null &&
-                              d.isBefore(draft.customStart!)) return;
+                              d.isBefore(draft.customStart!)) {
+                            return;
+                          }
 
                           ref.read(_filterDraftProvider.notifier).state =
                               draft.copyWith(customEnd: d);
@@ -282,7 +284,9 @@ class _DateRangeCard extends ConsumerWidget {
                         firstDate: draft.customStart,
                         onPicked: (d) {
                           if (draft.customStart != null &&
-                              d.isBefore(draft.customStart!)) return;
+                              d.isBefore(draft.customStart!)) {
+                            return;
+                          }
 
                           ref.read(_filterDraftProvider.notifier).state =
                               draft.copyWith(customEnd: d);

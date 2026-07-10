@@ -103,22 +103,6 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
     );
   }
 
-  Widget _buildIcon(BuildContext context) {
-    return Container(
-      width: AppLayout.scaleWidth(context, 88),
-      height: AppLayout.scaleWidth(context, 88),
-      decoration: const BoxDecoration(
-        color: Color(0xFF069494),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        Icons.shield_outlined,
-        color: Colors.white,
-        size: AppLayout.scaleWidth(context, 44),
-      ),
-    );
-  }
-
   Widget _buildSecurityCard(BuildContext context) {
     return Container(
       // FIX: full width so text doesn't overflow on small screens

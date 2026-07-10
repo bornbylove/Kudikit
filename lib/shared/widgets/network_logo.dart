@@ -20,10 +20,10 @@ class NetworkLogo extends StatelessWidget {
   final double size;
 
   const NetworkLogo({
-    Key? key,
+    super.key,
     required this.network,
     this.size = 32,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -214,12 +214,12 @@ class NetworkDropdown extends StatelessWidget {
   final ValueChanged<NetworkProvider> onSelect;
 
   const NetworkDropdown({
-    Key? key,
+    super.key,
     required this.selectedNetwork,
     required this.isOpen,
     required this.onToggle,
     required this.onSelect,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

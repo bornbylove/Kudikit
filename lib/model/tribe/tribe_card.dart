@@ -13,7 +13,7 @@ class TribeCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const TribeCard({
-    Key? key,
+    super.key,
     required this.icon,
     required this.iconColor,
     required this.title,
@@ -24,7 +24,7 @@ class TribeCard extends StatelessWidget {
     required this.isSelected,
     required this.isExpanded,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

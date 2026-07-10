@@ -287,10 +287,11 @@ class _BulkTransferUploadFileScreenState
       if (result != null && result.files.single.path != null) {
         final file = File(result.files.single.path!);
         final fileName = result.files.single.name;
+        if (!context.mounted) return;
         await _processFile(context, file, fileName);
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error picking file: $e'),
@@ -335,7 +336,7 @@ class _BulkTransferUploadFileScreenState
       ).decode(fileContent.replaceAll('\r\n', '\n'));
 
       if (allRows.isEmpty) {
-        _dismissAndSnack(context, 'The file is empty.');
+        if (context.mounted) _dismissAndSnack(context, 'The file is empty.');
         return;
       }
 
@@ -355,9 +356,9 @@ class _BulkTransferUploadFileScreenState
 
       final result = _parseRecipients(dataRows);
 
-      if (mounted) Navigator.pop(context); // dismiss spinner
+      if (context.mounted) Navigator.pop(context); // dismiss spinner
 
-      if (mounted) {
+      if (context.mounted) {
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -371,7 +372,9 @@ class _BulkTransferUploadFileScreenState
         );
       }
     } catch (e) {
-      _dismissAndSnack(context, 'Error processing file: $e');
+      if (context.mounted) {
+        _dismissAndSnack(context, 'Error processing file: $e');
+      }
     }
   }
 

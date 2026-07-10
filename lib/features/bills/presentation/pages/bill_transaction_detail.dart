@@ -11,7 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/core/navigation/navigation_helpers.dart';
 
-
 class BillTransactionDetail extends StatelessWidget {
   final String title;
   final String transactionId;
@@ -25,7 +24,7 @@ class BillTransactionDetail extends StatelessWidget {
   final Map<String, String> extraDetails;
 
   const BillTransactionDetail({
-    Key? key,
+    super.key,
     required this.title,
     required this.transactionId,
     required this.billType,
@@ -36,7 +35,7 @@ class BillTransactionDetail extends StatelessWidget {
     required this.recipientName,
     this.status = 'Successful',
     this.extraDetails = const {},
-  }) : super(key: key);
+  });
 
   String _formatCurrency(double v) {
     final parts = v.toStringAsFixed(2).split('.');
@@ -52,8 +51,18 @@ class BillTransactionDetail extends StatelessWidget {
 
   String _formatDate(DateTime d) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     final h = d.hour > 12 ? d.hour - 12 : (d.hour == 0 ? 12 : d.hour);
     final amPm = d.hour >= 12 ? 'PM' : 'AM';
@@ -178,12 +187,10 @@ class BillTransactionDetail extends StatelessWidget {
                                 ? recipientName
                                 : recipientNumber),
                         _DetailRow(
-                            label: 'Phone / Account',
-                            value: recipientNumber),
+                            label: 'Phone / Account', value: recipientNumber),
                         _DetailRow(label: 'Provider', value: providerName),
                         _DetailRow(
-                            label: 'Date',
-                            value: _formatDate(transactionDate)),
+                            label: 'Date', value: _formatDate(transactionDate)),
                         ...extraDetails.entries.map(
                           (e) => _DetailRow(label: e.key, value: e.value),
                         ),
@@ -197,8 +204,8 @@ class BillTransactionDetail extends StatelessWidget {
                       onTap: () => _copyTxId(context),
                       child: Container(
                         width: double.infinity,
-                        padding: EdgeInsets.all(
-                            AppLayout.scaleWidth(context, 16)),
+                        padding:
+                            EdgeInsets.all(AppLayout.scaleWidth(context, 16)),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
@@ -219,8 +226,7 @@ class BillTransactionDetail extends StatelessWidget {
                                   Text(
                                     'Transaction ID',
                                     style: TextStyle(
-                                      fontSize:
-                                          AppLayout.fontSize(context, 12),
+                                      fontSize: AppLayout.fontSize(context, 12),
                                       color: const Color(0xFF9E9E9E),
                                     ),
                                   ),
@@ -230,8 +236,7 @@ class BillTransactionDetail extends StatelessWidget {
                                   Text(
                                     transactionId,
                                     style: TextStyle(
-                                      fontSize:
-                                          AppLayout.fontSize(context, 13),
+                                      fontSize: AppLayout.fontSize(context, 13),
                                       fontWeight: FontWeight.w500,
                                       color: const Color(0xFF1A1A2E),
                                     ),
@@ -358,12 +363,10 @@ class _DetailCard extends StatelessWidget {
 class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
-  final Color? valueColor;
 
   const _DetailRow({
     required this.label,
     required this.value,
-    this.valueColor,
   });
 
   @override
@@ -388,7 +391,7 @@ class _DetailRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: AppLayout.fontSize(context, 13),
                 fontWeight: FontWeight.w500,
-                color: valueColor ?? const Color(0xFF1A1A2E),
+                color: const Color(0xFF1A1A2E),
               ),
             ),
           ),

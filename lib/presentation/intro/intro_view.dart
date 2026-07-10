@@ -1,8 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:kudipay/core/navigation/app_routes.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-
 
 class IntroviewPage extends StatelessWidget {
   const IntroviewPage({super.key});
@@ -65,7 +64,7 @@ class IntroviewPage extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                            Navigator.pushNamed(context, AppRoutes.signup);
+                          Navigator.pushNamed(context, AppRoutes.signup);
                         },
                         child: Text(
                           'Get started',

@@ -82,7 +82,7 @@ class _Step3State extends ConsumerState<Step3BusinessSetupScreen> {
       ),
     );
 
-    if (picked != null && mounted) {
+    if (picked != null && context.mounted) {
       final formatted = picked.format(context);
       if (isOpening) {
         notifier.updateOpeningTime(formatted);

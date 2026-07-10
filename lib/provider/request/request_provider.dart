@@ -14,7 +14,7 @@ class RequestProvider extends ChangeNotifier {
   String? _note;
   DateTime? _dueDate;
   bool _isPrivate = true;
-  List<Contact> _selectedContacts = [];
+  final List<Contact> _selectedContacts = [];
   DeliveryMethod _deliveryMethod = DeliveryMethod.inAppNotification;
 
   // All requests

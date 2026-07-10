@@ -13,7 +13,6 @@ import 'package:kudipay/core/navigation/app_routes.dart';
 import 'package:kudipay/presentation/signup/signup_verify.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
-
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
 
@@ -33,7 +32,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController numberController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   // ---------------------------------------------------------------------------
   // FORM KEY � still used to trigger _validate() on submit
@@ -43,7 +43,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   // ---------------------------------------------------------------------------
   // PER-FIELD ERROR STRINGS
-  
+
   String? _emailError;
   String? _phoneError;
   String? _passcodeError;
@@ -69,7 +69,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   // ---------------------------------------------------------------------------
   // SUBMIT READINESS
   // ---------------------------------------------------------------------------
- 
 
   bool get _fieldsReady =>
       emailController.text.trim().isNotEmpty &&
@@ -89,7 +88,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     emailController.addListener(_onFieldChanged);
     numberController.addListener(_onFieldChanged);
     confirmPasswordController.addListener(_onFieldChanged);
@@ -150,7 +149,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   // FIELD-LEVEL VALIDATION
   // ---------------------------------------------------------------------------
 
-
   bool _validateFields() {
     bool valid = true;
     setState(() {
@@ -196,7 +194,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         _passcodeError = 'Must contain at least one number';
         valid = false;
       } else if (!_hasSpecialChar) {
-        _passcodeError = 'Must contain at least one special character (!@#\$%^&*)';
+        _passcodeError =
+            'Must contain at least one special character (!@#\$%^&*)';
         valid = false;
       } else {
         _passcodeError = null;
@@ -234,7 +233,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     if (!termsAccepted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please accept the Terms & Conditions and Privacy Policy'),
+          content:
+              Text('Please accept the Terms & Conditions and Privacy Policy'),
           backgroundColor: AppColors.avatarRed,
         ),
       );
@@ -322,11 +322,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         Text(
                           'Create an account with KudiKit',
                           style: TextStyle(
-                            fontSize: AppLayout.fontSize(context, 25),
-                            fontWeight: FontWeight.w700,
-                            height: 1.5,
-                            color: AppColors.textDark
-                          ),
+                              fontSize: AppLayout.fontSize(context, 25),
+                              fontWeight: FontWeight.w700,
+                              height: 1.5,
+                              color: AppColors.textDark),
                         ),
                         SizedBox(height: AppLayout.scaleHeight(context, 25)),
 
@@ -396,7 +395,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             ),
                             onPressed: () {
                               ref.read(pinVisibilityProvider.notifier).state =
-                                  !ref.read(pinVisibilityProvider.notifier).state;
+                                  !ref
+                                      .read(pinVisibilityProvider.notifier)
+                                      .state;
                             },
                           ),
                         ),
@@ -408,7 +409,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
                         SizedBox(height: AppLayout.scaleHeight(context, 14)),
 
-                        //  Confirm Passcode 
+                        //  Confirm Passcode
                         _buildLabel(context, 'Confirm Passcode'),
                         SizedBox(height: AppLayout.scaleHeight(context, 5)),
                         _buildPlainField(
@@ -430,8 +431,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               size: AppLayout.scaleWidth(context, 20),
                             ),
                             onPressed: () {
-                              ref.read(confirmPinVisibilityProvider.notifier).state =
-                                  !ref.read(confirmPinVisibilityProvider.notifier).state;
+                              ref
+                                      .read(confirmPinVisibilityProvider.notifier)
+                                      .state =
+                                  !ref
+                                      .read(
+                                          confirmPinVisibilityProvider.notifier)
+                                      .state;
                             },
                           ),
                         ),
@@ -445,17 +451,18 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
                         SizedBox(height: AppLayout.scaleHeight(context, 42)),
 
-                        //  Submit Button 
-                        _buildSubmitButton(context, isLoading, isOnline, canSubmit),
+                        //  Submit Button
+                        _buildSubmitButton(
+                            context, isLoading, isOnline, canSubmit),
 
                         SizedBox(height: AppLayout.scaleHeight(context, 15)),
 
-                        // Already have an account? 
+                        // Already have an account?
                         _buildLoginRow(context, isLoading, isOnline),
 
                         SizedBox(height: AppLayout.scaleHeight(context, 13)),
 
-                        //  CBN / NDIC Licensing Footer 
+                        //  CBN / NDIC Licensing Footer
                         _buildLicensingFooter(context),
                       ],
                     ),
@@ -498,7 +505,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     value: 0.12,
                     strokeWidth: AppLayout.scaleWidth(context, 2),
                     backgroundColor: const Color(0xFFE0E0E0),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF4DB6AC)),
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Color(0xFF4DB6AC)),
                   ),
                 ),
                 Positioned.fill(
@@ -537,7 +545,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ),
           ),
           TextButton(
-            onPressed: () => ref.read(connectivityStateProvider.notifier).refresh(),
+            onPressed: () =>
+                ref.read(connectivityStateProvider.notifier).refresh(),
             child: const Text('Retry', style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -545,7 +554,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     );
   }
 
-  Widget _buildTermsCheckbox(BuildContext context, bool isLoading, bool isOnline) {
+  Widget _buildTermsCheckbox(
+      BuildContext context, bool isLoading, bool isOnline) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -557,11 +567,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             onChanged: (isLoading || !isOnline)
                 ? null
                 : (value) {
-                    ref.read(_termsAcceptedProvider.notifier).state = value ?? false;
+                    ref.read(_termsAcceptedProvider.notifier).state =
+                        value ?? false;
                   },
             activeColor: const Color(0xFF069494),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 4)),
+              borderRadius:
+                  BorderRadius.circular(AppLayout.scaleWidth(context, 4)),
             ),
           ),
         ),
@@ -690,15 +702,21 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             child: Image.asset(
               'assets/images/cbn.png',
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) =>
-                  const Icon(Icons.account_balance, size: 20, color: Color(0xFF2C2C2C)),
+              errorBuilder: (_, __, ___) => const Icon(Icons.account_balance,
+                  size: 20, color: Color(0xFF2C2C2C)),
             ),
           ),
           const SizedBox(width: 8),
-          const Text('Licensed by the ', style: TextStyle(color: Colors.black, fontSize: 12)),
-          const Text('CBN', style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold)),
+          const Text('Licensed by the ',
+              style: TextStyle(color: Colors.black, fontSize: 12)),
+          const Text('CBN',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold)),
           const SizedBox(width: 4),
-          const Text('and insured by the', style: TextStyle(color: Colors.black, fontSize: 12)),
+          const Text('and insured by the',
+              style: TextStyle(color: Colors.black, fontSize: 12)),
           const SizedBox(width: 8),
           Container(
             height: 24,
@@ -706,8 +724,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             child: Image.asset(
               'assets/images/ndicc.png',
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) =>
-                  const Icon(Icons.account_balance, size: 20, color: Color(0xFF2C2C2C)),
+              errorBuilder: (_, __, ___) => const Icon(Icons.account_balance,
+                  size: 20, color: Color(0xFF2C2C2C)),
             ),
           ),
         ],
@@ -716,9 +734,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   }
 
   // ---------------------------------------------------------------------------
-  // ERROR TEXT 
+  // ERROR TEXT
   // ---------------------------------------------------------------------------
-
 
   Widget _buildFieldError(String? error) {
     return AnimatedSize(
@@ -764,10 +781,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildCriteriaRow(context, '8�12 characters', _hasMinLength),
-        _buildCriteriaRow(context, 'At least one uppercase letter', _hasUppercase),
-        _buildCriteriaRow(context, 'At least one lowercase letter', _hasLowercase),
+        _buildCriteriaRow(
+            context, 'At least one uppercase letter', _hasUppercase),
+        _buildCriteriaRow(
+            context, 'At least one lowercase letter', _hasLowercase),
         _buildCriteriaRow(context, 'At least one number', _hasNumber),
-        _buildCriteriaRow(context, 'At least one special character (!@#\$%^&*)', _hasSpecialChar),
+        _buildCriteriaRow(context, 'At least one special character (!@#\$%^&*)',
+            _hasSpecialChar),
       ],
     );
   }
@@ -800,7 +820,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               label,
               style: TextStyle(
                 fontSize: AppLayout.fontSize(context, 12),
-                color: (_passcodeFieldTouched && isMet) ? Colors.black87 : Colors.grey[600],
+                color: (_passcodeFieldTouched && isMet)
+                    ? Colors.black87
+                    : Colors.grey[600],
               ),
             ),
           ),

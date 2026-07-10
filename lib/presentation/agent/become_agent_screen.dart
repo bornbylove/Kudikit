@@ -265,12 +265,11 @@ class _SectionCard extends StatelessWidget {
 class _PrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
-  final bool isLoading;
+  final bool isLoading = false;
 
   const _PrimaryButton({
     required this.label,
     required this.onPressed,
-    this.isLoading = false,
   });
 
   @override

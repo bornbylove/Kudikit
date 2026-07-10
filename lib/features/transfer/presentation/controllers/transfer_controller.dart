@@ -1,7 +1,7 @@
 // lib/features/transfer/presentation/controllers/transfer_controllers.dart
 //
 // Replaces:
-//   lib/provider/P2P_transfer/P2P_transfer_provider.dart
+//   lib/provider/P2P_transfer/p2p_transfer_provider.dart
 //   lib/provider/transfer/bulk_transfer_provider.dart
 
 import 'dart:io';

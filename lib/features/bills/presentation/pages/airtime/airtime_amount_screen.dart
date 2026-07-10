@@ -520,12 +520,12 @@ class ConfirmAirtimeBottomSheet extends ConsumerWidget {
   final VoidCallback onSend;
 
   const ConfirmAirtimeBottomSheet({
-    Key? key,
+    super.key,
     required this.phoneNumber,
     required this.network,
     required this.amount,
     required this.onSend,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -706,11 +706,11 @@ class AirtimeSuccessBottomSheet extends StatefulWidget {
   final VoidCallback onDetails;
 
   const AirtimeSuccessBottomSheet({
-    Key? key,
+    super.key,
     required this.amount,
     required this.onDone,
     required this.onDetails,
-  }) : super(key: key);
+  });
 
   @override
   State<AirtimeSuccessBottomSheet> createState() =>

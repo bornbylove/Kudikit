@@ -64,7 +64,7 @@ class BankLogoWidget extends StatelessWidget {
   // ── Static helpers ────────────────────────────────────────────────────────
 
   static String? _networkUrl(String logo) {
-    const Map<String, String> _logos = {
+    const Map<String, String> logos = {
       'gtbank':
           'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/GTBank_logo.svg/200px-GTBank_logo.svg.png',
       'firstbank':
@@ -78,7 +78,7 @@ class BankLogoWidget extends StatelessWidget {
       'sterling':
           'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Sterling_Bank_Logo.png/200px-Sterling_Bank_Logo.png',
     };
-    return _logos[logo.toLowerCase()];
+    return logos[logo.toLowerCase()];
   }
 
   static Color _bankColor(String logo) {

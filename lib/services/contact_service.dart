@@ -118,8 +118,9 @@ class ContactService {
 
   ContactPermissionStatus _mapStatus(PermissionStatus status) {
     if (status.isGranted) return ContactPermissionStatus.granted;
-    if (status.isPermanentlyDenied)
+    if (status.isPermanentlyDenied) {
       return ContactPermissionStatus.permanentlyDenied;
+    }
     if (status.isRestricted) return ContactPermissionStatus.restricted;
     return ContactPermissionStatus.denied;
   }

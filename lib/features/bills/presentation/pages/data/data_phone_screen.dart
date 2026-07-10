@@ -8,10 +8,8 @@ import 'package:kudipay/shared/widgets/contact_picker_bottom_sheet.dart';
 import 'package:kudipay/shared/widgets/network_logo.dart';
 import 'package:kudipay/model/bill/bill_model.dart';
 import 'package:kudipay/features/bills/presentation/pages/data/data_plan_screen.dart';
-import 'package:kudipay/provider/bill/bill_provider.dart';
 
 import 'package:kudipay/provider/provider.dart';
-import 'package:kudipay/provider/wallet/wallet_provider.dart';
 
 // ============================================================================
 // DataPhoneScreen

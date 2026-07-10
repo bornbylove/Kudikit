@@ -77,8 +77,9 @@ class TxPinSetupNotifier extends StateNotifier<TxPinSetupState> {
         state = state.copyWith(isLoading: true);
         try {
           await _service.saveTransactionPin(pin);
-          if (_isMounted)
+          if (_isMounted) {
             state = state.copyWith(isLoading: false, isComplete: true);
+          }
         } catch (_) {
           if (_isMounted) {
             state = state.copyWith(

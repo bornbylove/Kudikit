@@ -15,12 +15,12 @@ class BulkTransferFileValidationScreen extends ConsumerStatefulWidget {
   final int totalRecipients;
 
   const BulkTransferFileValidationScreen({
-    Key? key,
+    super.key,
     required this.fileName,
     required this.recipients,
     required this.errors,
     required this.totalRecipients,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<BulkTransferFileValidationScreen> createState() =>
@@ -583,13 +583,12 @@ class _RecipientValidationCard extends StatelessWidget {
   final NumberFormat currencyFormat;
 
   const _RecipientValidationCard({
-    Key? key,
     required this.recipient,
     required this.recipientNumber,
     required this.hasError,
     required this.errors,
     required this.currencyFormat,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

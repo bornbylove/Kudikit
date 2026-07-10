@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/provider/auth/auth_provider.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kudipay/presentation/selfie/face_overlay.dart';
-import 'package:kudipay/presentation/Identity/chooseID.dart';
+import 'package:kudipay/presentation/Identity/choose_id.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SelfieCaptureScreen extends ConsumerStatefulWidget {

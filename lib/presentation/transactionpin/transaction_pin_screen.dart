@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/presentation/account_ready/account_ready.dart';
@@ -8,8 +8,7 @@ class CreateTransactionPinScreen extends ConsumerStatefulWidget {
   /// Set to true when called from Settings (change PIN) to use different nav.
   final bool isChangingPin;
 
-  const CreateTransactionPinScreen({Key? key, this.isChangingPin = false})
-      : super(key: key);
+  const CreateTransactionPinScreen({super.key, this.isChangingPin = false});
 
   @override
   ConsumerState<CreateTransactionPinScreen> createState() =>

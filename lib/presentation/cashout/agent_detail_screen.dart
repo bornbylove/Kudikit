@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:kudipay/model/agent/agent_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'enter_amount_screen.dart';
@@ -351,8 +351,9 @@ class AgentDetailsScreen extends StatelessWidget {
 
   String _fmt(double amount) {
     if (amount >= 1000000) return '${(amount / 1000000).toStringAsFixed(1)}M';
-    if (amount >= 1000)
+    if (amount >= 1000) {
       return '${amount ~/ 1000},${(amount % 1000).toStringAsFixed(0).padLeft(3, '0')}';
+    }
     return amount.toStringAsFixed(0);
   }
 

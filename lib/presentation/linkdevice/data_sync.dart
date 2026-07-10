@@ -203,7 +203,7 @@ class _DataSyncScreenState extends ConsumerState<DataSyncScreen> {
                       // FIX: read fresh state after await so we don't use
                       // stale isSyncing from the closure.
                       final fresh = ref.read(deviceLinkingProvider);
-                      if (mounted && !fresh.isSyncing) {
+                      if (context.mounted && !fresh.isSyncing) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(

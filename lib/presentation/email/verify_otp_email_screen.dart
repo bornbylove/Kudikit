@@ -146,7 +146,7 @@ class _VerifyEmailOtpScreenState extends ConsumerState<VerifyEmailOtpScreen> {
                                 .read(emailChangeProvider.notifier)
                                 .resendOTP();
 
-                            if (success && mounted) {
+                            if (success && context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Code resent successfully'),

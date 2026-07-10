@@ -60,6 +60,7 @@ class BillsService {
   // FIX: Accept DioClient instead of raw http.Client + authToken string.
   // This ensures every request goes through the auth interceptor, offline
   // guard, and unified error mapping defined in DioClient.
+  // ignore: unused_field
   final DioClient _client;
 
   const BillsService(this._client);

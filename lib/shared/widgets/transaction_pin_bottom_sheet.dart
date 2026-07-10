@@ -28,12 +28,12 @@ class TransactionPinBottomSheet extends ConsumerStatefulWidget {
   final VoidCallback? onCancel;
 
   const TransactionPinBottomSheet({
-    Key? key,
+    super.key,
     required this.title,
     this.subtitle,
     required this.onSuccess,
     this.onCancel,
-  }) : super(key: key);
+  });
 
   static Future<void> show(
     BuildContext context, {
@@ -280,8 +280,9 @@ class _TransactionPinBottomSheetState
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: keys.map((key) {
-        if (key.isEmpty)
+        if (key.isEmpty) {
           return SizedBox(width: AppLayout.scaleWidth(context, 70));
+        }
         if (key == 'delete') {
           return _keyBtn(context,
               child: Icon(Icons.backspace_outlined,

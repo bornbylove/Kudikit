@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
@@ -228,7 +228,7 @@ class _BulkTransferPreviewScreenState
                       ),
                       child: _buildRecipientCard(context, recipient),
                     );
-                  }).toList(),
+                  }),
 
                   SizedBox(height: AppLayout.scaleHeight(context, 20)),
 

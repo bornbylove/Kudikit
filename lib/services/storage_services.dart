@@ -50,9 +50,8 @@ class StorageService {
 
   // Secure, encrypted storage for sensitive data.
   final _secureStorage = const FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      encryptedSharedPreferences: true, // Uses Android Keystore encryption
-    ),
+    // Android encryption is handled automatically by the plugin's ciphers.
+    aOptions: AndroidOptions(),
     iOptions: IOSOptions(
       accessibility:
           KeychainAccessibility.first_unlock, // Available after first unlock

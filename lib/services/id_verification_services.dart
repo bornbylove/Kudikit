@@ -1,4 +1,8 @@
 // lib/services/id_verification_services.dart
+//
+// BVN and NIN are established Nigerian identity acronyms and are kept
+// upper-case intentionally.
+// ignore_for_file: constant_identifier_names
 
 import 'package:kudipay/config/dio_client.dart';
 

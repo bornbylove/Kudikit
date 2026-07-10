@@ -26,8 +26,6 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/presentation/linkdevice/data_sync.dart';
-import 'package:kudipay/provider/connectivity/connectivity_provider.dart';
-import 'package:kudipay/provider/device_linking/device_linking_provider.dart';
 import 'package:kudipay/provider/provider.dart';
 
 class SignInVerifyEmailScreen extends ConsumerStatefulWidget {
@@ -35,9 +33,9 @@ class SignInVerifyEmailScreen extends ConsumerStatefulWidget {
   final String maskedEmail;
 
   const SignInVerifyEmailScreen({
-    Key? key,
+    super.key,
     required this.maskedEmail,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<SignInVerifyEmailScreen> createState() =>

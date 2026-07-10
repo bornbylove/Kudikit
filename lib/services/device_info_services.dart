@@ -127,7 +127,9 @@ class DeviceInfoService {
       // Get current position — low accuracy to reduce battery impact and
       // latency. We only need city-level precision.
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.low,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.low,
+        ),
       ).timeout(const Duration(seconds: 8));
 
       // Reverse geocode to get a human-readable place name.

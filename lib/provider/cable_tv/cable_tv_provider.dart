@@ -134,6 +134,8 @@ class CableTvState {
 // =============================================================================
 
 class CableTvNotifier extends StateNotifier<CableTvState> {
+  // Injected client reserved for the live cable-TV API (see stubbed calls below).
+  // ignore: unused_field
   final DioClient _client;
 
   /// Debounce timer so IUC validation only fires after the user stops typing.

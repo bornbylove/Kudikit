@@ -284,8 +284,9 @@ class _CardTopUpFormScreenState extends ConsumerState<CardTopUpFormScreen> {
           validator: (value) {
             if (value == null || value.isEmpty) return 'Please enter amount';
             final amount = double.tryParse(value);
-            if (amount == null || amount <= 0)
+            if (amount == null || amount <= 0) {
               return 'Please enter a valid amount';
+            }
             return null;
           },
         ),
@@ -312,8 +313,9 @@ class _CardTopUpFormScreenState extends ConsumerState<CardTopUpFormScreen> {
             hint: 'Enter 13 - 19 digit card number',
           ),
           validator: (value) {
-            if (value == null || value.isEmpty)
+            if (value == null || value.isEmpty) {
               return 'Please enter card number';
+            }
             final digits = value.replaceAll(' ', '');
             if (digits.length < 13 || digits.length > 19) {
               return 'Please enter a valid card number';

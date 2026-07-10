@@ -6,11 +6,11 @@ class PasscodeDotsIndicator extends StatelessWidget {
   final bool showError;
 
   const PasscodeDotsIndicator({
-    Key? key,
+    super.key,
     required this.length,
     required this.filledCount,
     this.showError = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

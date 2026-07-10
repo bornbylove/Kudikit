@@ -1100,8 +1100,9 @@ class _ConfirmCableTvSheet extends ConsumerWidget {
                             ),
                           );
 
-                          if (pin == null || pin.length != 4)
+                          if (pin == null || pin.length != 4) {
                             return; // user dismissed
+                          }
 
                           nav.pop(); // close confirm sheet
                           await ref

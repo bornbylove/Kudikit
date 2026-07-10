@@ -42,6 +42,7 @@ class _UploadDocumentScreenState extends State<UploadDocumentScreen> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error picking image: $e')),
       );
@@ -61,6 +62,7 @@ class _UploadDocumentScreenState extends State<UploadDocumentScreen> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error picking image: $e')),
       );

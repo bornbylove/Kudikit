@@ -616,12 +616,10 @@ class _MeterTypeTab extends StatelessWidget {
 class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
-  final Color? valueColor;
 
   const _DetailRow({
     required this.label,
     required this.value,
-    this.valueColor,
   });
 
   @override
@@ -646,7 +644,7 @@ class _DetailRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: AppLayout.fontSize(context, 13),
                 fontWeight: FontWeight.w500,
-                color: valueColor ?? const Color(0xFF1A1A2E),
+                color: const Color(0xFF1A1A2E),
               ),
             ),
           ),
@@ -1101,8 +1099,9 @@ class _ConfirmPaymentSheetState extends ConsumerState<_ConfirmPaymentSheet> {
                               ),
                             );
 
-                            if (pin == null || pin.length != 4)
+                            if (pin == null || pin.length != 4) {
                               return; // user dismissed
+                            }
 
                             nav.pop(); // close confirm sheet
                             await ref

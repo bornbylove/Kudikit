@@ -83,7 +83,8 @@ class AgentRegistrationFlow extends ConsumerWidget {
           centerTitle: true,
           actions: [
             Padding(
-              padding: EdgeInsets.only(right: AppLayout.scaleWidth(context, 16)),
+              padding:
+                  EdgeInsets.only(right: AppLayout.scaleWidth(context, 16)),
               child: KudiCircularProgress(progress: state.progressPercent),
             ),
           ],
@@ -220,7 +221,8 @@ class _BusinessTypeDropdown extends StatelessWidget {
   final BusinessType? selected;
   final ValueChanged<BusinessType> onChanged;
 
-  const _BusinessTypeDropdown({required this.selected, required this.onChanged});
+  const _BusinessTypeDropdown(
+      {required this.selected, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
