@@ -3,7 +3,7 @@
 import 'dart:io';
 import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 import 'package:kudipay/features/kyc/domain/repositories/kyc_repositories.dart';
-import 'package:kudipay/model/IDdocument/document_data.dart';
+import 'package:kudipay/features/identity/domain/entities/document_data.dart';
 
 class VerifyIdentityUseCase {
   final KycRepository _repository;

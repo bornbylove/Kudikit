@@ -1,5 +1,5 @@
 import 'package:kudipay/core/constants/id_type.dart';
-import 'package:kudipay/presentation/Identity/verification_status.dart';
+import 'package:kudipay/features/identity/presentation/pages/verification_status.dart';
 
 class IdVerificationState {
   final IdType idType;

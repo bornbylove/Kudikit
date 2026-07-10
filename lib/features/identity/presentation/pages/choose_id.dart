@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/constants/id_type.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/model/IDdocument/id_verification_state.dart';
+import 'package:kudipay/features/identity/domain/entities/id_verification_state.dart';
 import 'package:kudipay/model/user/user_info.dart';
-import 'package:kudipay/presentation/Identity/confirm_info.dart';
-import 'package:kudipay/presentation/Identity/id_verification_controller.dart';
-import 'package:kudipay/presentation/Identity/verification_status.dart';
+import 'package:kudipay/features/identity/presentation/pages/confirm_info.dart';
+import 'package:kudipay/features/identity/presentation/controllers/id_verification_controller.dart';
+import 'package:kudipay/features/identity/presentation/pages/verification_status.dart';
 
 class IdVerificationScreen extends ConsumerStatefulWidget {
   const IdVerificationScreen({super.key});

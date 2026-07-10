@@ -4,7 +4,7 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/model/address/nigeria_state.dart';
 
 import 'package:kudipay/provider/provider.dart';
-import 'package:kudipay/presentation/Identity/upload_id.dart';
+import 'package:kudipay/features/identity/presentation/pages/upload_id.dart';
 
 class AddressVerificationScreen extends ConsumerWidget {
   const AddressVerificationScreen({super.key});

@@ -48,12 +48,12 @@ import 'package:kudipay/shared/widgets/bottom_nav.dart';
 import 'package:kudipay/presentation/homescreen/home_screen.dart';
 
 // KYC
-import 'package:kudipay/presentation/Identity/choose_id.dart'; // IdVerificationScreen
-import 'package:kudipay/presentation/Identity/confirm_info.dart';
+import 'package:kudipay/features/identity/presentation/pages/choose_id.dart'; // IdVerificationScreen
+import 'package:kudipay/features/identity/presentation/pages/confirm_info.dart';
 import 'package:kudipay/presentation/selfie/selfie_instruction.dart'; // SelfieInstructionsScreen
 import 'package:kudipay/presentation/selfie/selfie_capture_screen.dart';
 import 'package:kudipay/presentation/address/verify_address.dart'; // AddressVerificationScreen
-import 'package:kudipay/presentation/Identity/upload_id.dart'; // UploadIdCardScreen
+import 'package:kudipay/features/identity/presentation/pages/upload_id.dart'; // UploadIdCardScreen
 
 // Transfer
 import 'package:kudipay/presentation/transfer/single_transfer/transfer_amount_screen.dart';

@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:kudipay/core/providers/core_providers.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/model/IDdocument/document_data.dart';
+import 'package:kudipay/features/identity/domain/entities/document_data.dart';
 import 'package:kudipay/model/user/user_info.dart';
-import 'package:kudipay/presentation/Identity/confirm_info.dart';
+import 'package:kudipay/features/identity/presentation/pages/confirm_info.dart';
 
 import 'package:kudipay/provider/auth/auth_provider.dart';
 import 'package:kudipay/provider/kyc/kyc_provider.dart';

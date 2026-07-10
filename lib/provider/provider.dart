@@ -1,9 +1,9 @@
 export 'auth/auth_provider.dart';
 export 'transaction/transaction_provider.dart';
-export 'Identity_verify/identity_verify_provider.dart';
+export 'package:kudipay/features/identity/presentation/controllers/identity_verify_provider.dart';
 export 'connectivity/connectivity_provider.dart';
 export 'device_linking/device_linking_provider.dart';
-export 'P2P_transfer/p2p_transfer_provider.dart';
+export 'package:kudipay/features/transfer/presentation/controllers/p2p_transfer_provider.dart';
 export 'notification/notification_provider.dart';
 export 'email/email_provider.dart';
 export 'wallet/wallet_provider.dart';
