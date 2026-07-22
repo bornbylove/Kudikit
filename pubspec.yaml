@@ -49,6 +49,8 @@ dependencies:
   firebase_auth:
   firebase_core:
   cloud_firestore:
+  firebase_messaging: 
+  flutter_local_notifications: 
 
   # Media & Files
   camera:

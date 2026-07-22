@@ -2,9 +2,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // STUB — not yet wired.
 //
-// Firebase Cloud Messaging (push). Requires the `firebase_messaging` package
-// (NOT yet in pubspec — only firebase_core/firebase_auth are) plus
-// Firebase.initializeApp() in main() (not yet called).
+// Firebase Cloud Messaging (push). `firebase_messaging` is now in pubspec, and
+// Firebase.initializeApp() runs (guarded) in main(). This still requires Firebase
+// PLATFORM CONFIG to actually connect — google-services.json (Android) /
+// GoogleService-Info.plist (iOS), or a generated firebase_options.dart.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// Foreground/registration side of FCM. Stubs pending implementation.

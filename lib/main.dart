@@ -10,6 +10,7 @@
 //     route, not just the splash screen.
 
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/app/app_router_import.dart';
@@ -26,6 +27,20 @@ final availableCamerasProvider =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialise Firebase before anything that depends on it.
+  // NOTE: this only *connects* once platform config is present —
+  // google-services.json (Android) / GoogleService-Info.plist (iOS), or a
+  // generated firebase_options.dart passed as `options:`. It is guarded so a
+  // missing/incomplete config logs a warning instead of crashing startup while
+  // FCM/notifications are still stubs. Remove the try/catch once Firebase is
+  // required for the app to function.
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('⚠️ Firebase.initializeApp() failed — add platform config '
+        '(google-services.json / GoogleService-Info.plist, or firebase_options.dart). $e');
+  }
 
   // FIXED: Lock to portrait before runApp so no landscape flash on first frame.
   await AppLayout.lockPortrait();
