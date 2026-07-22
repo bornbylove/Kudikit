@@ -7,7 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/core/navigation/navigation_helpers.dart';
+import 'package:kudipay/core/app/navigation_helpers.dart';
 
 class BillPaymentSuccessScreen extends StatefulWidget {
   final String title;

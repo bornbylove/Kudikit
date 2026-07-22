@@ -3,7 +3,7 @@ import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/features/passcode/domain/passcode_state.dart';
-import 'package:kudipay/core/navigation/navigation_helpers.dart';
+import 'package:kudipay/core/app/navigation_helpers.dart';
 import 'package:kudipay/features/passcode/presentation/pages/numeric_keypad.dart';
 import 'package:kudipay/features/passcode/presentation/pages/passcode_dots.dart';
 import 'package:kudipay/features/passcode/presentation/controllers/passcode_notifier.dart';

@@ -1,4 +1,4 @@
-// lib/core/navigation/app_router.dart
+// lib/core/app/app_route.dart
 //
 // Single source of truth for all navigation in the app.
 //
@@ -29,7 +29,7 @@ import 'package:flutter/material.dart';
 // Model imports (needed for typed args classes)
 // ─────────────────────────────────────────────────────────────────────────────
 
-import 'package:kudipay/core/navigation/app_routes.dart';
+import 'package:kudipay/core/app/app_routes.dart';
 import 'package:kudipay/features/notification/presentation/pages/notification_category_screen.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -122,7 +122,7 @@ import 'package:kudipay/features/ticket/features/tickets/presentation/screens/ti
 // Tribe
 import 'package:kudipay/features/tribe/presentation/pages/choose_tribe.dart'; // TribeScreen
 
-export 'package:kudipay/core/navigation/app_routes.dart';
+export 'package:kudipay/core/app/app_routes.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AppRouter

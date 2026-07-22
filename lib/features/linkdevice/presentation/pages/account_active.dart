@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/core/navigation/navigation_helpers.dart';
+import 'package:kudipay/core/app/navigation_helpers.dart';
 
 class AccountActiveScreen extends ConsumerWidget {
   const AccountActiveScreen({super.key});

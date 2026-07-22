@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kudipay/core/navigation/app_routes.dart';
+import 'package:kudipay/core/app/app_routes.dart';
 
 /// Clears the stack and navigates to the main bottom-navigation shell.
 void navigateToMainShell(BuildContext context) {

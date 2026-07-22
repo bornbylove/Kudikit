@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/core/navigation/app_routes.dart';
+import 'package:kudipay/core/app/app_routes.dart';
 import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
 
 class KycProgressWidget extends ConsumerWidget {

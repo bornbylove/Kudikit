@@ -12,7 +12,7 @@
 import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/routes/app_route.dart';
+import 'package:kudipay/core/app/app_router_import.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/provider/provider.dart';

@@ -9,7 +9,7 @@ import 'package:kudipay/shared/widgets/color_app_button.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/core/network/app_exception_handler.dart';
 import 'package:kudipay/provider/provider.dart';
-import 'package:kudipay/core/navigation/app_routes.dart';
+import 'package:kudipay/core/app/app_routes.dart';
 import 'package:kudipay/features/signup/presentation/pages/signup_verify.dart';
 import 'package:flutter_riverpod/legacy.dart';
 

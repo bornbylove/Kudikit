@@ -3,7 +3,7 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
-import 'package:kudipay/core/navigation/app_routes.dart';
+import 'package:kudipay/core/app/app_routes.dart';
 
 class TransferMenuScreen extends StatelessWidget {
   const TransferMenuScreen({super.key});
