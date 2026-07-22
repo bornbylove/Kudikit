@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "721833352256",
+    "project_id": "kudikit-57e69",
+    "storage_bucket": "kudikit-57e69.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:721833352256:android:936c9e2072cbaffa9253a5",
+        "android_client_info": {
+          "package_name": "com.example.kudikit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8hA0VdbS0mrPqJqnZVTsxaINN9G8bEqo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
