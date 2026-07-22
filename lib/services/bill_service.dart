@@ -35,7 +35,7 @@
 //     code when the real implementation is wired in.
 // ============================================================================
 
-import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/core/network/api_client.dart';
 import 'package:kudipay/features/bills/domain/entities/bill_model.dart';
 
 // ============================================================================

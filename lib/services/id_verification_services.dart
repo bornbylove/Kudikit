@@ -4,7 +4,7 @@
 // upper-case intentionally.
 // ignore_for_file: constant_identifier_names
 
-import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/core/network/api_client.dart';
 
 enum IdentificationType {
   BVN,

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/core/network/api_client.dart';
 
 import 'package:kudipay/features/notification/presentation/pages/notification_preferences.dart';
 import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/core/network/api_client.dart';
 import 'package:kudipay/core/providers/core_providers.dart';
 
 import 'package:kudipay/features/request/domain/entities/request_model.dart';

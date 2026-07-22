@@ -17,7 +17,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/core/network/api_client.dart';
 import 'package:kudipay/services/connectivity_service.dart';
 import 'package:kudipay/services/storage_services.dart';
 

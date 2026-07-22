@@ -1,6 +1,6 @@
 // lib/features/transfer/data/repositories/transfer_repository_impl.dart
 
-import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/core/network/api_client.dart';
 import 'package:kudipay/features/transfer/domain/entities/transfer_entities.dart';
 import 'package:kudipay/features/transfer/domain/repositories/transfer_repository.dart';
 import 'package:kudipay/features/transfer/domain/entities/bulk_transfer_model.dart';

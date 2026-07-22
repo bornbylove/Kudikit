@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/legacy.dart'; // keep existing
-import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/core/network/api_client.dart';
 import 'package:kudipay/core/constants/id_type.dart';
 import 'package:kudipay/core/providers/core_providers.dart'; // ← use this
 import 'package:kudipay/features/identity/domain/entities/id_verification_state.dart';

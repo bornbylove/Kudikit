@@ -1,7 +1,7 @@
 // lib/features/kyc/data/repositories/kyc_repository_impl.dart
 
 import 'dart:io';
-import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/core/network/api_client.dart';
 import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 
 import 'package:dio/dio.dart';

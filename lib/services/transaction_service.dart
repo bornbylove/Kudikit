@@ -12,7 +12,7 @@
 // named params that no longer exist — DioClient handles auth internally via its
 // interceptor chain).
 
-import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/core/network/api_client.dart';
 import 'package:kudipay/features/transaction/domain/entities/transaction_model.dart';
 
 class TransactionService {

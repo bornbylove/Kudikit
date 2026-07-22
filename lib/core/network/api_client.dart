@@ -1,10 +1,9 @@
-// lib/config/dio_client.dart
+// lib/core/network/api_client.dart
 // ─────────────────────────────────────────────────────────────────────────────
 // Single, authoritative HTTP client for KudiPay.
 //
-// REPLACES:
-//   • lib/config/api_client.dart   (raw http.Client wrapper)   — DELETED
-//   • lib/services/api_services.dart (Dio singleton)           — DELETED
+// Moved here from lib/config/dio_client.dart during the core/ migration.
+// The interceptors now live in core/network/dio_interceptor.dart.
 //
 // USAGE:
 //   // In a Riverpod provider:
@@ -28,69 +27,15 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kudipay/core/network/app_exception_handler.dart';
+import 'package:kudipay/core/network/dio_interceptor.dart';
 import 'package:kudipay/services/connectivity_service.dart';
 import 'package:kudipay/services/storage_services.dart';
 
 // Re-export kBaseUrl so callers that imported it from here still work.
 export 'package:kudipay/core/config/network_config.dart' show kBaseUrl;
-// Re-export the canonical exceptions so existing `import dio_client.dart`
+// Re-export the canonical exceptions so existing `import api_client.dart`
 // call-sites continue to compile without adding a second import.
 export 'package:kudipay/core/network/app_exception_handler.dart';
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Auth Interceptor — injects Bearer token on every request
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _AuthInterceptor extends Interceptor {
-  final StorageService _storage;
-
-  _AuthInterceptor(this._storage);
-
-  @override
-  Future<void> onRequest(
-      RequestOptions options, RequestInterceptorHandler handler) async {
-    final token = await _storage.getAuthToken();
-    if (token != null && token.isNotEmpty) {
-      options.headers['Authorization'] = 'Bearer $token';
-    }
-    handler.next(options);
-  }
-
-  @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    // 401 → clear stored auth so the app routes to login on next startup
-    if (err.response?.statusCode == 401) {
-      _storage.clearAuth();
-    }
-    handler.next(err);
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Logging Interceptor — debug builds only
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _LogInterceptor extends Interceptor {
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    debugPrint('[KudiDio] → ${options.method} ${options.uri}');
-    handler.next(options);
-  }
-
-  @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    debugPrint(
-        '[KudiDio] ← ${response.statusCode} ${response.requestOptions.uri}');
-    handler.next(response);
-  }
-
-  @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    debugPrint(
-        '[KudiDio] ✗ ${err.type} ${err.requestOptions.uri} — ${err.message}');
-    handler.next(err);
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DioClient — the single HTTP wrapper used by all services
@@ -118,8 +63,8 @@ class DioClient {
               receiveTimeout: const Duration(seconds: 30),
               sendTimeout: const Duration(seconds: 30),
             )) {
-    _dio.interceptors.add(_AuthInterceptor(storage));
-    if (kDebugMode) _dio.interceptors.add(_LogInterceptor());
+    _dio.interceptors.add(AuthInterceptor(storage));
+    if (kDebugMode) _dio.interceptors.add(KudiLogInterceptor());
   }
 
   // ── Connectivity guard ─────────────────────────────────────────────────────

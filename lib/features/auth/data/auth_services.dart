@@ -23,7 +23,7 @@
 //   POST /api/v1/auth/onboarding/complete → { bvn?, tier? }
 
 import 'package:flutter/foundation.dart';
-import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/core/network/api_client.dart';
 import 'package:kudipay/model/user/user_info.dart';
 import 'package:kudipay/model/user/user_model.dart';
 import 'package:kudipay/services/device_info_services.dart';

@@ -3,7 +3,7 @@
 // All raw HTTP calls for the Wallet feature. The repository impl delegates
 // every network interaction here so it stays clean and easily testable.
 
-import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/core/network/api_client.dart';
 import 'package:kudipay/features/wallet/domain/entities/wallet_entities.dart';
 import 'package:kudipay/model/addmoney/addmoney.dart';
 import 'package:kudipay/model/bankmodel/bank_model.dart';
