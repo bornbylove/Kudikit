@@ -11,6 +11,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:kudipay/firebase_options.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/app/app_router_import.dart';
@@ -31,17 +32,17 @@ final availableCamerasProvider =
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialise Firebase before anything that depends on it.
-  // Connects via the native platform config: google-services.json (Android) /
-  // GoogleService-Info.plist (iOS). Guarded so an incomplete config (e.g. the
-  // iOS plist not yet added to the Xcode target) logs instead of crashing.
+  // Initialise Firebase before anything that depends on it, using the generated
+  // options (lib/firebase_options.dart). Guarded so an unconfigured platform
+  // logs instead of crashing startup.
   bool firebaseReady = false;
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     firebaseReady = true;
   } catch (e) {
-    debugPrint('⚠️ Firebase.initializeApp() failed — check platform config '
-        '(google-services.json / GoogleService-Info.plist). $e');
+    debugPrint('⚠️ Firebase.initializeApp() failed: $e');
   }
 
   // Local notifications don't need Firebase — set them up regardless.

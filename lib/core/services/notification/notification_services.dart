@@ -9,17 +9,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import 'package:kudipay/core/services/notification/notification_channels.dart';
 import 'package:kudipay/core/services/notification/notification_navigator_services.dart';
-
-/// The Android channel FCM + local notifications post to. The id is mirrored in
-/// AndroidManifest.xml (default_notification_channel_id).
-const AndroidNotificationChannel kHighImportanceChannel =
-    AndroidNotificationChannel(
-  'high_importance_channel',
-  'Notifications',
-  description: 'General notifications from KudiKit.',
-  importance: Importance.high,
-);
 
 class NotificationService {
   NotificationService._();

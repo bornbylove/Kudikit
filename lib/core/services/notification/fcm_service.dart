@@ -38,7 +38,7 @@ class FcmService {
     _initialised = true;
 
     // Background/terminated messages (own isolate).
-    FirebaseMessaging.onBackgroundMessage(fcmBackgroundHandler);
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
     await _messaging.requestPermission();
 
@@ -69,12 +69,17 @@ class FcmService {
     debugPrint('[FCM] token: $token');
   }
 
+  // Android does not display FCM messages while the app is foregrounded, so we
+  // surface them ourselves — for both notification-payload and data-only
+  // messages, falling back to the data map for the title/body.
   void _onForegroundMessage(RemoteMessage message) {
     final notification = message.notification;
-    if (notification == null) return;
+    final title = notification?.title ?? message.data['title'] as String?;
+    final body = notification?.body ?? message.data['body'] as String?;
+    if (title == null && body == null) return;
     NotificationService.instance.show(
-      title: notification.title ?? 'KudiKit',
-      body: notification.body ?? '',
+      title: title ?? 'KudiKit',
+      body: body ?? '',
       payload: json.encode(message.data),
     );
   }
