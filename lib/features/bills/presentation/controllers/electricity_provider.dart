@@ -11,7 +11,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/core/network/api_client.dart';
-import 'package:kudipay/core/providers/core_providers.dart';
+import 'package:kudipay/core/network/dio_provider.dart';
 import 'package:kudipay/features/bills/domain/entities/electricity_model.dart';
 
 // =============================================================================

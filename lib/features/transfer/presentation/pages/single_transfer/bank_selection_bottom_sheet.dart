@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/network/api_client.dart';
-import 'package:kudipay/core/providers/core_providers.dart';
+import 'package:kudipay/core/network/dio_provider.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 
 class Bank {

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/core/network/app_exception_handler.dart';
-import 'package:kudipay/core/providers/core_providers.dart';
+import 'package:kudipay/core/network/dio_provider.dart';
 import 'package:kudipay/features/transfer/data/repositories/transfer_repository_impl.dart';
 import 'package:kudipay/features/transfer/domain/entities/transfer_entities.dart';
 import 'package:kudipay/features/transfer/domain/repositories/transfer_repository.dart';

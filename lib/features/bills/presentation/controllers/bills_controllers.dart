@@ -23,7 +23,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:kudipay/core/providers/core_providers.dart';
+import 'package:kudipay/core/network/dio_provider.dart';
 import 'package:kudipay/features/bills/domain/entities/bill_model.dart';
 import 'package:kudipay/features/bills/data/repositories/bills_repositories_impl.dart';
 import 'package:kudipay/features/bills/domain/entities/bill_entities.dart';

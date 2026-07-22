@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/services/connectivity_service.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:kudipay/core/providers/core_providers.dart';
+import 'package:kudipay/core/singleton/service_providers.dart';
 
 // ==================== CONNECTIVITY PROVIDERS ====================
 // connectivityServiceProvider is defined in core_providers.dart.

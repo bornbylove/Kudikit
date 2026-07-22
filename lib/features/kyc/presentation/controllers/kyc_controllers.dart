@@ -13,7 +13,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/core/network/app_exception_handler.dart';
-import 'package:kudipay/core/providers/core_providers.dart';
+import 'package:kudipay/core/network/dio_provider.dart';
 import 'package:kudipay/features/kyc/data/repositories/kyc_repository_impl.dart';
 import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 import 'package:kudipay/features/kyc/domain/repositories/kyc_repositories.dart';

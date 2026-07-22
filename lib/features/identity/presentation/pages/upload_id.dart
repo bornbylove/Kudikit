@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:kudipay/core/providers/core_providers.dart';
+import 'package:kudipay/core/singleton/service_providers.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/identity/domain/entities/document_data.dart';
 import 'package:kudipay/model/user/user_info.dart';

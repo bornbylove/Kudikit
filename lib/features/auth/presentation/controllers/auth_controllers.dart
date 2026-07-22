@@ -3,7 +3,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:kudipay/core/providers/core_providers.dart';
+import 'package:kudipay/core/network/dio_provider.dart';
+import 'package:kudipay/core/singleton/service_providers.dart';
 import 'package:kudipay/features/auth/data/auth_services.dart';
 import 'package:kudipay/features/auth/domain/repositories/auth_repositories.dart';
 
