@@ -33,7 +33,7 @@ core/
 │   ├── dio_provider.dart           (dioClientProvider)       ← core/providers/     [D3]
 │   ├── app_exception_handler.dart  (KudiException hierarchy) ← core/errors/exceptions.dart
 │   │                                                          + services/api_services.dart aliases
-│   └── api_reponse.dart            (ApiResponse<T>, NEW)                            [B1]
+│   └── api_response.dart           (ApiResponse<T>, NEW)                            [B1]
 ├── services/
 │   ├── auth_background_services.dart (STUB)                                        [B2]
 │   ├── biometric_services.dart       (STUB, needs local_auth)                      [B2]
@@ -92,7 +92,7 @@ core/
 ## New files
 
 - **B1 (no new deps, functional):** `extension/string_extension.dart`,
-  `network/api_reponse.dart`, `singleton/cache.dart`, `app/cache_helper.dart`, `utils/jwt.dart`.
+  `network/api_response.dart`, `singleton/cache.dart`, `app/cache_helper.dart`, `utils/jwt.dart`.
 - **B2 (stub only):** `services/auth_background_services.dart`, `services/biometric_services.dart`,
   and `services/notification/{fcm_service, fcm_background_handler, notification_services,
   notification_navigator_services}.dart`. Their methods throw `UnimplementedError` and document
@@ -100,8 +100,6 @@ core/
 
 ## Open follow-ups
 
-- `network/api_reponse.dart` keeps the target's spelling; it looks like a typo for
-  `api_response.dart` — rename if desired.
 - To make the B2 stubs real, add the deps and wire startup:
   `firebase_messaging` (+ `Firebase.initializeApp()` in `main()`),
   `flutter_local_notifications`, `local_auth`, and a background scheduler

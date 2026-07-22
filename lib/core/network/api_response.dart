@@ -1,9 +1,6 @@
-// lib/core/network/api_reponse.dart
+// lib/core/network/api_response.dart
 // ─────────────────────────────────────────────────────────────────────────────
 // Generic wrapper describing the outcome of an API call.
-//
-// NOTE: the filename keeps the spelling from the agreed target ("api_reponse");
-// it looks like a typo for "api_response" — rename if desired.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// A generic success/failure envelope around an API result.
