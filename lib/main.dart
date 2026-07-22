@@ -14,6 +14,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/app/app_router_import.dart';
+import 'package:kudipay/core/services/notification/fcm_service.dart';
+import 'package:kudipay/core/services/notification/notification_navigator_services.dart';
+import 'package:kudipay/core/services/notification/notification_services.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/provider/provider.dart';
@@ -29,17 +32,32 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialise Firebase before anything that depends on it.
-  // NOTE: this only *connects* once platform config is present —
-  // google-services.json (Android) / GoogleService-Info.plist (iOS), or a
-  // generated firebase_options.dart passed as `options:`. It is guarded so a
-  // missing/incomplete config logs a warning instead of crashing startup while
-  // FCM/notifications are still stubs. Remove the try/catch once Firebase is
-  // required for the app to function.
+  // Connects via the native platform config: google-services.json (Android) /
+  // GoogleService-Info.plist (iOS). Guarded so an incomplete config (e.g. the
+  // iOS plist not yet added to the Xcode target) logs instead of crashing.
+  bool firebaseReady = false;
   try {
     await Firebase.initializeApp();
+    firebaseReady = true;
   } catch (e) {
-    debugPrint('⚠️ Firebase.initializeApp() failed — add platform config '
-        '(google-services.json / GoogleService-Info.plist, or firebase_options.dart). $e');
+    debugPrint('⚠️ Firebase.initializeApp() failed — check platform config '
+        '(google-services.json / GoogleService-Info.plist). $e');
+  }
+
+  // Local notifications don't need Firebase — set them up regardless.
+  try {
+    await NotificationService.instance.init();
+  } catch (e) {
+    debugPrint('⚠️ NotificationService.init() failed: $e');
+  }
+
+  // Push (FCM) requires Firebase to be up.
+  if (firebaseReady) {
+    try {
+      await FcmService.instance.init();
+    } catch (e) {
+      debugPrint('⚠️ FcmService.init() failed: $e');
+    }
   }
 
   // FIXED: Lock to portrait before runApp so no landscape flash on first frame.
@@ -69,6 +87,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'KudiKit',
       debugShowCheckedModeBanner: false,
+      // Global key so notification taps can navigate without a BuildContext.
+      navigatorKey: NotificationNavigatorService.navigatorKey,
       theme: ThemeData(
         fontFamily: 'PolySans',
         colorScheme: ColorScheme.fromSeed(

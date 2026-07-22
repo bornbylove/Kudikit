@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Android 13+ runtime notification permission (FCM + local notifications) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:label="Kudikit"
@@ -40,6 +42,12 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao" />
+
+        <!-- Default channel for FCM notifications shown by the OS while
+             backgrounded; must match kHighImportanceChannel.id in code. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="high_importance_channel" />
 
     </application>
 

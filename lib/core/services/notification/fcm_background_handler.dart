@@ -1,18 +1,24 @@
 // lib/core/services/notification/fcm_background_handler.dart
 // ─────────────────────────────────────────────────────────────────────────────
-// STUB — not yet wired.
+// Top-level FCM background/terminated message handler.
 //
-// The background/terminated push handler. Requires `firebase_messaging`.
-// When implemented, the parameter becomes a `RemoteMessage`, and the function
-// MUST stay top-level and be annotated with @pragma('vm:entry-point') so it can
-// run in its own isolate, then be registered via
-// FirebaseMessaging.onBackgroundMessage(fcmBackgroundHandler).
+// Runs in its own isolate, so it MUST initialise Firebase itself and stay a
+// top-level function annotated with @pragma('vm:entry-point'). Registered from
+// FcmService.init() via FirebaseMessaging.onBackgroundMessage(...).
+//
+// Notification-type messages are shown by the OS automatically while the app is
+// backgrounded; this handler is where you'd process data-only messages (update
+// local state, badges, etc.).
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Handles push messages received while the app is backgrounded or terminated.
-///
-/// [message] is typed `Object?` for now; it becomes `RemoteMessage` once
-/// `firebase_messaging` is added.
-Future<void> fcmBackgroundHandler(Object? message) async {
-  // TODO: process the background push payload (e.g. update local state / badge).
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+
+@pragma('vm:entry-point')
+Future<void> fcmBackgroundHandler(RemoteMessage message) async {
+  // The background isolate has no Firebase app yet — bring one up.
+  await Firebase.initializeApp();
+  debugPrint('[FCM bg] ${message.messageId} data=${message.data}');
+  // TODO: process data-only background messages here if needed.
 }
