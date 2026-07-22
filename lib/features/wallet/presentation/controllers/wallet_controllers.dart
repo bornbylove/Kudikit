@@ -15,7 +15,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/config/dio_client.dart';
-import 'package:kudipay/core/errors/exceptions.dart';
+import 'package:kudipay/core/network/app_exception_handler.dart';
 import 'package:kudipay/core/providers/core_providers.dart';
 import 'package:kudipay/features/wallet/data/datasources/wallet_remote_datasources.dart';
 

@@ -19,7 +19,7 @@ import 'package:kudipay/shared/widgets/color_app_button.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/features/signup/presentation/pages/signup_more_details.dart';
-import 'package:kudipay/services/api_services.dart';
+import 'package:kudipay/core/network/app_exception_handler.dart';
 import 'package:pinput/pinput.dart';
 
 class EmailVerifySignup extends ConsumerStatefulWidget {

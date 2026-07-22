@@ -27,7 +27,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:kudipay/core/errors/exceptions.dart';
+import 'package:kudipay/core/network/app_exception_handler.dart';
 import 'package:kudipay/services/connectivity_service.dart';
 import 'package:kudipay/services/storage_services.dart';
 
@@ -35,7 +35,7 @@ import 'package:kudipay/services/storage_services.dart';
 export 'package:kudipay/core/config/network_config.dart' show kBaseUrl;
 // Re-export the canonical exceptions so existing `import dio_client.dart`
 // call-sites continue to compile without adding a second import.
-export 'package:kudipay/core/errors/exceptions.dart';
+export 'package:kudipay/core/network/app_exception_handler.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Auth Interceptor — injects Bearer token on every request

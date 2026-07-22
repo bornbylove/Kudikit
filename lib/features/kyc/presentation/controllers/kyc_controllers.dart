@@ -12,7 +12,7 @@
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:kudipay/core/errors/exceptions.dart';
+import 'package:kudipay/core/network/app_exception_handler.dart';
 import 'package:kudipay/core/providers/core_providers.dart';
 import 'package:kudipay/features/kyc/data/repositories/kyc_repository_impl.dart';
 import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';

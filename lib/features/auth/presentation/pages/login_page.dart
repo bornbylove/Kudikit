@@ -10,7 +10,7 @@ import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/model/user/user_model.dart';
 import 'package:kudipay/features/linkdevice/presentation/pages/link_device_screen.dart';
 import 'package:kudipay/provider/provider.dart';
-import 'package:kudipay/services/api_services.dart';
+import 'package:kudipay/core/network/app_exception_handler.dart';
 import 'package:kudipay/services/storage_services.dart';
 
 // =============================================================================

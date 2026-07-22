@@ -8,7 +8,7 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/features/transaction/presentation/pages/transaction_success.dart';
 import 'package:kudipay/provider/provider.dart';
-import 'package:kudipay/services/api_services.dart';
+import 'package:kudipay/core/network/app_exception_handler.dart';
 
 class OtpVerificationScreen extends ConsumerStatefulWidget {
   const OtpVerificationScreen({super.key});

@@ -1,9 +1,13 @@
-// lib/core/errors/exceptions.dart
+// lib/core/network/app_exception_handler.dart
 // ─────────────────────────────────────────────────────────────────────────────
 // Canonical exception hierarchy for all KudiPay network and service errors.
 //
+// Consolidated here (core/ migration) from:
+//   • lib/core/errors/exceptions.dart   — the exception hierarchy   (moved)
+//   • lib/services/api_services.dart     — deprecated compat aliases (merged)
+//
 // USAGE:
-//   import 'package:kudipay/core/errors/exceptions.dart';
+//   import 'package:kudipay/core/network/app_exception_handler.dart';
 //
 //   try {
 //     await client.get('/endpoint');
@@ -63,3 +67,16 @@ class StorageException implements Exception {
   @override
   String toString() => 'StorageException: $message';
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Deprecated compatibility aliases
+// ----------------------------------------------------------------------------
+// Kept so existing `catch` clauses in presentation files continue to compile
+// while they are migrated to the KudiException hierarchy above.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// @deprecated — use [KudiNetworkException].
+typedef NoInternetException = KudiNetworkException;
+
+/// @deprecated — use [KudiTimeoutException].
+typedef KudiPayTimeoutException = KudiTimeoutException;
