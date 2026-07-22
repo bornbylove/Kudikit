@@ -1,4 +1,5 @@
-// lib/services/device_info_service.dart
+// lib/core/utils/device/device_utility.dart
+// (moved from lib/services/device_info_services.dart during the core/ migration)
 //
 // Collects the four pieces of device context needed for the security OTP
 // email template:

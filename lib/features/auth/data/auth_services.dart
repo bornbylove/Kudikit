@@ -26,7 +26,7 @@ import 'package:flutter/foundation.dart';
 import 'package:kudipay/core/network/api_client.dart';
 import 'package:kudipay/model/user/user_info.dart';
 import 'package:kudipay/model/user/user_model.dart';
-import 'package:kudipay/services/device_info_services.dart';
+import 'package:kudipay/core/utils/device/device_utility.dart';
 import 'package:kudipay/services/storage_services.dart';
 
 class AuthService {

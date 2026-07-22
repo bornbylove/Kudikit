@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/model/device/device_metadata.dart';
-import 'package:kudipay/services/device_info_services.dart';
+import 'package:kudipay/core/utils/device/device_utility.dart';
 // ==================== DEVICE LINKING MODELS ====================
 
 enum VerificationMethod {

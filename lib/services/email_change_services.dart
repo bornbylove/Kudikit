@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:kudipay/model/device/device_metadata.dart';
-import 'package:kudipay/services/device_info_services.dart';
+import 'package:kudipay/core/utils/device/device_utility.dart';
 import 'package:kudipay/services/storage_services.dart';
 
 class EmailChangeService {
