@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/core/constants/id_type.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/features/identity/domain/entities/id_verification_state.dart';
 import 'package:kudipay/model/user/user_info.dart';
 import 'package:kudipay/features/identity/presentation/pages/confirm_info.dart';
-import 'package:kudipay/features/identity/presentation/controllers/id_verification_controller.dart';
-import 'package:kudipay/features/identity/presentation/pages/verification_status.dart';
+// IdType, VerificationStatus, IdVerificationState and idVerificationProvider
+// all come from the KYC feature now — this screen previously used a parallel
+// set of duplicates that posted to an endpoint the backend does not have.
+import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
+import 'package:kudipay/features/kyc/presentation/controllers/kyc_controllers.dart';
 
 class IdVerificationScreen extends ConsumerStatefulWidget {
   const IdVerificationScreen({super.key});
@@ -440,9 +441,26 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
 
   Future<void> _handleVerification() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // The backend verifies identity and liveness in one call, so the selfie
+    // captured earlier in the flow is submitted alongside the BVN/NIN.
+    // KycFlowManager routes the selfie step first, so this is a guard against
+    // a user deep-linking straight here rather than an expected state.
+    final selfie = ref.read(selfieStateProvider.notifier).captured;
+    if (selfie == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please complete the selfie step first.'),
+          backgroundColor: AppColors.avatarOrange,
+        ),
+      );
+      return;
+    }
+
     await ref
         .read(idVerificationProvider.notifier)
-        .verifyId(_idNumberController.text);
+        .verifyId(_idNumberController.text, selfie);
   }
 
   void _handleNext() {
@@ -451,13 +469,19 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
       return;
     }
 
-    // Build a UserInfo from the data returned by the ID verification step.
-    // The mock (and real) API returns first_name, last_name, date_of_birth,
-    // and the raw BVN/NIN number that the user entered.
+    // The bureau returns one `bvnFullName` / `ninFullName` string rather than
+    // separate components, so split it: first token is the given name, the
+    // remainder the surname. UserInfo needs the two parts.
     final data = state.data!;
+    final fullName = (data['name'] as String? ?? '').trim();
+    final parts =
+        fullName.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+
     final userInfo = UserInfo(
-      firstName: (data['first_name'] as String? ?? '').trim(),
-      lastName: (data['last_name'] as String? ?? '').trim(),
+      firstName: parts.isNotEmpty ? parts.first : '',
+      lastName: parts.length > 1 ? parts.sublist(1).join(' ') : '',
+      // The server never echoes the raw BVN/NIN back (only bvnHash), so this
+      // is the value the user typed.
       bvn: _idNumberController.text.trim(),
       dateOfBirth: DateTime.tryParse(
             data['date_of_birth'] as String? ?? '',

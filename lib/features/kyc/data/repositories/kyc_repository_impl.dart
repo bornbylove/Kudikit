@@ -2,6 +2,8 @@
 
 import 'dart:io';
 import 'package:kudipay/core/network/api_client.dart';
+import 'package:kudipay/core/utils/image_encoding.dart';
+import 'package:kudipay/features/kyc/data/repositories/kyc_request_builders.dart';
 import 'package:kudipay/features/kyc/data/repositories/kyc_status_mapper.dart';
 import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 
@@ -13,34 +15,6 @@ class KycRepositoryImpl implements KycRepository {
   final DioClient _client;
   const KycRepositoryImpl(this._client);
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
-
-  IdType _parseIdType(String raw) {
-    switch (raw.toUpperCase()) {
-      case 'NIN':
-        return IdType.nin;
-      default:
-        return IdType.bvn;
-    }
-  }
-
-  VerifiedIdentityEntity _parseIdentity(Map<String, dynamic> json) {
-    final rawType = (json['id_type'] ?? json['idType'] ?? 'BVN').toString();
-    return VerifiedIdentityEntity(
-      firstName: json['first_name'] ?? json['firstName'] ?? '',
-      middleName: json['middle_name'] ?? json['middleName'] ?? '',
-      lastName: json['last_name'] ?? json['lastName'] ?? '',
-      fullName: json['full_name'] ?? json['fullName'] ?? '',
-      dateOfBirth: DateTime.parse(
-          json['date_of_birth'] ?? json['dateOfBirth'] ?? '2000-01-01'),
-      phoneNumber: json['phone_number'] ?? json['phoneNumber'] ?? '',
-      photoUrl: json['photo_url'] ?? json['photoUrl'],
-      gender: json['gender'] ?? '',
-      idNumber: json['bvn'] ?? json['nin'] ?? json['id_number'] ?? '',
-      idType: _parseIdType(rawType),
-    );
-  }
-
   // ── KycRepository ──────────────────────────────────────────────────────────
 
   @override
@@ -50,36 +24,32 @@ class KycRepositoryImpl implements KycRepository {
   }
 
   @override
-  Future<VerifiedIdentityEntity> verifyIdentity({
+  Future<KycStatusEntity> verifyIdentity({
     required String idNumber,
     required IdType idType,
+    required File selfieImage,
   }) async {
     if (idNumber.length != 11) {
       throw Exception('${idType.label} must be exactly 11 digits.');
     }
 
+    // Throws ImageTooLargeException / ImageUnreadableException before the
+    // request is attempted, so an oversized photo surfaces as a clear error
+    // rather than a send timeout.
+    final selfieBase64 = await encodeImageFile(selfieImage);
+
     final res = await _client.post<Map<String, dynamic>>(
-      '/kyc/verify-identity',
-      data: {'id_number': idNumber, 'id_type': idType.label},
+      kycVerifyPathFor(idType),
+      data: buildIdentityVerificationBody(
+        idNumber: idNumber,
+        idType: idType,
+        selfieImageBase64: selfieBase64,
+      ),
     );
 
-    return _parseIdentity(res.data!);
-  }
-
-  @override
-  Future<void> confirmIdentity({
-    required VerifiedIdentityEntity identity,
-  }) async {
-    await _client.post<void>(
-      '/kyc/confirm-identity',
-      data: {
-        'id_number': identity.idNumber,
-        'id_type': identity.idType.label,
-        'first_name': identity.firstName,
-        'last_name': identity.lastName,
-        'date_of_birth': identity.dateOfBirth.toIso8601String(),
-      },
-    );
+    // Both endpoints return ApiResponseKycVerification — the same payload as
+    // GET /auth/kyc/status — so the response is the refreshed KYC state.
+    return kycStatusFromResponse(res.data ?? const {});
   }
 
   @override
@@ -94,23 +64,6 @@ class KycRepositoryImpl implements KycRepository {
         'street_name': address.streetName,
         'house_number': address.houseNumber,
       },
-    );
-  }
-
-  @override
-  Future<SelfieEntity> uploadSelfie(File imageFile) async {
-    final formData = FormData.fromMap({
-      'selfie': await MultipartFile.fromFile(
-        imageFile.path,
-        filename: 'selfie.jpg',
-      ),
-    });
-
-    await _client.post<void>('/kyc/selfie', data: formData);
-
-    return SelfieEntity(
-      imagePath: imageFile.path,
-      validationPassed: true,
     );
   }
 

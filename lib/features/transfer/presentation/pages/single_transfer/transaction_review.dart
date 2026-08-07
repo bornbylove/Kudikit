@@ -31,9 +31,12 @@ class TransactionReviewBottomSheet extends ConsumerWidget {
     final state = ref.watch(p2pTransferProvider);
     final data = state.transferData;
     final senderName = ref.watch(userProvider);
-    final verificationState = ref.watch(identityVerificationProvider);
-    final senderAccountNumber =
-        verificationState.verificationData?.idNumber ?? '';
+    // The sender's account number belongs to the wallet feature, not KYC: the
+    // server returns only bvnHash, never the raw BVN/NIN. This was already
+    // always empty at runtime (identityVerificationProvider is never
+    // populated), so behaviour is unchanged — kept explicit until it is wired
+    // to the wallet account details.
+    const senderAccountNumber = '';
     final currencyFormat = NumberFormat.currency(symbol: '₦', decimalDigits: 2);
 
     return Container(

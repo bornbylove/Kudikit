@@ -9,22 +9,21 @@ abstract interface class KycRepository {
   /// verification steps have actually completed.
   Future<KycStatusEntity> getKycStatus();
 
-  /// Verifies a BVN or NIN and returns the identity data from the bureau.
-  Future<VerifiedIdentityEntity> verifyIdentity({
+  /// Verifies a BVN or NIN together with a liveness selfie, and returns the
+  /// updated server-side KYC state.
+  ///
+  /// [selfieImage] is required: the backend has no standalone selfie endpoint,
+  /// so identity and liveness are submitted in one call. There is likewise no
+  /// separate "confirm identity" step — a successful call *is* the
+  /// confirmation, reflected in the returned [KycStatusEntity].
+  Future<KycStatusEntity> verifyIdentity({
     required String idNumber,
     required IdType idType,
-  });
-
-  /// Submits the verified identity to the backend to mark BVN/NIN as confirmed.
-  Future<void> confirmIdentity({
-    required VerifiedIdentityEntity identity,
+    required File selfieImage,
   });
 
   /// Submits the user's residential address.
   Future<void> submitAddress(AddressEntity address);
-
-  /// Uploads a selfie image and returns the validated [SelfieEntity].
-  Future<SelfieEntity> uploadSelfie(File imageFile);
 
   /// Uploads a KYC document (utility bill, passport, etc.).
   Future<void> uploadDocument({

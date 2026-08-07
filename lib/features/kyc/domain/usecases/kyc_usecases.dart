@@ -12,23 +12,21 @@ class GetKycStatusUseCase {
   Future<KycStatusEntity> call() => _repository.getKycStatus();
 }
 
+/// Verifies BVN/NIN and liveness in a single call. See [KycRepository].
 class VerifyIdentityUseCase {
   final KycRepository _repository;
   const VerifyIdentityUseCase(this._repository);
 
-  Future<VerifiedIdentityEntity> call({
+  Future<KycStatusEntity> call({
     required String idNumber,
     required IdType idType,
+    required File selfieImage,
   }) =>
-      _repository.verifyIdentity(idNumber: idNumber, idType: idType);
-}
-
-class ConfirmIdentityUseCase {
-  final KycRepository _repository;
-  const ConfirmIdentityUseCase(this._repository);
-
-  Future<void> call(VerifiedIdentityEntity identity) =>
-      _repository.confirmIdentity(identity: identity);
+      _repository.verifyIdentity(
+        idNumber: idNumber,
+        idType: idType,
+        selfieImage: selfieImage,
+      );
 }
 
 class SubmitAddressUseCase {
@@ -37,14 +35,6 @@ class SubmitAddressUseCase {
 
   Future<void> call(AddressEntity address) =>
       _repository.submitAddress(address);
-}
-
-class UploadSelfieUseCase {
-  final KycRepository _repository;
-  const UploadSelfieUseCase(this._repository);
-
-  Future<SelfieEntity> call(File imageFile) =>
-      _repository.uploadSelfie(imageFile);
 }
 
 class UploadDocumentUseCase {

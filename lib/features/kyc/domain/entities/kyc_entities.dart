@@ -170,6 +170,10 @@ class KycStatusEntity {
   final String? bvnFullName;
   final String? ninFullName;
 
+  /// Date of birth as returned by the BVN/NIN bureau.
+  final DateTime? bvnDateOfBirth;
+  final DateTime? ninDateOfBirth;
+
   const KycStatusEntity({
     this.overall = KycOverallStatus.notStarted,
     this.bvnVerified = false,
@@ -181,6 +185,8 @@ class KycStatusEntity {
     this.rejectionReason,
     this.bvnFullName,
     this.ninFullName,
+    this.bvnDateOfBirth,
+    this.ninDateOfBirth,
   });
 
   bool get documentVerified => documentStatus == KycDocumentStatus.verified;
@@ -190,4 +196,7 @@ class KycStatusEntity {
   /// Whichever bureau-confirmed name is available. This is the only
   /// authoritative source of the user's legal name.
   String? get verifiedFullName => bvnFullName ?? ninFullName;
+
+  /// Whichever bureau-confirmed date of birth is available.
+  DateTime? get verifiedDateOfBirth => bvnDateOfBirth ?? ninDateOfBirth;
 }

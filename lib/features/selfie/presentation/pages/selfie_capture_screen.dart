@@ -140,7 +140,9 @@ class _SelfieCaptureScreenState extends ConsumerState<SelfieCaptureScreen> {
   }
 
   void _processImage(String imagePath) {
-    ref.read(selfieStateProvider.notifier).validateAndUploadImage(imagePath);
+    // Retains the capture locally — it is submitted later as the required
+    // selfieImageBase64 field on verify-bvn / verify-nin.
+    ref.read(selfieStateProvider.notifier).captureSelfie(imagePath);
   }
 
   @override

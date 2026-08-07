@@ -29,9 +29,9 @@ class ConfirmTransferBottomSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(p2pTransferProvider);
     final senderName = ref.watch(userProvider);
-    final verificationState = ref.watch(identityVerificationProvider);
-    final senderAccountNumber =
-        verificationState.verificationData?.idNumber ?? '';
+    // See transaction_review.dart — account number is a wallet concern, and
+    // this was already empty at runtime. Unchanged behaviour.
+    const senderAccountNumber = '';
 
     final currencyFormat = NumberFormat.currency(symbol: '₦', decimalDigits: 2);
 

@@ -73,5 +73,14 @@ KycStatusEntity kycStatusFromResponse(Map<String, dynamic> res) {
     rejectionReason: data['rejectionReason'] as String?,
     bvnFullName: data['bvnFullName'] as String?,
     ninFullName: data['ninFullName'] as String?,
+    bvnDateOfBirth: _parseDate(data['bvnDateOfBirth']),
+    ninDateOfBirth: _parseDate(data['ninDateOfBirth']),
   );
+}
+
+/// Bureau dates arrive as `yyyy-MM-dd`. A malformed value degrades to null
+/// rather than throwing — see the note at the top of this file.
+DateTime? _parseDate(Object? raw) {
+  if (raw is! String || raw.isEmpty) return null;
+  return DateTime.tryParse(raw);
 }

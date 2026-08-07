@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/core/network/app_exception_handler.dart';
 import 'package:kudipay/core/network/dio_provider.dart';
+import 'package:kudipay/core/utils/image_encoding.dart';
 import 'package:kudipay/features/kyc/data/repositories/kyc_repository_impl.dart';
 import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 import 'package:kudipay/features/kyc/domain/repositories/kyc_repositories.dart';
@@ -35,12 +36,8 @@ final getKycStatusUseCaseProvider =
     Provider((ref) => GetKycStatusUseCase(ref.read(kycRepositoryProvider)));
 final verifyIdentityUseCaseProvider =
     Provider((ref) => VerifyIdentityUseCase(ref.read(kycRepositoryProvider)));
-final confirmIdentityUseCaseProvider =
-    Provider((ref) => ConfirmIdentityUseCase(ref.read(kycRepositoryProvider)));
 final submitAddressUseCaseProvider =
     Provider((ref) => SubmitAddressUseCase(ref.read(kycRepositoryProvider)));
-final uploadSelfieUseCaseProvider =
-    Provider((ref) => UploadSelfieUseCase(ref.read(kycRepositoryProvider)));
 final uploadDocumentUseCaseProvider =
     Provider((ref) => UploadDocumentUseCase(ref.read(kycRepositoryProvider)));
 
@@ -91,7 +88,9 @@ class IdVerificationController extends StateNotifier<IdVerificationState> {
     );
   }
 
-  Future<void> verifyId(String idNumber) async {
+  /// [selfieImage] is mandatory — the backend verifies identity and liveness
+  /// in one call, so the selfie must already have been captured.
+  Future<void> verifyId(String idNumber, File selfieImage) async {
     if (idNumber.length != 11) {
       state = state.copyWith(
         status: VerificationStatus.error,
@@ -103,20 +102,23 @@ class IdVerificationController extends StateNotifier<IdVerificationState> {
     state = state.copyWith(status: VerificationStatus.loading, error: null);
 
     try {
-      final identity = await _verifyIdentity.call(
+      final status = await _verifyIdentity.call(
         idNumber: idNumber,
         idType: state.idType,
+        selfieImage: selfieImage,
       );
       state = state.copyWith(
         status: VerificationStatus.success,
         data: {
-          'name': identity.displayName,
-          'first_name': identity.firstName,
-          'last_name': identity.lastName,
-          'date_of_birth': identity.dateOfBirth.toIso8601String(),
-          'idType': identity.idType.label,
+          // The bureau returns a single full name, not split components.
+          'name': status.verifiedFullName ?? '',
+          'date_of_birth': status.verifiedDateOfBirth?.toIso8601String() ?? '',
+          'idType': state.idType.label,
         },
       );
+    } on ImageTooLargeException catch (e) {
+      state =
+          state.copyWith(status: VerificationStatus.error, error: e.toString());
     } on KudiApiException catch (e) {
       state =
           state.copyWith(status: VerificationStatus.error, error: e.message);
@@ -142,7 +144,7 @@ final idVerificationProvider =
 // =============================================================================
 
 class IdentityVerificationState {
-  final VerifiedIdentityEntity? verificationData;
+  final KycStatusEntity? verificationData;
   final bool isVerifying;
   final String? error;
 
@@ -153,7 +155,7 @@ class IdentityVerificationState {
   });
 
   IdentityVerificationState copyWith({
-    VerifiedIdentityEntity? verificationData,
+    KycStatusEntity? verificationData,
     bool? isVerifying,
     String? error,
     bool clearError = false,
@@ -175,12 +177,14 @@ class IdentityVerificationNotifier
   Future<void> verifyIdentity({
     required String idNumber,
     required IdType idType,
+    required File selfieImage,
   }) async {
     state = state.copyWith(isVerifying: true, clearError: true);
     try {
       final identity = await _verifyIdentity.call(
         idNumber: idNumber,
         idType: idType,
+        selfieImage: selfieImage,
       );
       state = state.copyWith(isVerifying: false, verificationData: identity);
     } catch (e) {
@@ -240,10 +244,14 @@ class SelfieState {
       );
 }
 
+/// Holds the captured selfie until BVN/NIN verification consumes it.
+///
+/// There is no standalone selfie endpoint — the image is a required field on
+/// verify-bvn / verify-nin. So capturing no longer performs a network call;
+/// it validates the file locally and keeps the path for [captured] to supply
+/// to [IdVerificationController.verifyId].
 class SelfieNotifier extends StateNotifier<SelfieState> {
-  final UploadSelfieUseCase _uploadSelfie;
-
-  SelfieNotifier(this._uploadSelfie) : super(const SelfieState());
+  SelfieNotifier() : super(const SelfieState());
 
   void setLoading(bool loading) => state = state.copyWith(isLoading: loading);
   void setCameraInitialized(bool initialized) =>
@@ -251,16 +259,28 @@ class SelfieNotifier extends StateNotifier<SelfieState> {
   void setFaceDetected(bool detected) =>
       state = state.copyWith(faceDetected: detected);
 
-  Future<void> validateAndUploadImage(String imagePath) async {
+  /// The captured selfie, or null if none has been taken yet.
+  File? get captured {
+    final path = state.imagePath;
+    return path == null ? null : File(path);
+  }
+
+  /// Validates the capture locally and retains it. Rejects a file that is
+  /// unreadable or too large to encode now, rather than at submit time.
+  Future<void> captureSelfie(String imagePath) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final selfie = await _uploadSelfie.call(File(imagePath));
+      // Encode-and-discard purely as a pre-flight size/readability check —
+      // the actual encoding happens in the repository at submit time.
+      await encodeImageFile(File(imagePath));
       state = state.copyWith(
         isLoading: false,
-        imagePath: selfie.imagePath,
-        validationPassed: selfie.validationPassed,
+        imagePath: imagePath,
+        validationPassed: true,
       );
-    } catch (e) {
+    } on ImageTooLargeException catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+    } catch (_) {
       state = state.copyWith(
         isLoading: false,
         error: 'Failed to process image. Please try again.',
@@ -273,7 +293,7 @@ class SelfieNotifier extends StateNotifier<SelfieState> {
 
 final selfieStateProvider =
     StateNotifierProvider<SelfieNotifier, SelfieState>((ref) {
-  return SelfieNotifier(ref.read(uploadSelfieUseCaseProvider));
+  return SelfieNotifier();
 });
 
 // =============================================================================
