@@ -83,6 +83,7 @@ class VerifyOtpAndRegisterUseCase {
     required String email,
     required String phoneNumber,
     required String passcode,
+    required String confirmPasscode,
   }) =>
       _repository.verifyOtpAndRegister(
         otpId: otpId,
@@ -90,6 +91,7 @@ class VerifyOtpAndRegisterUseCase {
         email: email,
         phoneNumber: phoneNumber,
         passcode: passcode,
+        confirmPasscode: confirmPasscode,
       );
 }
 
@@ -125,4 +127,15 @@ class LogoutUseCase {
   const LogoutUseCase(this._repository);
 
   Future<void> call() => _repository.logout();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LogoutAllUseCase
+// ─────────────────────────────────────────────────────────────────────────────
+
+class LogoutAllUseCase {
+  final AuthRepository _repository;
+  const LogoutAllUseCase(this._repository);
+
+  Future<void> call() => _repository.logoutAll();
 }

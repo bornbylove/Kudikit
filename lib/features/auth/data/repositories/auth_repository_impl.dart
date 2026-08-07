@@ -27,8 +27,27 @@ class AuthRepositoryImpl implements AuthRepository {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
-  String? _extractToken(Map<String, dynamic> res) =>
-      (res['accessToken'] ?? res['token']) as String?;
+  // Every auth endpoint wraps its payload: { status, message, errorCode, data }.
+  // Returns the inner `data` object, falling back to the raw response so a
+  // non-enveloped endpoint still works.
+  Map<String, dynamic> _payload(Map<String, dynamic> res) {
+    final data = res['data'];
+    return data is Map<String, dynamic> ? data : res;
+  }
+
+  String? _extractToken(Map<String, dynamic> res) {
+    final data = _payload(res);
+    return (data['accessToken'] ?? data['token'] ?? res['accessToken'])
+        as String?;
+  }
+
+  String? _extractRefreshToken(Map<String, dynamic> res) =>
+      (_payload(res)['refreshToken'] ?? res['refreshToken']) as String?;
+
+  Map<String, dynamic>? _extractUser(Map<String, dynamic> res) {
+    final user = _payload(res)['user'] ?? res['user'];
+    return user is Map<String, dynamic> ? user : null;
+  }
 
   bool _isSuccess(Map<String, dynamic> res) =>
       res['success'] == true ||
@@ -76,11 +95,12 @@ class AuthRepositoryImpl implements AuthRepository {
     final token = _extractToken(res);
     if (token == null) throw Exception('Login failed: no token in response.');
 
-    final refreshToken = res['refreshToken'] as String?;
+    final refreshToken = _extractRefreshToken(res);
     if (refreshToken != null) await _storage.saveRefreshToken(refreshToken);
 
-    final model = res['user'] != null
-        ? UserModel.fromJson(res['user'] as Map<String, dynamic>)
+    final userJson = _extractUser(res);
+    final model = userJson != null
+        ? UserModel.fromUserResponse(userJson)
         : await _storage.getUserModel();
 
     if (model == null) throw Exception('Login failed: no user data.');
@@ -97,11 +117,15 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     final reference = 'reg_${DateTime.now().millisecondsSinceEpoch}';
     final res = await _authService
-        .sendOtp(phoneNumber: phoneNumber, email: email, reference: reference)
+        .sendOtp(
+          phoneNumber: phoneNumber,
+          email: email,
+          purpose: OtpPurpose.registration,
+        )
         .timeout(const Duration(seconds: 30),
             onTimeout: () => throw Exception('Request timed out.'));
 
-    return (res['data']?['otpId'] ?? res['otpId'] ?? reference) as String;
+    return _extractOtpReference(res, reference);
   }
 
   @override
@@ -111,8 +135,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     final reference = 'resend_${DateTime.now().millisecondsSinceEpoch}';
     final res = await _authService.sendOtp(
-        phoneNumber: phoneNumber, email: email, reference: reference);
-    return (res['data']?['otpId'] ?? res['otpId'] ?? reference) as String;
+      phoneNumber: phoneNumber,
+      email: email,
+      purpose: OtpPurpose.registration,
+    );
+    return _extractOtpReference(res, reference);
+  }
+
+  // The server returns OtpResponse.otpReference; [fallback] is only a
+  // client-side placeholder and will not verify against the server.
+  String _extractOtpReference(Map<String, dynamic> res, String fallback) {
+    final data = _payload(res);
+    return (data['otpReference'] ?? data['otpId'] ?? fallback) as String;
   }
 
   @override
@@ -122,10 +156,17 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String phoneNumber,
     required String passcode,
+    required String confirmPasscode,
   }) async {
     // Step 1: verify OTP
+    // `otpId` carries the server's otpReference — the domain param keeps its
+    // old name to avoid churning the use-case and UI layers.
     final verifyRes = await _authService
-        .verifyOtp(otpId: otpId, otp: otp, action: 'registration')
+        .verifyOtp(
+          otpReference: otpId,
+          code: otp,
+          purpose: OtpPurpose.registration,
+        )
         .timeout(const Duration(seconds: 30),
             onTimeout: () => throw Exception('Request timed out.'));
 
@@ -136,7 +177,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
     // Step 2: register
     final regRes = await _authService
-        .signup(email: email, phoneNumber: phoneNumber, passcode: passcode)
+        .signup(
+          otpReference: otpId,
+          email: email,
+          phoneNumber: phoneNumber,
+          passcode: passcode,
+          confirmPasscode: confirmPasscode,
+        )
         .timeout(const Duration(seconds: 30),
             onTimeout: () => throw Exception('Request timed out.'));
 
@@ -148,13 +195,13 @@ class AuthRepositoryImpl implements AuthRepository {
     await _storage.savePin(passcode);
 
     final token = _extractToken(regRes);
-    final refreshToken = regRes['refreshToken'] as String?;
+    final refreshToken = _extractRefreshToken(regRes);
 
-    final model = regRes['user'] != null
-        ? UserModel.fromJson(regRes['user'] as Map<String, dynamic>)
+    final userJson = _extractUser(regRes);
+    final model = userJson != null
+        ? UserModel.fromUserResponse(userJson)
         : UserModel(
-            userId:
-                (regRes['userId'] ?? regRes['data']?['userId'] ?? '') as String,
+            userId: (_payload(regRes)['customerId'] ?? '') as String,
             email: email,
             phoneNumber: phoneNumber,
             isEmailVerified: true,
@@ -188,6 +235,14 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> logout() async {
     try {
       await _authService.logout();
+    } catch (_) {}
+    await _storage.clearAuth();
+  }
+
+  @override
+  Future<void> logoutAll() async {
+    try {
+      await _authService.logoutAll();
     } catch (_) {}
     await _storage.clearAuth();
   }

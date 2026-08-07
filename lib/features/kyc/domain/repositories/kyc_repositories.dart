@@ -5,6 +5,10 @@ import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 import 'package:kudipay/features/identity/domain/entities/document_data.dart';
 
 abstract interface class KycRepository {
+  /// Fetches server-side KYC state — the source of truth for which
+  /// verification steps have actually completed.
+  Future<KycStatusEntity> getKycStatus();
+
   /// Verifies a BVN or NIN and returns the identity data from the bureau.
   Future<VerifiedIdentityEntity> verifyIdentity({
     required String idNumber,

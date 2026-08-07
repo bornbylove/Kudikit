@@ -2,6 +2,7 @@
 
 import 'dart:io';
 import 'package:kudipay/core/network/api_client.dart';
+import 'package:kudipay/features/kyc/data/repositories/kyc_status_mapper.dart';
 import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 
 import 'package:dio/dio.dart';
@@ -41,6 +42,12 @@ class KycRepositoryImpl implements KycRepository {
   }
 
   // ── KycRepository ──────────────────────────────────────────────────────────
+
+  @override
+  Future<KycStatusEntity> getKycStatus() async {
+    final res = await _client.get<Map<String, dynamic>>('/auth/kyc/status');
+    return kycStatusFromResponse(res.data ?? const {});
+  }
 
   @override
   Future<VerifiedIdentityEntity> verifyIdentity({

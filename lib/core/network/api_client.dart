@@ -32,7 +32,7 @@ import 'package:kudipay/services/connectivity_service.dart';
 import 'package:kudipay/services/storage_services.dart';
 
 // Re-export kBaseUrl so callers that imported it from here still work.
-export 'package:kudipay/core/config/network_config.dart' show kBaseUrl;
+export 'package:kudipay/core/config/network_config.dart';
 // Re-export the canonical exceptions so existing `import api_client.dart`
 // call-sites continue to compile without adding a second import.
 export 'package:kudipay/core/network/app_exception_handler.dart';

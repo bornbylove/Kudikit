@@ -5,6 +5,13 @@ import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 import 'package:kudipay/features/kyc/domain/repositories/kyc_repositories.dart';
 import 'package:kudipay/features/identity/domain/entities/document_data.dart';
 
+class GetKycStatusUseCase {
+  final KycRepository _repository;
+  const GetKycStatusUseCase(this._repository);
+
+  Future<KycStatusEntity> call() => _repository.getKycStatus();
+}
+
 class VerifyIdentityUseCase {
   final KycRepository _repository;
   const VerifyIdentityUseCase(this._repository);

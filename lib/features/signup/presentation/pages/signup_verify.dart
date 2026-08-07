@@ -29,6 +29,10 @@ class EmailVerifySignup extends ConsumerStatefulWidget {
   // The user's signup passcode (8-12 char alphanumeric), NOT the 6-digit OTP.
   final String passcode;
 
+  /// The passcode re-entry from the signup form. The server re-checks it
+  /// against [passcode] on /auth/register.
+  final String confirmPasscode;
+
   /// The otpId returned by the send-otp step on the previous screen.
   final String otpId;
 
@@ -37,6 +41,7 @@ class EmailVerifySignup extends ConsumerStatefulWidget {
     required this.email,
     required this.phoneNumber,
     required this.passcode,
+    required this.confirmPasscode,
     required this.otpId,
   });
 
@@ -193,6 +198,7 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
             email: widget.email,
             phoneNumber: widget.phoneNumber,
             passcode: widget.passcode,
+            confirmPasscode: widget.confirmPasscode,
           );
 
       if (mounted) {

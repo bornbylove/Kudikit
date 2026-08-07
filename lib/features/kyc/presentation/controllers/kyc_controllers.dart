@@ -31,6 +31,8 @@ final kycRepositoryProvider = Provider<KycRepository>((ref) {
   return KycRepositoryImpl(ref.read(dioClientProvider));
 });
 
+final getKycStatusUseCaseProvider =
+    Provider((ref) => GetKycStatusUseCase(ref.read(kycRepositoryProvider)));
 final verifyIdentityUseCaseProvider =
     Provider((ref) => VerifyIdentityUseCase(ref.read(kycRepositoryProvider)));
 final confirmIdentityUseCaseProvider =
@@ -395,3 +397,16 @@ final documentUploadProvider =
 // =============================================================================
 
 final userInfoProvider = StateProvider<UserInfo?>((ref) => null);
+
+// =============================================================================
+// Server-side KYC status
+// =============================================================================
+
+/// Authoritative KYC state from the server. Prefer this over UserModel's
+/// isXVerified flags, which are only a local cache.
+///
+/// Refresh after any verification step with:
+///   ref.invalidate(kycStatusProvider);
+final kycStatusProvider = FutureProvider<KycStatusEntity>((ref) {
+  return ref.read(getKycStatusUseCaseProvider).call();
+});

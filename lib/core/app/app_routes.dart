@@ -98,12 +98,14 @@ class SignupVerifyArgs {
   final String email;
   final String phoneNumber;
   final String passcode;
+  final String confirmPasscode;
   final String otpId;
 
   const SignupVerifyArgs({
     required this.email,
     required this.phoneNumber,
     required this.passcode,
+    required this.confirmPasscode,
     required this.otpId,
   });
 }

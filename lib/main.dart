@@ -11,6 +11,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:kudipay/core/config/network_config.dart';
 import 'package:kudipay/firebase_options.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,6 +32,10 @@ final availableCamerasProvider =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  AppConfig.initialize(
+    flavor: Flavor.development,
+  );
 
   // Initialise Firebase before anything that depends on it, using the generated
   // options (lib/firebase_options.dart). Guarded so an unconfigured platform
@@ -65,7 +70,13 @@ void main() async {
   await AppLayout.lockPortrait();
 
   // Initialise cameras — override the provider with real cameras.
-  final cameras = await availableCameras();
+  List<CameraDescription> cameras = [];
+
+  try {
+    cameras = await availableCameras();
+  } catch (e) {
+    debugPrint('Camera initialization failed: $e');
+  }
 
   // Initialise connectivity service.
   await ConnectivityService.instance.initialize();

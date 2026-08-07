@@ -132,6 +132,14 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                 showArrow: true,
               ),
               SizedBox(height: AppLayout.scaleHeight(context, 8)),
+              _buildSingleCard(
+                context,
+                svgPath: _iconLock,
+                title: 'Log out of all devices',
+                showArrow: true,
+                onTap: _showLogoutAllDialog,
+              ),
+              SizedBox(height: AppLayout.scaleHeight(context, 8)),
               _buildSwitchCard(
                 context,
                 svgPath: _iconFaceId,
@@ -790,6 +798,59 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
           ElevatedButton(
             onPressed: () async {
               await ref.read(authProvider.notifier).logout();
+              if (mounted) {
+                Navigator.pushReplacementNamed(context, AppRoutes.login);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(AppLayout.scaleWidth(context, 8)),
+              ),
+            ),
+            child: Text(
+              'Log out',
+              style: TextStyle(
+                color: AppColors.white,
+                fontSize: AppLayout.fontSize(context, 14),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogoutAllDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(AppLayout.scaleWidth(context, 16))),
+        title: Text(
+          'Log out of all devices',
+          style: TextStyle(fontSize: AppLayout.fontSize(context, 16)),
+        ),
+        content: Text(
+          'This will sign you out on every device where you\'re logged in, including this one. Continue?',
+          style: TextStyle(fontSize: AppLayout.fontSize(context, 14)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: AppColors.textGrey,
+                fontSize: AppLayout.fontSize(context, 14),
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await ref.read(authProvider.notifier).logoutAll();
               if (mounted) {
                 Navigator.pushReplacementNamed(context, AppRoutes.login);
               }

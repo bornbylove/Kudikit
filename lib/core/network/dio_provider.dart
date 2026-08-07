@@ -8,6 +8,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kudipay/core/config/network_config.dart';
 // kBaseUrl is re-exported by api_client.dart (from core/config/network_config.dart).
 import 'package:kudipay/core/network/api_client.dart';
 import 'package:kudipay/core/singleton/service_providers.dart';
@@ -19,7 +20,7 @@ import 'package:kudipay/core/singleton/service_providers.dart';
 /// should be created elsewhere.
 final dioClientProvider = Provider<DioClient>((ref) {
   return DioClient(
-    baseUrl: kBaseUrl,
+    baseUrl: AppConfig.baseUrl,
     storage: ref.watch(storageServiceProvider),
     connectivity: ref.watch(connectivityServiceProvider),
   );

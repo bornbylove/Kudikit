@@ -135,4 +135,34 @@ class UserModel {
           (json['selectedTier'] as int?) ?? (json['tier'] as int?) ?? 1,
     );
   }
+
+  // Maps the backend's UserResponse shape (see /v3/api-docs) onto UserModel.
+  //
+  // Kept separate from [fromJson] because that one round-trips [toJson] for
+  // local storage and expects this class's own key names. The server uses
+  // customerId / fullName and a BASIC|PRO|MEGA tier enum instead.
+  //
+  // The isXVerified flags are absent from UserResponse — KYC state comes from
+  // GET /auth/kyc/status, so they keep their defaults here rather than being
+  // inferred from `status` or `registrationComplete`.
+  factory UserModel.fromUserResponse(Map<String, dynamic> json) {
+    return UserModel(
+      userId: (json['customerId'] ?? json['platformId'] ?? '') as String,
+      email: (json['email'] ?? '') as String,
+      phoneNumber: (json['phoneNumber'] ?? '') as String,
+      name: json['fullName'] as String?,
+      selectedTier: _tierFromEnum(json['tier'] as String?),
+    );
+  }
+
+  static int _tierFromEnum(String? tier) {
+    switch (tier?.toUpperCase()) {
+      case 'PRO':
+        return 2;
+      case 'MEGA':
+        return 3;
+      default:
+        return 1;
+    }
+  }
 }

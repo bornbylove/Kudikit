@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/core/network/api_client.dart';
+import 'package:kudipay/core/config/network_config.dart';
+// import 'package:kudipay/core/network/api_client.dart';
 
 import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
 import 'package:kudipay/services/email_change_services.dart';
@@ -11,7 +12,7 @@ import 'package:flutter_riverpod/legacy.dart';
 final emailChangeServiceProvider = Provider<EmailChangeService>((ref) {
   final token = ref.watch(authTokenProvider);
   return EmailChangeService(
-    baseUrl: kBaseUrl,
+    baseUrl: AppConfig.baseUrl,
     authToken: token,
   );
 });

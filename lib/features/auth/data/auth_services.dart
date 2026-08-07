@@ -3,24 +3,30 @@
 // Moved from: lib/services/auth_services.dart
 // Old path kept alive by shim at lib/services/auth_services.dart
 //
+// Request shapes below are verified against the backend's OpenAPI spec
+// (GET /v3/api-docs). Every response is enveloped as
+// { status, message, errorCode, data } — unwrap via AuthRepositoryImpl.
+//
 // Registration flow (3 steps):
-//   1. POST /api/v1/auth/send-otp       → { phoneNumber, email, reference, channel }
-//   2. POST /api/v1/auth/verify-otp     → { otpId, otp, action: "registration" }
-//   3. POST /api/v1/auth/register       → { phoneNumber, email, passcode, deviceFingerprint }
+//   1. POST /api/v1/auth/send-otp   → { identifier?, phoneNumber?, email?, purpose* }
+//   2. POST /api/v1/auth/verify-otp → { otpReference*, code*, purpose* }
+//   3. POST /api/v1/auth/register   → { otpReference*, phoneNumber*, email*,
+//                                       fullName*, passcode*, confirmPasscode*,
+//                                       referralCode? }   ← NOT YET MIGRATED
 //
 // Login flow:
-//   POST /api/v1/auth/login             → { identifier, passcode, deviceInfo }
+//   POST /api/v1/auth/login         → { identifier*, passcode*,
+//                                       deviceFingerprint?, deviceName? }
 //
 // Session:
-//   POST /api/v1/auth/refresh-token     → { refreshToken }
-//   POST /api/v1/auth/logout/:userId/:sessionId
+//   POST /api/v1/auth/refresh-token → { refreshToken }
+//   POST /api/v1/auth/logout        → { refreshToken }
+//   POST /api/v1/auth/logout-all    → (no body)
 //
-// Profile:
-//   GET  /api/v1/profile
-//   POST /api/v1/profile/update-profile → { firstName, lastName, email, dateOfBirth }
-//
-// Onboarding:
-//   POST /api/v1/auth/onboarding/complete → { bvn?, tier? }
+// STALE — these paths are absent from the spec and will not resolve:
+//   GET  /profile                          (used by verifyToken)
+//   POST /profile/update-profile           (used by updateProfile)
+//   POST /auth/onboarding/complete         (superseded by /auth/select-tier)
 
 import 'package:flutter/foundation.dart';
 import 'package:kudipay/core/network/api_client.dart';
@@ -29,6 +35,19 @@ import 'package:kudipay/model/user/user_model.dart';
 import 'package:kudipay/core/utils/device/device_utility.dart';
 import 'package:kudipay/services/storage_services.dart';
 
+/// The `purpose` discriminator required by send-otp / verify-otp.
+/// Wire values must match the backend's enum exactly.
+enum OtpPurpose {
+  registration('REGISTRATION'),
+  login('LOGIN'),
+  forgotPasscode('FORGOT_PASSCODE'),
+  deviceLink('DEVICE_LINK'),
+  emailChange('EMAIL_CHANGE');
+
+  const OtpPurpose(this.wire);
+  final String wire;
+}
+
 class AuthService {
   final DioClient _client;
   final StorageService _storage;
@@ -36,20 +55,22 @@ class AuthService {
   AuthService(this._storage, this._client);
 
   // ── Step 1: Send OTP ───────────────────────────────────────────────────────
+  // Send at least one of [identifier] / [phoneNumber] / [email] — the server
+  // rejects the request otherwise. [phoneNumber] must be E.164 (+234…).
   Future<Map<String, dynamic>> sendOtp({
-    required String phoneNumber,
-    required String email,
-    required String reference,
-    String channel = 'EMAIL',
+    String? identifier,
+    String? phoneNumber,
+    String? email,
+    required OtpPurpose purpose,
   }) async {
     try {
       final response = await _client.post<Map<String, dynamic>>(
-        '/api/v1/auth/send-otp',
+        '/auth/send-otp',
         data: {
-          'phone': phoneNumber,
-          'email': email,
-          'reference': reference,
-          'channel': channel,
+          if (identifier != null) 'identifier': identifier,
+          if (phoneNumber != null) 'phoneNumber': phoneNumber,
+          if (email != null) 'email': email,
+          'purpose': purpose.wire,
         },
       );
       return response.data!;
@@ -68,7 +89,7 @@ class AuthService {
   }) async {
     try {
       final response = await _client.post<Map<String, dynamic>>(
-        '/api/v1/auth/verify-otp',
+        '/auth/verify-otp',
         data: {
           'email': email,
           'otp': code,
@@ -85,15 +106,20 @@ class AuthService {
   }
 
   // ── Step 2: Verify OTP ─────────────────────────────────────────────────────
+  // [otpReference] is the value returned by [sendOtp] as data.otpReference.
   Future<Map<String, dynamic>> verifyOtp({
-    required String otpId,
-    required String otp,
-    String action = 'registration',
+    required String otpReference,
+    required String code,
+    required OtpPurpose purpose,
   }) async {
     try {
       final response = await _client.post<Map<String, dynamic>>(
-        '/api/v1/auth/verify-otp',
-        data: {'otpId': otpId, 'otp': otp, 'action': action},
+        '/auth/verify-otp',
+        data: {
+          'otpReference': otpReference,
+          'code': code,
+          'purpose': purpose.wire,
+        },
       );
       return response.data!;
     } on KudiApiException {
@@ -104,21 +130,26 @@ class AuthService {
   }
 
   // ── Step 3: Register ───────────────────────────────────────────────────────
+  // [otpReference] must be the value verify-otp was called with.
+  // [phoneNumber] must be E.164 (+234…).
   Future<Map<String, dynamic>> signup({
+    required String otpReference,
     required String email,
     required String phoneNumber,
     required String passcode,
-    String? deviceFingerprint,
+    required String confirmPasscode,
+    String? referralCode,
   }) async {
-    final meta = await DeviceInfoService.collect();
     try {
       final response = await _client.post<Map<String, dynamic>>(
-        '/api/v1/auth/register',
+        '/auth/register',
         data: {
-          'phone': phoneNumber,
+          'otpReference': otpReference,
+          'phoneNumber': phoneNumber,
           'email': email,
           'passcode': passcode,
-          'deviceFingerprint': deviceFingerprint ?? meta.deviceModel,
+          'confirmPasscode': confirmPasscode,
+          if (referralCode != null) 'referralCode': referralCode,
         },
       );
       return response.data!;
@@ -137,16 +168,16 @@ class AuthService {
     final meta = await DeviceInfoService.collect();
     try {
       final response = await _client.post<Map<String, dynamic>>(
-        '/api/v1/auth/login',
+        '/auth/login',
         data: {
           'identifier': identifier,
           'passcode': passcode,
-          'deviceInfo': {
-            'deviceModel': meta.deviceModel,
-            'ipAddress': meta.ipAddress,
-            'location': meta.location,
-            'timestamp': meta.timestamp,
-          },
+          'deviceName': meta.deviceModel,
+          // NOTE: deviceFingerprint is intentionally omitted. It is optional in
+          // the API, and DeviceInfoService only yields a coarse OS label
+          // ('Android Device') that would be identical across every device —
+          // sending that as a fingerprint would corrupt server-side device
+          // tracking. Needs device_info_plus or a stored per-install UUID.
         },
       );
       return response.data!;
@@ -163,7 +194,7 @@ class AuthService {
   Future<Map<String, dynamic>> refreshToken(String refreshToken) async {
     try {
       final response = await _client.post<Map<String, dynamic>>(
-        '/api/v1/auth/refresh-token',
+        '/auth/refresh-token',
         data: {'refreshToken': refreshToken},
       );
       return response.data!;
@@ -175,8 +206,7 @@ class AuthService {
   // ── Verify Token ───────────────────────────────────────────────────────────
   Future<bool> verifyToken(String token) async {
     try {
-      final response =
-          await _client.get<Map<String, dynamic>>('/api/v1/profile');
+      final response = await _client.get<Map<String, dynamic>>('/profile');
       return response.data != null;
     } on KudiUnauthorizedException {
       return false;
@@ -206,7 +236,7 @@ class AuthService {
 
     try {
       final response = await _client.post<Map<String, dynamic>>(
-        '/api/v1/profile/update-profile',
+        '/profile/update-profile',
         data: {
           if (firstName != null) 'firstName': firstName,
           if (lastName != null) 'lastName': lastName,
@@ -251,7 +281,7 @@ class AuthService {
   }) async {
     try {
       final response = await _client.post<Map<String, dynamic>>(
-        '/api/v1/auth/onboarding/complete',
+        '/auth/onboarding/complete',
         data: {
           if (bvn.isNotEmpty) 'bvn': bvn,
           if (tierNumber != null) 'tier': tierNumber,
@@ -266,14 +296,26 @@ class AuthService {
   }
 
   // ── Logout ─────────────────────────────────────────────────────────────────
-  Future<void> logout({String? userId, String? sessionId}) async {
+  Future<void> logout() async {
     try {
-      final uid = userId ?? (await _storage.getUserModel())?.userId ?? '';
-      final sid = sessionId ?? '';
-      await _client.post('/api/v1/auth/logout/$uid/$sid', data: {});
+      final refreshToken = await _storage.getRefreshToken();
+      await _client.post('/auth/logout', data: {
+        'refreshToken': refreshToken ?? '',
+      });
     } catch (e) {
       debugPrint(
           '[AuthService] logout server call failed (session still cleared): $e');
+    }
+    await _storage.clearAuth();
+  }
+
+  // ── Logout All Devices ────────────────────────────────────────────────────
+  Future<void> logoutAll() async {
+    try {
+      await _client.post('/auth/logout-all', data: {});
+    } catch (e) {
+      debugPrint(
+          '[AuthService] logout-all server call failed (session still cleared): $e');
     }
     await _storage.clearAuth();
   }

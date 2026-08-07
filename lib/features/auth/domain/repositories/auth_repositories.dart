@@ -39,6 +39,7 @@ abstract interface class AuthRepository {
     required String email,
     required String phoneNumber,
     required String passcode,
+    required String confirmPasscode,
   });
 
   /// Marks onboarding complete for the authenticated user.
@@ -49,4 +50,7 @@ abstract interface class AuthRepository {
 
   /// Clears all local session data and calls the logout endpoint.
   Future<void> logout();
+
+  /// Revokes every active session for the user and clears local session data.
+  Future<void> logoutAll();
 }

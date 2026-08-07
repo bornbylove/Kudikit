@@ -52,6 +52,8 @@ final updateUserUseCaseProvider =
     Provider((ref) => UpdateUserUseCase(ref.read(authRepositoryProvider)));
 final logoutUseCaseProvider =
     Provider((ref) => LogoutUseCase(ref.read(authRepositoryProvider)));
+final logoutAllUseCaseProvider =
+    Provider((ref) => LogoutAllUseCase(ref.read(authRepositoryProvider)));
 
 // =============================================================================
 // AuthNotifier
@@ -66,6 +68,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final CompleteOnboardingUseCase _completeOnboarding;
   final UpdateUserUseCase _updateUser;
   final LogoutUseCase _logout;
+  final LogoutAllUseCase _logoutAll;
 
   AuthNotifier({
     required CheckAuthUseCase checkAuth,
@@ -76,6 +79,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required CompleteOnboardingUseCase completeOnboarding,
     required UpdateUserUseCase updateUser,
     required LogoutUseCase logout,
+    required LogoutAllUseCase logoutAll,
   })  : _checkAuth = checkAuth,
         _login = login,
         _sendOtp = sendOtp,
@@ -84,6 +88,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         _completeOnboarding = completeOnboarding,
         _updateUser = updateUser,
         _logout = logout,
+        _logoutAll = logoutAll,
         super(AuthState()) {
     _restoreSession();
   }
@@ -154,6 +159,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String email,
     required String phoneNumber,
     required String passcode,
+    required String confirmPasscode,
   }) async {
     state = state.loading();
     try {
@@ -163,6 +169,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         email: email,
         phoneNumber: phoneNumber,
         passcode: passcode,
+        confirmPasscode: confirmPasscode,
       );
       state =
           state.unauthenticated('Registration successful. Please continue.');
@@ -225,6 +232,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.unauthenticated();
   }
 
+  Future<void> logoutAll() async {
+    await _logoutAll.call();
+    state = state.unauthenticated();
+  }
+
   // ── Bridge helpers ─────────────────────────────────────────────────────────
   // Uses UserModelX extension — remove once AuthState uses UserEntity directly.
 
@@ -246,6 +258,7 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
     completeOnboarding: ref.read(completeOnboardingUseCaseProvider),
     updateUser: ref.read(updateUserUseCaseProvider),
     logout: ref.read(logoutUseCaseProvider),
+    logoutAll: ref.read(logoutAllUseCaseProvider),
   );
 });
 

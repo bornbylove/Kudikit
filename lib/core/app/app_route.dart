@@ -149,12 +149,14 @@ class AppRouter {
       case AppRoutes.signup:
         return _build(const SignUpScreen());
       case AppRoutes.signupVerify:
-        // EmailVerifySignup requires email, phoneNumber, passcode, otpId.
+        // EmailVerifySignup requires email, phoneNumber, passcode,
+        // confirmPasscode, otpId.
         final a = args as SignupVerifyArgs;
         return _build(EmailVerifySignup(
           email: a.email,
           phoneNumber: a.phoneNumber,
           passcode: a.passcode,
+          confirmPasscode: a.confirmPasscode,
           otpId: a.otpId,
         ));
       case AppRoutes.createPasscode:

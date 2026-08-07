@@ -130,3 +130,64 @@ class SelfieEntity {
     required this.validationPassed,
   });
 }
+
+// =============================================================================
+// KycStatusEntity
+// Server-side KYC state from GET /auth/kyc/status. This is the source of truth
+// for verification flags — UserModel's isXVerified booleans are only a local
+// cache and can drift.
+// =============================================================================
+
+enum KycOverallStatus {
+  notStarted,
+  pending,
+  inProgress,
+  manualReview,
+  verified,
+  rejected,
+  expired,
+}
+
+enum KycDocumentStatus { notStarted, verified, rejected, manualReview }
+
+enum KycAddressStatus { notStarted, pendingAgentVisit, verified, rejected }
+
+class KycStatusEntity {
+  final KycOverallStatus overall;
+  final bool bvnVerified;
+  final bool ninVerified;
+
+  /// Liveness/selfie check. Submitted as part of BVN/NIN verification rather
+  /// than as its own step.
+  final bool livenessVerified;
+
+  final KycDocumentStatus documentStatus;
+  final KycAddressStatus addressStatus;
+  final bool requiresManualReview;
+  final String? rejectionReason;
+
+  /// Legal name as returned by the BVN/NIN bureau.
+  final String? bvnFullName;
+  final String? ninFullName;
+
+  const KycStatusEntity({
+    this.overall = KycOverallStatus.notStarted,
+    this.bvnVerified = false,
+    this.ninVerified = false,
+    this.livenessVerified = false,
+    this.documentStatus = KycDocumentStatus.notStarted,
+    this.addressStatus = KycAddressStatus.notStarted,
+    this.requiresManualReview = false,
+    this.rejectionReason,
+    this.bvnFullName,
+    this.ninFullName,
+  });
+
+  bool get documentVerified => documentStatus == KycDocumentStatus.verified;
+  bool get addressVerified => addressStatus == KycAddressStatus.verified;
+  bool get isComplete => overall == KycOverallStatus.verified;
+
+  /// Whichever bureau-confirmed name is available. This is the only
+  /// authoritative source of the user's legal name.
+  String? get verifiedFullName => bvnFullName ?? ninFullName;
+}

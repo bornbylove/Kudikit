@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
+import 'package:kudipay/core/utils/phone_number.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/color_app_button.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
@@ -72,7 +73,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   bool get _fieldsReady =>
       emailController.text.trim().isNotEmpty &&
-      numberController.text.trim().length == 10 &&
+      normalizeNigerianPhone(numberController.text) != null &&
       _hasMinLength &&
       _hasUppercase &&
       _hasLowercase &&
@@ -164,17 +165,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         _emailError = null;
       }
 
-      // Phone
-      final phone = numberController.text.trim();
-      if (phone.isEmpty) {
-        _phoneError = 'Please enter your phone number';
-        valid = false;
-      } else if (phone.length != 10) {
-        _phoneError = 'Enter a valid 10-digit Nigerian phone number';
-        valid = false;
-      } else {
-        _phoneError = null;
-      }
+      // Phone — accepts 07015697383, 7015697383 or +2347015697383.
+      _phoneError = nigerianPhoneError(numberController.text);
+      if (_phoneError != null) valid = false;
 
       // Passcode
       final passcode = passwordController.text;
@@ -242,8 +235,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     }
 
     final email = emailController.text.trim();
-    final phoneNumber = '+234${numberController.text.trim()}';
+    // Non-null: _validateFields() above rejects anything unnormalisable.
+    final phoneNumber = normalizeNigerianPhone(numberController.text)!;
     final password = passwordController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
 
     try {
       final otpId = await ref.read(authProvider.notifier).sendSignupOtp(
@@ -260,6 +255,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             email: email,
             phoneNumber: phoneNumber,
             passcode: password,
+            confirmPasscode: confirmPassword,
             otpId: otpId,
           ),
         ),
@@ -361,7 +357,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           hasError: _phoneError != null,
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(10),
+                            // 11 so a leading 0 fits. At 10 this silently
+                            // truncated 07015697383 to 0701569738.
+                            LengthLimitingTextInputFormatter(11),
                           ],
                           onChanged: (_) {
                             if (_phoneError != null) {
