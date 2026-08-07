@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:kudipay/core/theme/app_theme.dart';
-import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/provider/provider.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:kudipay/features/selfie/presentation/pages/face_overlay.dart';
+import 'package:kudipay/core/theme/app_theme.dart';
+import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/identity/presentation/pages/choose_id.dart';
+import 'package:kudipay/features/selfie/presentation/pages/face_overlay.dart';
+import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SelfieCaptureScreen extends ConsumerStatefulWidget {
