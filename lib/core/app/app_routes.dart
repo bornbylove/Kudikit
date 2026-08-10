@@ -16,8 +16,6 @@ abstract final class AppRoutes {
   static const login = '/login';
   static const signup = '/signup';
   static const signupVerify = '/signup/verify';
-  static const createPasscode = '/passcode/create';
-  static const confirmPasscode = '/passcode/confirm';
   static const accountReady = '/account-ready';
 
   static const bottomNav = '/nav';

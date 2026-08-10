@@ -29,15 +29,15 @@ class _KudikitTribeScreenState extends ConsumerState<TribeScreen> {
     setState(() => _isSaving = true);
 
     try {
-      // 1. Tell the backend the chosen tier
-      await ref.read(authProvider.notifier).completeOnboarding(
+      // 1. Tell the backend the chosen tier. It returns the tier actually
+      //    granted, which can be lower than requested while KYC is pending.
+      final grantedTier = await ref.read(authProvider.notifier).selectTier(
             tierNumber: _selectedTierNumber,
           );
 
-      // 2. Persist locally so UI updates immediately
-      await ref
-          .read(tierProvider.notifier)
-          .setTierFromOnboarding(_selectedTierNumber);
+      // 2. Persist what the server granted — not what was asked for — so the
+      //    app never shows a tier whose limits the backend has not unlocked.
+      await ref.read(tierProvider.notifier).setTierFromOnboarding(grantedTier);
 
       if (!mounted) return;
       Navigator.pushReplacement(

@@ -4,14 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
+import 'package:kudipay/core/utils/passcode.dart';
 import 'package:kudipay/core/utils/phone_number.dart';
 import 'package:kudipay/core/utils/responsive.dart';
+import 'package:kudipay/features/passcode/presentation/pages/passcode_setup_screen.dart';
 import 'package:kudipay/shared/widgets/color_app_button.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/core/network/app_exception_handler.dart';
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:kudipay/provider/connectivity/connectivity_provider.dart';
 import 'package:kudipay/core/app/app_routes.dart';
-import 'package:kudipay/features/signup/presentation/pages/signup_verify.dart';
+import 'package:kudipay/features/signup/presentation/pages/signup_more_details.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
@@ -32,9 +35,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController numberController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
 
   // ---------------------------------------------------------------------------
   // FORM KEY � still used to trigger _validate() on submit
@@ -48,7 +48,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   String? _emailError;
   String? _phoneError;
   String? _passcodeError;
-  String? _confirmPasscodeError;
 
   // ---------------------------------------------------------------------------
   // LOCAL TERMS ACCEPTANCE STATE
@@ -57,15 +56,23 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _termsAcceptedProvider = StateProvider<bool>((ref) => false);
 
   // ---------------------------------------------------------------------------
-  // PASSCODE CRITERIA STATE
+  // PASSCODE
   // ---------------------------------------------------------------------------
 
-  bool _hasMinLength = false;
-  bool _hasUppercase = false;
-  bool _hasLowercase = false;
-  bool _hasNumber = false;
-  bool _hasSpecialChar = false;
-  bool _passcodeFieldTouched = false;
+  /// Set by PasscodeSetupScreen once both entries match. Null until then.
+  String? _passcode;
+
+  Future<void> _openPasscodeSetup() async {
+    final result = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(builder: (_) => const PasscodeSetupScreen()),
+    );
+    if (result == null || !mounted) return;
+    setState(() {
+      _passcode = result;
+      _passcodeError = null;
+    });
+  }
 
   // ---------------------------------------------------------------------------
   // SUBMIT READINESS
@@ -74,13 +81,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   bool get _fieldsReady =>
       emailController.text.trim().isNotEmpty &&
       normalizeNigerianPhone(numberController.text) != null &&
-      _hasMinLength &&
-      _hasUppercase &&
-      _hasLowercase &&
-      _hasNumber &&
-      _hasSpecialChar &&
-      confirmPasswordController.text == passwordController.text &&
-      confirmPasswordController.text.isNotEmpty;
+      _passcode != null;
 
   // ---------------------------------------------------------------------------
   // LIFECYCLE
@@ -92,7 +93,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
     emailController.addListener(_onFieldChanged);
     numberController.addListener(_onFieldChanged);
-    confirmPasswordController.addListener(_onFieldChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _setupConnectivityListener();
     });
@@ -104,11 +104,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   void dispose() {
     emailController.removeListener(_onFieldChanged);
     numberController.removeListener(_onFieldChanged);
-    confirmPasswordController.removeListener(_onFieldChanged);
     emailController.dispose();
     numberController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -126,23 +123,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           ConnectivitySnackBar.showConnectionRestored(context);
         }
       });
-    });
-  }
-
-  // ---------------------------------------------------------------------------
-  // PASSCODE CRITERIA UPDATER
-  // ---------------------------------------------------------------------------
-
-  void _updatePasscodeCriteria(String value) {
-    setState(() {
-      _passcodeFieldTouched = value.isNotEmpty;
-      _hasMinLength = value.length >= 8 && value.length <= 12;
-      _hasUppercase = value.contains(RegExp(r'[A-Z]'));
-      _hasLowercase = value.contains(RegExp(r'[a-z]'));
-      _hasNumber = value.contains(RegExp(r'[0-9]'));
-      _hasSpecialChar = value.contains(RegExp(r'[!@#$%^&*]'));
-      // Clear the passcode error as the user types
-      if (_passcodeError != null) _passcodeError = null;
     });
   }
 
@@ -169,42 +149,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       _phoneError = nigerianPhoneError(numberController.text);
       if (_phoneError != null) valid = false;
 
-      // Passcode
-      final passcode = passwordController.text;
-      if (passcode.isEmpty) {
-        _passcodeError = 'Please enter a passcode';
-        valid = false;
-      } else if (!_hasMinLength) {
-        _passcodeError = 'Passcode must be 8�12 characters';
-        valid = false;
-      } else if (!_hasUppercase) {
-        _passcodeError = 'Must contain at least one uppercase letter';
-        valid = false;
-      } else if (!_hasLowercase) {
-        _passcodeError = 'Must contain at least one lowercase letter';
-        valid = false;
-      } else if (!_hasNumber) {
-        _passcodeError = 'Must contain at least one number';
-        valid = false;
-      } else if (!_hasSpecialChar) {
-        _passcodeError =
-            'Must contain at least one special character (!@#\$%^&*)';
-        valid = false;
-      } else {
-        _passcodeError = null;
-      }
-
-      // Confirm passcode
-      final confirm = confirmPasswordController.text;
-      if (confirm.isEmpty) {
-        _confirmPasscodeError = 'Please confirm your passcode';
-        valid = false;
-      } else if (confirm != passwordController.text) {
-        _confirmPasscodeError = 'Passcodes do not match';
-        valid = false;
-      } else {
-        _confirmPasscodeError = null;
-      }
+      // Passcode — set via PasscodeSetupScreen, which also confirms it.
+      _passcodeError =
+          _passcode == null ? 'Set a $kPasscodeLength-digit passcode' : null;
+      if (_passcodeError != null) valid = false;
     });
     return valid;
   }
@@ -237,26 +185,24 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     final email = emailController.text.trim();
     // Non-null: _validateFields() above rejects anything unnormalisable.
     final phoneNumber = normalizeNigerianPhone(numberController.text)!;
-    final password = passwordController.text.trim();
-    final confirmPassword = confirmPasswordController.text.trim();
+    // Non-null: _validateFields() rejects a null passcode above.
+    final passcode = _passcode!;
 
     try {
-      final otpId = await ref.read(authProvider.notifier).sendSignupOtp(
-            email: email,
-            phoneNumber: phoneNumber,
-          );
-
+      // The referral code is collected on the next screen and can only be sent
+      // with /auth/register, so the OTP is not requested until that screen's
+      // Continue — that also keeps the 5-minute OTP window from being spent
+      // while the user fills in the form.
       if (!mounted) return;
 
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => EmailVerifySignup(
+          builder: (context) => KnowYouBetterForm(
             email: email,
             phoneNumber: phoneNumber,
-            passcode: password,
-            confirmPasscode: confirmPassword,
-            otpId: otpId,
+            passcode: passcode,
+            confirmPasscode: passcode,
           ),
         ),
       );
@@ -373,74 +319,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         SizedBox(height: AppLayout.scaleHeight(context, 16)),
 
                         // -- Passcode ---------------------------------------
+                        // Entered on the keypad screen rather than inline: it
+                        // is now $kPasscodeLength digits, set and confirmed
+                        // via PasscodeSetupScreen.
                         _buildLabel(context, 'Passcode'),
                         SizedBox(height: AppLayout.scaleHeight(context, 5)),
-                        _buildPlainField(
-                          context,
-                          controller: passwordController,
-                          obscureText: !ref.watch(pinVisibilityProvider),
-                          enabled: !isLoading && isOnline,
-                          hasError: _passcodeError != null,
-                          onChanged: (v) {
-                            _updatePasscodeCriteria(v);
-                          },
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              ref.watch(pinVisibilityProvider)
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              size: AppLayout.scaleWidth(context, 20),
-                            ),
-                            onPressed: () {
-                              ref.read(pinVisibilityProvider.notifier).state =
-                                  !ref
-                                      .read(pinVisibilityProvider.notifier)
-                                      .state;
-                            },
-                          ),
-                        ),
-                        // ERROR BELOW FIELD
+                        _buildPasscodeTile(context, isLoading, isOnline),
                         _buildFieldError(_passcodeError),
-
-                        SizedBox(height: AppLayout.scaleHeight(context, 10)),
-                        _buildPasscodeCriteria(context),
-
-                        SizedBox(height: AppLayout.scaleHeight(context, 14)),
-
-                        //  Confirm Passcode
-                        _buildLabel(context, 'Confirm Passcode'),
-                        SizedBox(height: AppLayout.scaleHeight(context, 5)),
-                        _buildPlainField(
-                          context,
-                          controller: confirmPasswordController,
-                          obscureText: !ref.watch(confirmPinVisibilityProvider),
-                          enabled: !isLoading && isOnline,
-                          hasError: _confirmPasscodeError != null,
-                          onChanged: (_) {
-                            if (_confirmPasscodeError != null) {
-                              setState(() => _confirmPasscodeError = null);
-                            }
-                          },
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              ref.watch(confirmPinVisibilityProvider)
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              size: AppLayout.scaleWidth(context, 20),
-                            ),
-                            onPressed: () {
-                              ref
-                                      .read(confirmPinVisibilityProvider.notifier)
-                                      .state =
-                                  !ref
-                                      .read(
-                                          confirmPinVisibilityProvider.notifier)
-                                      .state;
-                            },
-                          ),
-                        ),
-                        // ERROR BELOW FIELD
-                        _buildFieldError(_confirmPasscodeError),
 
                         SizedBox(height: AppLayout.scaleHeight(context, 20)),
 
@@ -771,60 +656,54 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   }
 
   // ---------------------------------------------------------------------------
-  // PASSCODE CRITERIA CHECKLIST
+  // PASSCODE TILE — opens the keypad, shows whether one has been set
   // ---------------------------------------------------------------------------
 
-  Widget _buildPasscodeCriteria(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildCriteriaRow(context, '8�12 characters', _hasMinLength),
-        _buildCriteriaRow(
-            context, 'At least one uppercase letter', _hasUppercase),
-        _buildCriteriaRow(
-            context, 'At least one lowercase letter', _hasLowercase),
-        _buildCriteriaRow(context, 'At least one number', _hasNumber),
-        _buildCriteriaRow(context, 'At least one special character (!@#\$%^&*)',
-            _hasSpecialChar),
-      ],
-    );
-  }
+  Widget _buildPasscodeTile(
+      BuildContext context, bool isLoading, bool isOnline) {
+    final isSet = _passcode != null;
 
-  Widget _buildCriteriaRow(BuildContext context, String label, bool isMet) {
-    final Color activeColor = AppColors.primaryTeal;
-    final Color inactiveColor = Colors.grey[400]!;
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: AppLayout.scaleHeight(context, 5)),
-      child: Row(
-        children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            transitionBuilder: (child, animation) =>
-                ScaleTransition(scale: animation, child: child),
-            child: (_passcodeFieldTouched && isMet)
-                ? Icon(Icons.check_circle,
-                    key: const ValueKey(true),
-                    size: AppLayout.scaleWidth(context, 15),
-                    color: activeColor)
-                : Icon(Icons.radio_button_unchecked,
-                    key: const ValueKey(false),
-                    size: AppLayout.scaleWidth(context, 15),
-                    color: inactiveColor),
+    return GestureDetector(
+      onTap: (isLoading || !isOnline) ? null : _openPasscodeSetup,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+          horizontal: AppLayout.scaleWidth(context, 16),
+          vertical: AppLayout.scaleHeight(context, 16),
+        ),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE8F5E9),
+          borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 8)),
+          border: Border.all(
+            color: _passcodeError != null
+                ? AppColors.avatarRed
+                : Colors.transparent,
           ),
-          SizedBox(width: AppLayout.scaleWidth(context, 6)),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: AppLayout.fontSize(context, 12),
-                color: (_passcodeFieldTouched && isMet)
-                    ? Colors.black87
-                    : Colors.grey[600],
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isSet ? Icons.check_circle : Icons.lock_outline,
+              size: AppLayout.scaleWidth(context, 20),
+              color: isSet ? AppColors.primaryTeal : Colors.grey,
+            ),
+            SizedBox(width: AppLayout.scaleWidth(context, 12)),
+            Expanded(
+              child: Text(
+                isSet
+                    ? '${'•' * kPasscodeLength}  (tap to change)'
+                    : 'Tap to set a $kPasscodeLength-digit passcode',
+                style: TextStyle(
+                  fontSize: AppLayout.fontSize(context, 14),
+                  color: isSet ? Colors.black87 : Colors.grey,
+                  letterSpacing: isSet ? 2 : 0,
+                ),
               ),
             ),
-          ),
-        ],
+            Icon(Icons.arrow_forward_ios,
+                size: AppLayout.scaleWidth(context, 14), color: Colors.grey),
+          ],
+        ),
       ),
     );
   }

@@ -1,13 +1,39 @@
+// lib/features/signup/presentation/pages/signup_more_details.dart
+//
+// Sits BETWEEN the signup form and OTP verification.
+//
+// It was previously after registration, which made the referral code
+// unsendable: RegisterRequest.referralCode is the only field in the API that
+// accepts one, and the account had already been created by then.
+//
+// This screen also owns the send-otp call, so the code is requested
+// immediately before the screen that asks for it.
+
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kudipay/core/network/app_exception_handler.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
-import 'package:kudipay/features/tribe/presentation/pages/choose_tribe.dart';
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/signup/presentation/pages/signup_verify.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:kudipay/provider/connectivity/connectivity_provider.dart';
 
 class KnowYouBetterForm extends ConsumerStatefulWidget {
-  const KnowYouBetterForm({super.key});
+  final String email;
+  final String phoneNumber;
+  final String passcode;
+  final String confirmPasscode;
+
+  const KnowYouBetterForm({
+    super.key,
+    required this.email,
+    required this.phoneNumber,
+    required this.passcode,
+    required this.confirmPasscode,
+  });
 
   @override
   ConsumerState<KnowYouBetterForm> createState() => _KnowYouBetterFormState();
@@ -16,6 +42,7 @@ class KnowYouBetterForm extends ConsumerStatefulWidget {
 class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
   final TextEditingController _referralCodeController = TextEditingController();
   String? _selectedSource;
+  bool _isSending = false;
 
   final List<String> _hearAboutOptions = [
     'Social Media',
@@ -61,7 +88,7 @@ class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
     super.dispose();
   }
 
-  void _handleContinue() {
+  Future<void> _handleContinue() async {
     final isConnected = ref.read(currentConnectivityProvider);
 
     if (!isConnected) {
@@ -91,27 +118,64 @@ class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
       return;
     }
 
-    if (_selectedSource != null) {
-      // Persist referral/source data through the registration provider.
-      // The registration flow will include this in the final account creation call.
-      final referral = _referralCodeController.text.trim();
-      if (referral.isNotEmpty) {
-        // Store referral code so it can be submitted with the registration payload.
-        // ref.read(registrationProvider.notifier).setReferralCode(referral);
-        // (Un-comment and implement setReferralCode when the backend endpoint
-        //  accepts a referral_code field.)
-      }
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const TribeScreen()),
-      );
-    } else {
+    if (_selectedSource == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please select how you heard about us'),
           backgroundColor: Colors.orange,
         ),
       );
+      return;
+    }
+
+    // NOTE: _selectedSource has no field on any endpoint in the API, so it is
+    // not submitted anywhere. Kept as a UI question pending a backend field.
+    final referral = _referralCodeController.text.trim();
+
+    setState(() => _isSending = true);
+
+    try {
+      final otpId = await ref.read(authProvider.notifier).sendSignupOtp(
+            email: widget.email,
+            phoneNumber: widget.phoneNumber,
+          );
+
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EmailVerifySignup(
+            email: widget.email,
+            phoneNumber: widget.phoneNumber,
+            passcode: widget.passcode,
+            confirmPasscode: widget.confirmPasscode,
+            referralCode: referral.isEmpty ? null : referral,
+            otpId: otpId,
+          ),
+        ),
+      );
+    } on NoInternetException {
+      if (mounted) ConnectivitySnackBar.showNoInternet(context);
+    } on TimeoutException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: AppColors.avatarOrange,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceFirst('Exception: ', '')),
+            backgroundColor: AppColors.avatarRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSending = false);
     }
   }
 
@@ -330,7 +394,7 @@ class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: _handleContinue,
+                        onPressed: _isSending ? null : _handleContinue,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryTeal,
                           shape: RoundedRectangleBorder(

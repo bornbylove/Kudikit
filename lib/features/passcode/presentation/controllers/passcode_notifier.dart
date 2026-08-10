@@ -1,70 +1,82 @@
-import 'package:kudipay/features/passcode/domain/passcode_state.dart';
+// lib/features/passcode/presentation/controllers/passcode_notifier.dart
+//
+// Drives the two-stage passcode setup: enter it once, then re-enter to
+// confirm. Length comes from kPasscodeLength so the digit count is defined in
+// one place.
+//
+// This previously compared every entry against a hardcoded '1234' with a fake
+// 800ms delay — a stub, not a working create flow.
+
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:kudipay/core/utils/passcode.dart';
+import 'package:kudipay/features/passcode/domain/passcode_state.dart';
 
 class PasscodeNotifier extends StateNotifier<PasscodeState> {
-  PasscodeNotifier() : super(PasscodeState(originalPasscode: '1234'));
-
-  int _requestId = 0;
+  PasscodeNotifier() : super(const PasscodeState());
 
   void addDigit(String digit) {
-    if (state.enteredPasscode.length < 4) {
-      final newPasscode = state.enteredPasscode + digit;
+    if (state.enteredPasscode.length >= kPasscodeLength) return;
 
-      state = state.copyWith(
-        enteredPasscode: newPasscode,
-        showError: false,
-      );
+    final next = state.enteredPasscode + digit;
+    state = state.copyWith(
+      enteredPasscode: next,
+      showError: false,
+      errorMessage: null,
+    );
 
-      if (newPasscode.length == 4) {
-        _validatePasscode(newPasscode);
-      }
-    }
+    if (next.length == kPasscodeLength) _onStageComplete(next);
   }
 
   void removeDigit() {
-    if (state.enteredPasscode.isNotEmpty) {
+    if (state.enteredPasscode.isEmpty) return;
+    state = state.copyWith(
+      enteredPasscode:
+          state.enteredPasscode.substring(0, state.enteredPasscode.length - 1),
+      showError: false,
+      errorMessage: null,
+    );
+  }
+
+  void _onStageComplete(String entered) {
+    if (state.stage == PasscodeStage.create) {
+      // Guards against a non-digit ever reaching here via a different keypad.
+      final error = passcodeError(entered);
+      if (error != null) {
+        state = state.copyWith(
+          enteredPasscode: '',
+          showError: true,
+          errorMessage: error,
+        );
+        return;
+      }
+
       state = state.copyWith(
-        enteredPasscode: state.enteredPasscode
-            .substring(0, state.enteredPasscode.length - 1),
-        showError: false,
+        originalPasscode: entered,
+        enteredPasscode: '',
+        stage: PasscodeStage.confirm,
+      );
+      return;
+    }
+
+    // Confirm stage.
+    if (entered == state.originalPasscode) {
+      state = state.copyWith(isConfirmed: true);
+    } else {
+      // Send them back to the start rather than letting them retry the
+      // confirmation against a passcode they may have mistyped first time.
+      state = state.copyWith(
+        enteredPasscode: '',
+        stage: PasscodeStage.create,
+        clearOriginal: true,
+        showError: true,
+        errorMessage: 'Passcodes do not match. Please start again.',
       );
     }
   }
 
-  void _validatePasscode(String passcode) {
-    final currentRequest = ++_requestId;
+  /// The confirmed passcode, or null until both stages match.
+  String? get confirmedPasscode =>
+      state.isConfirmed ? state.originalPasscode : null;
 
-    state = state.copyWith(isLoading: true);
-
-    Future.delayed(const Duration(milliseconds: 800), () {
-      if (currentRequest != _requestId) return;
-
-      if (passcode == state.originalPasscode) {
-        state = state.copyWith(
-          isConfirmed: true,
-          showError: false,
-          isLoading: false,
-        );
-      } else {
-        state = state.copyWith(
-          showError: true,
-          isLoading: false,
-        );
-
-        Future.delayed(const Duration(milliseconds: 1500), () {
-          if (currentRequest != _requestId) return;
-
-          state = state.copyWith(
-            enteredPasscode: '',
-            showError: false,
-          );
-        });
-      }
-    });
-  }
-
-  void reset() {
-    _requestId++; // cancel pending validations
-    state = PasscodeState(originalPasscode: state.originalPasscode);
-  }
+  void reset() => state = const PasscodeState();
 }

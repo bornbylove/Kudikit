@@ -9,7 +9,9 @@ import 'package:kudipay/features/email/presentation/pages/change_email_screen.da
 
 import 'package:kudipay/features/notification/presentation/pages/notification_preference_screen.dart';
 
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:kudipay/features/kyc/presentation/controllers/kyc_controllers.dart';
+import 'package:kudipay/features/tier/presentation/controllers/tier_provider.dart';
 import 'package:kudipay/provider/refresh/refresh_provider.dart';
 
 // -- SVG icon paths ----------------------------------------------------------

@@ -14,7 +14,6 @@
 
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
-import 'package:form_field_validator/form_field_validator.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 
 // =============================================================================
@@ -63,55 +62,7 @@ const InputDecoration kOtpInputDecoration = InputDecoration(
   errorStyle: TextStyle(height: 0),
 );
 
-// =============================================================================
-// Form Validators
-// =============================================================================
-
-final passwordValidator = MultiValidator([
-  RequiredValidator(errorText: 'Password is required'),
-  MinLengthValidator(8, errorText: 'Password must be at least 8 digits long'),
-  PatternValidator(
-    r'(?=.*?[#?!@$%^&*-/])',
-    errorText: 'Password must have at least one special character',
-  ),
-]);
-
-final emailValidator = MultiValidator([
-  RequiredValidator(errorText: 'Email is required'),
-  EmailValidator(errorText: 'Enter a valid email address'),
-]);
-
-final requiredValidator =
-    RequiredValidator(errorText: 'This field is required');
-final matchValidator = MatchValidator(errorText: 'Passwords do not match');
-
-final phoneNumberValidator = MinLengthValidator(
-  10,
-  errorText: 'Phone number must be at least 10 digits long',
-);
-
-// =============================================================================
-// IdType
-// =============================================================================
-
-enum IdType { bvn, nin }
-
-extension IdTypeX on IdType {
-  String get label {
-    switch (this) {
-      case IdType.bvn:
-        return 'BVN';
-      case IdType.nin:
-        return 'NIN';
-    }
-  }
-
-  String get hint {
-    switch (this) {
-      case IdType.bvn:
-        return 'Enter your 11-digit BVN';
-      case IdType.nin:
-        return 'Enter your 11-digit NIN';
-    }
-  }
-}
+// IdType and IdTypeX live in features/kyc/domain/entities/kyc_entities.dart.
+// A byte-identical copy used to sit here; importing both files made `IdType`
+// ambiguous, which is how an earlier duplicate let a screen bind to the wrong
+// provider. Do not reintroduce it.

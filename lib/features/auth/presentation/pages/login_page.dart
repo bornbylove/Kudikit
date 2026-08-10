@@ -4,14 +4,19 @@ import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/app/app_routes.dart';
+import 'package:kudipay/core/utils/passcode.dart';
 import 'package:kudipay/core/utils/responsive.dart';
+import 'package:kudipay/features/passcode/presentation/pages/numeric_keypad.dart';
+import 'package:kudipay/features/passcode/presentation/pages/passcode_dots.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/model/user/user_model.dart';
+import 'package:kudipay/features/auth/presentation/pages/forgot_passcode.dart';
 import 'package:kudipay/features/linkdevice/presentation/pages/link_device_screen.dart';
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:kudipay/provider/connectivity/connectivity_provider.dart';
 import 'package:kudipay/core/network/app_exception_handler.dart';
-import 'package:kudipay/services/storage_services.dart';
+import 'package:kudipay/core/services/storage_services.dart';
 
 // =============================================================================
 // storedUserProvider
@@ -34,8 +39,9 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final TextEditingController _passwordCtrl = TextEditingController();
-  bool _passwordVisible = false;
+  /// Digits entered on the keypad. Replaces the old TextEditingController —
+  /// the passcode is numeric and entered in-app, so there is no text field.
+  String _passcode = '';
   bool _showingPhone = true;
   bool _isLoading = false;
 
@@ -46,7 +52,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   void initState() {
     super.initState();
-    _passwordCtrl.addListener(_onPasswordChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _setupConnectivityListener();
     });
@@ -54,20 +59,30 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   void dispose() {
-    _passwordCtrl.removeListener(_onPasswordChanged);
-    _passwordCtrl.dispose();
     _errorNotifier.dispose();
     _passwordNotEmpty.dispose();
     super.dispose();
   }
 
-  void _onPasswordChanged() {
-    // Clear the error as soon as the user starts typing again.
-    if (_errorNotifier.value != null) {
+  void _onPasscodeDigit(String digit, UserModel? user) {
+    if (_passcode.length >= kPasscodeLength) return;
+    setState(() {
+      _passcode += digit;
       _errorNotifier.value = null;
-    }
-    // Keep the button state in sync with whether there is any text.
-    _passwordNotEmpty.value = _passwordCtrl.text.isNotEmpty;
+      _passwordNotEmpty.value = _passcode.isNotEmpty;
+    });
+    // Submit as soon as the passcode is complete — there is nothing else for
+    // the user to fill in on this screen.
+    if (_passcode.length == kPasscodeLength) _handleLogin(user);
+  }
+
+  void _onPasscodeBackspace() {
+    if (_passcode.isEmpty) return;
+    setState(() {
+      _passcode = _passcode.substring(0, _passcode.length - 1);
+      _errorNotifier.value = null;
+      _passwordNotEmpty.value = _passcode.isNotEmpty;
+    });
   }
 
   void _setupConnectivityListener() {
@@ -76,7 +91,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         final wasConnected = previous?.value ?? true;
         if (wasConnected && !isConnected) {
           ConnectivitySnackBar.showNoInternet(context);
-          _passwordCtrl.clear();
+          setState(() => _passcode = '');
           _errorNotifier.value = null;
         } else if (!wasConnected && isConnected) {
           ConnectivitySnackBar.showConnectionRestored(context);
@@ -114,14 +129,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
 
-    final password = _passwordCtrl.text.trim();
-    if (password.isEmpty) {
-      _errorNotifier.value = 'Please enter your passcode';
-      return;
-    }
-
-    if (password.length < 8) {
-      _errorNotifier.value = 'Passcode must be at least 8 characters';
+    final password = _passcode;
+    final passcodeProblem = passcodeError(password);
+    if (passcodeProblem != null) {
+      _errorNotifier.value = passcodeProblem;
       return;
     }
 
@@ -271,12 +282,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
+  // Was a dead-end sheet telling users to contact support, because no reset
+  // endpoint existed. It does now, so go straight into the reset flow.
   void _showForgotPinSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const _ForgotPinSheet(),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ForgotPasscodeScreen()),
     );
   }
 
@@ -406,14 +417,24 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                 SizedBox(height: AppLayout.scaleHeight(context, 12)),
 
-                // ── Password field ────────────────────────────────────────
-                _PasswordField(
-                  controller: _passwordCtrl,
-                  visible: _passwordVisible,
-                  enabled: !_isLoading && isOnline,
-                  onToggleVisibility: () =>
-                      setState(() => _passwordVisible = !_passwordVisible),
-                  onSubmitted: () => _handleLogin(user),
+                // ── Passcode: dots + keypad ───────────────────────────────
+                // The passcode is kPasscodeLength digits, so this uses the
+                // in-app keypad rather than a text field and the OS keyboard.
+                PasscodeDotsIndicator(
+                  length: kPasscodeLength,
+                  filledCount: _passcode.length,
+                  showError: _errorNotifier.value != null,
+                ),
+                SizedBox(height: AppLayout.scaleHeight(context, 16)),
+                IgnorePointer(
+                  ignoring: _isLoading || !isOnline,
+                  child: Opacity(
+                    opacity: (_isLoading || !isOnline) ? 0.5 : 1.0,
+                    child: NumericKeypad(
+                      onNumberPressed: (d) => _onPasscodeDigit(d, user),
+                      onBackspacePressed: _onPasscodeBackspace,
+                    ),
+                  ),
                 ),
 
                 // ── Forgot PIN ────────────────────────────────────────────
@@ -588,81 +609,6 @@ class _IdentifierField extends StatelessWidget {
 // =============================================================================
 // Password field
 // =============================================================================
-class _PasswordField extends StatelessWidget {
-  final TextEditingController controller;
-  final bool visible;
-  final bool enabled;
-  final VoidCallback onToggleVisibility;
-  final VoidCallback onSubmitted;
-
-  const _PasswordField({
-    required this.controller,
-    required this.visible,
-    required this.enabled,
-    required this.onToggleVisibility,
-    required this.onSubmitted,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: enabled ? Colors.white : const Color(0xFFF8F8F8),
-        borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
-        border: Border.all(color: const Color(0xFFD6EAE0), width: 1),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: !visible,
-        enabled: enabled,
-        textInputAction: TextInputAction.done,
-        onSubmitted: (_) => onSubmitted(),
-        style: TextStyle(
-          fontSize: AppLayout.fontSize(context, 15),
-          fontWeight: FontWeight.w500,
-          color: const Color(0xFF171515),
-        ),
-        decoration: InputDecoration(
-          hintText: 'Passcode',
-          hintStyle: TextStyle(
-            fontSize: AppLayout.fontSize(context, 15),
-            color: Colors.grey[400],
-            fontWeight: FontWeight.w400,
-          ),
-          prefixIcon: Padding(
-            padding: EdgeInsets.only(
-              left: AppLayout.scaleWidth(context, 16),
-              right: AppLayout.scaleWidth(context, 10),
-            ),
-            child: Icon(
-              Icons.lock_outline_rounded,
-              color: Colors.grey[400],
-              size: AppLayout.scaleWidth(context, 15),
-            ),
-          ),
-          prefixIconConstraints: const BoxConstraints(),
-          suffixIcon: IconButton(
-            icon: Icon(
-              visible
-                  ? Icons.visibility_outlined
-                  : Icons.visibility_off_outlined,
-              color: Colors.grey[400],
-              size: AppLayout.scaleWidth(context, 20),
-            ),
-            splashRadius: AppLayout.scaleWidth(context, 18),
-            onPressed: onToggleVisibility,
-          ),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: AppLayout.scaleWidth(context, 16),
-            vertical: AppLayout.scaleHeight(context, 17),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // =============================================================================
 // Continue button
 // =============================================================================
@@ -859,198 +805,6 @@ class _LicensingFooter extends StatelessWidget {
                 fit: BoxFit.contain,
                 errorBuilder: (_, __, ___) => Icon(Icons.account_balance,
                     size: iconH * 0.75, color: Colors.grey[600]),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// Forgot PIN bottom sheet
-// =============================================================================
-class _ForgotPinSheet extends StatelessWidget {
-  const _ForgotPinSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    const brand = AppColors.primaryTeal;
-
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: EdgeInsets.fromLTRB(
-        AppLayout.scaleWidth(context, 24),
-        AppLayout.scaleHeight(context, 12),
-        AppLayout.scaleWidth(context, 24),
-        AppLayout.scaleHeight(context, 32),
-      ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: AppLayout.scaleWidth(context, 40),
-              height: 4,
-              decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2)),
-            ),
-            SizedBox(height: AppLayout.scaleHeight(context, 24)),
-            Container(
-              width: AppLayout.scaleWidth(context, 64),
-              height: AppLayout.scaleWidth(context, 64),
-              decoration: BoxDecoration(
-                  color: brand.withValues(alpha: 0.1), shape: BoxShape.circle),
-              child: Icon(Icons.lock_reset_rounded,
-                  color: brand, size: AppLayout.scaleWidth(context, 32)),
-            ),
-            SizedBox(height: AppLayout.scaleHeight(context, 16)),
-            Text('Forgot PIN?',
-                style: TextStyle(
-                    fontSize: AppLayout.fontSize(context, 22),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87)),
-            SizedBox(height: AppLayout.scaleHeight(context, 8)),
-            Text(
-              'To reset your PIN, log in using your email and '
-              'create a new one, or contact our support team.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: AppLayout.fontSize(context, 14),
-                  color: Colors.grey[600],
-                  height: 1.5),
-            ),
-            SizedBox(height: AppLayout.scaleHeight(context, 28)),
-            SizedBox(
-              width: double.infinity,
-              height: AppLayout.scaleHeight(context, 52),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  showModalBottomSheet(
-                    context: context,
-                    backgroundColor: Colors.white,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(24)),
-                    ),
-                    builder: (_) => SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 28),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 56,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                color: brand.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Icon(Icons.lock_reset,
-                                  color: brand, size: 28),
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'PIN Reset via Email',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF1A1A2E),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Self-service PIN reset via email is coming soon. '
-                              'For now, contact our support team to reset your PIN.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF9E9E9E),
-                                height: 1.5,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  Navigator.pushNamed(
-                                      context, AppRoutes.support);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: brand,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(28),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Contact Support',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text(
-                                'Dismiss',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF9E9E9E),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: brand,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          AppLayout.scaleWidth(context, 32))),
-                ),
-                child: Text('Reset via Email',
-                    style: TextStyle(
-                        fontSize: AppLayout.fontSize(context, 16),
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white)),
-              ),
-            ),
-            SizedBox(height: AppLayout.scaleHeight(context, 12)),
-            SizedBox(
-              width: double.infinity,
-              height: AppLayout.scaleHeight(context, 52),
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: brand, width: 1.5),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          AppLayout.scaleWidth(context, 32))),
-                ),
-                child: Text('Cancel',
-                    style: TextStyle(
-                        fontSize: AppLayout.fontSize(context, 16),
-                        fontWeight: FontWeight.w600,
-                        color: brand)),
               ),
             ),
           ],

@@ -17,8 +17,9 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/shared/widgets/color_app_button.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
-import 'package:kudipay/provider/provider.dart';
-import 'package:kudipay/features/signup/presentation/pages/signup_more_details.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:kudipay/provider/connectivity/connectivity_provider.dart';
+import 'package:kudipay/features/tribe/presentation/pages/choose_tribe.dart';
 import 'package:kudipay/core/network/app_exception_handler.dart';
 import 'package:pinput/pinput.dart';
 
@@ -26,12 +27,16 @@ class EmailVerifySignup extends ConsumerStatefulWidget {
   final String email;
   final String phoneNumber;
 
-  // The user's signup passcode (8-12 char alphanumeric), NOT the 6-digit OTP.
+  // The user's signup passcode (kPasscodeLength digits), NOT the 6-digit OTP.
   final String passcode;
 
   /// The passcode re-entry from the signup form. The server re-checks it
   /// against [passcode] on /auth/register.
   final String confirmPasscode;
+
+  /// Optional referral code from the details screen. It can only be sent with
+  /// /auth/register, which is why that screen now precedes this one.
+  final String? referralCode;
 
   /// The otpId returned by the send-otp step on the previous screen.
   final String otpId;
@@ -42,6 +47,7 @@ class EmailVerifySignup extends ConsumerStatefulWidget {
     required this.phoneNumber,
     required this.passcode,
     required this.confirmPasscode,
+    this.referralCode,
     required this.otpId,
   });
 
@@ -199,13 +205,14 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
             phoneNumber: widget.phoneNumber,
             passcode: widget.passcode,
             confirmPasscode: widget.confirmPasscode,
+            referralCode: widget.referralCode,
           );
 
       if (mounted) {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const KnowYouBetterForm(),
+            builder: (context) => const TribeScreen(),
           ),
         );
         ScaffoldMessenger.of(context).showSnackBar(

@@ -41,8 +41,6 @@ import 'package:kudipay/features/onboarding/presentation/pages/onboarding_screen
 import 'package:kudipay/features/auth/presentation/pages/login_page.dart';
 import 'package:kudipay/features/signup/presentation/pages/signup.dart';
 import 'package:kudipay/features/signup/presentation/pages/signup_verify.dart'; // EmailVerifySignup
-import 'package:kudipay/features/passcode/presentation/pages/create_passcode.dart'; // PasscodeCreationScreen
-import 'package:kudipay/features/passcode/presentation/pages/confirm_passcode.dart'; // PasscodeConfirmationScreen
 import 'package:kudipay/features/account_ready/presentation/pages/account_ready.dart';
 import 'package:kudipay/shared/widgets/bottom_nav.dart';
 import 'package:kudipay/features/homescreen/presentation/pages/home_screen.dart';
@@ -159,10 +157,6 @@ class AppRouter {
           confirmPasscode: a.confirmPasscode,
           otpId: a.otpId,
         ));
-      case AppRoutes.createPasscode:
-        return _build(const PasscodeCreationScreen());
-      case AppRoutes.confirmPasscode:
-        return _build(const PasscodeConfirmationScreen());
       case AppRoutes.accountReady:
         return _build(const AccountReadyScreen());
 
