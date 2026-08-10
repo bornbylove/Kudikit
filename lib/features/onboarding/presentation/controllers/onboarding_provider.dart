@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/services/onboarding_services.dart';
+import 'package:kudipay/features/onboarding/data/onboarding_services.dart';
 
 final onboardingServiceProvider = Provider<OnboardingService>((ref) {
   return OnboardingService();

@@ -1,41 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/core/network/api_client.dart';
-import 'package:kudipay/core/network/dio_provider.dart';
 import 'package:kudipay/core/utils/responsive.dart';
+// Bank and bankListProvider moved out of this widget: the entity now lives in
+// the domain layer and the fetch goes through TransferRepository. Re-exported
+// so screens importing this sheet for `Bank` keep resolving.
+export 'package:kudipay/features/transfer/domain/entities/bank_entity.dart';
 
-class Bank {
-  final String name;
-  final String code;
-  final String? logo;
-
-  const Bank({
-    required this.name,
-    required this.code,
-    this.logo,
-  });
-}
-
-// Fetches the bank list from GET /banks.
-// Falls back to an empty list on error so the UI degrades gracefully.
-final bankListProvider = FutureProvider<List<Bank>>((ref) async {
-  final client = ref.read(dioClientProvider);
-  try {
-    final response = await client.get<Map<String, dynamic>>('/banks');
-    final raw = response.data!['banks'] as List<dynamic>;
-    return raw.map((b) {
-      final map = b as Map<String, dynamic>;
-      return Bank(
-        name: map['name'] as String,
-        code: map['code'] as String,
-        logo: map['logo'] as String?,
-      );
-    }).toList();
-  } on KudiApiException {
-    return [];
-  }
-});
+import 'package:kudipay/features/transfer/domain/entities/bank_entity.dart';
+import 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
 
 class BankSelectionBottomSheet extends ConsumerStatefulWidget {
   final Function(Bank) onBankSelected;

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/wallet/presentation/pages/addmoney/add_money_screen.dart';
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_controllers.dart';
 
 class TransactionReceiptScreen extends ConsumerWidget {
   const TransactionReceiptScreen({super.key});

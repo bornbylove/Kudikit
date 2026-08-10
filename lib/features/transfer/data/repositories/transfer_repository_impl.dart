@@ -1,6 +1,7 @@
 // lib/features/transfer/data/repositories/transfer_repository_impl.dart
 
 import 'package:kudipay/core/network/api_client.dart';
+import 'package:kudipay/features/transfer/domain/entities/bank_entity.dart';
 import 'package:kudipay/features/transfer/domain/entities/transfer_entities.dart';
 import 'package:kudipay/features/transfer/domain/repositories/transfer_repository.dart';
 import 'package:kudipay/features/transfer/domain/entities/bulk_transfer_model.dart';
@@ -8,6 +9,18 @@ import 'package:kudipay/features/transfer/domain/entities/bulk_transfer_model.da
 class TransferRepositoryImpl implements TransferRepository {
   final DioClient _client;
   const TransferRepositoryImpl(this._client);
+
+  @override
+  Future<List<Bank>> getBanks() async {
+    // WARNING: this reads data.banks, while WalletRemoteDataSource.getBanks
+    // reads the response body as a bare array from the SAME endpoint. Both
+    // cannot be correct — one of them has been failing silently. Preserved
+    // as-is here to avoid changing behaviour during the layer move; needs the
+    // real /banks contract to resolve.
+    final res = await _client.get<Map<String, dynamic>>('/banks');
+    final raw = (res.data?['banks'] as List<dynamic>?) ?? const [];
+    return raw.map((b) => Bank.fromJson(b as Map<String, dynamic>)).toList();
+  }
 
   @override
   Future<RecipientEntity> validateAccount({

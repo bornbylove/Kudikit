@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/features/transfer/presentation/pages/single_transfer/pin_entry_dialogue.dart';
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
 
 class TransactionReviewBottomSheet extends ConsumerWidget {
   const TransactionReviewBottomSheet({super.key});

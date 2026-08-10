@@ -5,7 +5,7 @@ import 'package:kudipay/features/agent/domain/entities/agent_model.dart';
 import 'package:kudipay/shared/widgets/confirm_bottomsheet.dart';
 import 'package:kudipay/features/cashout/presentation/controllers/cashout_provider.dart';
 import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
-import 'package:kudipay/features/wallet/presentation/controllers/wallet_provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_controllers.dart';
 
 import 'transaction_code_screen.dart';
 

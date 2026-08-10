@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/services/connectivity_service.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:kudipay/core/services/connectivity_service.dart';
 import 'package:kudipay/core/singleton/service_providers.dart';
 
 // ==================== CONNECTIVITY PROVIDERS ====================

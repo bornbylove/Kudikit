@@ -46,8 +46,8 @@ Future<void> _showDataOnlyNotification(RemoteMessage message) async {
   );
 
   final title = message.data['title'] as String? ?? 'KudiKit';
-  final body = message.data['body'] as String? ??
-      'Open KudiKit to see the details.';
+  final body =
+      message.data['body'] as String? ?? 'Open KudiKit to see the details.';
 
   final details = NotificationDetails(
     android: AndroidNotificationDetails(

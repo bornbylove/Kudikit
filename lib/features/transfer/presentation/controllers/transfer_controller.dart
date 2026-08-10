@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/core/network/app_exception_handler.dart';
 import 'package:kudipay/core/network/dio_provider.dart';
 import 'package:kudipay/features/transfer/data/repositories/transfer_repository_impl.dart';
+import 'package:kudipay/features/transfer/domain/entities/bank_entity.dart';
 import 'package:kudipay/features/transfer/domain/entities/transfer_entities.dart';
 import 'package:kudipay/features/transfer/domain/repositories/transfer_repository.dart';
 import 'package:kudipay/features/transfer/domain/usecases/transfer_usecases.dart';
@@ -24,8 +25,21 @@ final transferRepositoryProvider = Provider<TransferRepository>((ref) {
   return TransferRepositoryImpl(ref.read(dioClientProvider));
 });
 
+final getBanksUseCaseProvider =
+    Provider((ref) => GetBanksUseCase(ref.read(transferRepositoryProvider)));
+
 final validateAccountUseCaseProvider = Provider(
     (ref) => ValidateAccountUseCase(ref.read(transferRepositoryProvider)));
+
+/// Bank list for the transfer flow. Returns an empty list on API error so the
+/// picker degrades to "no banks" rather than an error screen.
+final bankListProvider = FutureProvider<List<Bank>>((ref) async {
+  try {
+    return await ref.read(getBanksUseCaseProvider).call();
+  } on KudiApiException {
+    return const [];
+  }
+});
 final getRecentContactsUseCaseProvider = Provider(
     (ref) => GetRecentContactsUseCase(ref.read(transferRepositoryProvider)));
 final processTransferUseCaseProvider = Provider(

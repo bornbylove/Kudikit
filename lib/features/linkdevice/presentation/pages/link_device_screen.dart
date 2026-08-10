@@ -4,7 +4,7 @@ import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/linkdevice/presentation/pages/get_verification_code_screen.dart';
 import 'package:kudipay/features/linkdevice/presentation/pages/verify_id.dart';
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/linkdevice/presentation/controllers/device_linking_provider.dart';
 
 class LinkDeviceScreen extends ConsumerStatefulWidget {
   const LinkDeviceScreen({super.key});

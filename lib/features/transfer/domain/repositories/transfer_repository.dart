@@ -1,9 +1,13 @@
 // lib/features/transfer/domain/repositories/transfer_repository.dart
 
+import 'package:kudipay/features/transfer/domain/entities/bank_entity.dart';
 import 'package:kudipay/features/transfer/domain/entities/transfer_entities.dart';
 import 'package:kudipay/features/transfer/domain/entities/bulk_transfer_model.dart';
 
 abstract interface class TransferRepository {
+  /// Returns the banks available for transfers.
+  Future<List<Bank>> getBanks();
+
   /// Validates an account number and returns recipient info.
   Future<RecipientEntity> validateAccount({
     required String accountNumber,

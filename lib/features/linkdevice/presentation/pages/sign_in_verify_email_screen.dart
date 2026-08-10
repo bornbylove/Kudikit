@@ -27,7 +27,8 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/features/linkdevice/presentation/pages/data_sync.dart';
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/linkdevice/presentation/controllers/device_linking_provider.dart';
+import 'package:kudipay/provider/connectivity/connectivity_provider.dart';
 
 class SignInVerifyEmailScreen extends ConsumerStatefulWidget {
   /// Masked email shown in the subtitle  e.g. "u***r@gmail.com"

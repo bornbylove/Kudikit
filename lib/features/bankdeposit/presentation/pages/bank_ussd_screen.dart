@@ -6,7 +6,7 @@ import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/model/bankmodel/bank_model.dart';
 import 'package:kudipay/features/bankdeposit/presentation/pages/select_bank.dart';
 import 'package:kudipay/features/bankdeposit/presentation/pages/ussd_code_display_screen.dart';
-import 'package:kudipay/provider/funding/funding_provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_controllers.dart';
 
 class BankUssdScreen extends ConsumerStatefulWidget {
   const BankUssdScreen({super.key});

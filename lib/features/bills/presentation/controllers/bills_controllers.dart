@@ -29,7 +29,7 @@ import 'package:kudipay/features/bills/data/repositories/bills_repositories_impl
 import 'package:kudipay/features/bills/domain/entities/bill_entities.dart';
 import 'package:kudipay/features/bills/domain/usecases/repositories/bills_repository.dart';
 import 'package:kudipay/features/bills/domain/usecases/bills_usecases.dart';
-import 'package:kudipay/services/bill_service.dart';
+import 'package:kudipay/features/bills/data/bill_service.dart';
 
 // Re-export cable TV and electricity providers unchanged
 export 'package:kudipay/features/bills/presentation/controllers/cable_tv_provider.dart';

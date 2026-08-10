@@ -19,7 +19,7 @@ import 'package:kudipay/shared/widgets/transaction_pin_bottom_sheet.dart';
 import 'package:kudipay/features/bills/domain/entities/cable_tv_model.dart';
 import 'package:kudipay/features/bills/presentation/pages/bill_payment_success.dart';
 import 'package:kudipay/features/bills/presentation/controllers/cable_tv_provider.dart';
-import 'package:kudipay/features/wallet/presentation/controllers/wallet_provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_controllers.dart';
 
 // ============================================================================
 // CableTvBillerScreen  (Image 12)

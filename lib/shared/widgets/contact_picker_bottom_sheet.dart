@@ -24,7 +24,7 @@ import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/network_logo.dart';
 import 'package:kudipay/shared/widgets/shimmer_widget.dart';
-import 'package:kudipay/services/contact_service.dart';
+import 'package:kudipay/core/services/contact_service.dart';
 
 // ============================================================================
 // Public entry point

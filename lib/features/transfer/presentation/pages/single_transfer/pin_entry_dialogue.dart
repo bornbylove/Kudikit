@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
 import 'package:kudipay/features/transfer/presentation/pages/single_transfer/transfer_success_dialogue.dart';
-import 'package:kudipay/provider/provider.dart';
 
 // ── Processing Payment Screen ───────────────────────────────────────────────
 // Shown as a full screen while the transfer is being processed.

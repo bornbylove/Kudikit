@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:kudipay/features/notification/presentation/pages/notification_preferences.dart';
-import 'package:kudipay/services/storage_services.dart';
+import 'package:kudipay/core/services/storage_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationPreferencesService {

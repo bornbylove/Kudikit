@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/model/bankmodel/bank_model.dart';
-import 'package:kudipay/provider/funding/funding_provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_controllers.dart';
 
 class UssdCodeDisplayScreen extends ConsumerStatefulWidget {
   const UssdCodeDisplayScreen({super.key});

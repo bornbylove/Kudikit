@@ -9,7 +9,7 @@ import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/features/onboarding/presentation/pages/onboarding_content.dart';
 import 'package:kudipay/features/intro/presentation/pages/intro_view.dart';
 
-import 'package:kudipay/services/onboarding_services.dart';
+import 'package:kudipay/features/onboarding/data/onboarding_services.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});

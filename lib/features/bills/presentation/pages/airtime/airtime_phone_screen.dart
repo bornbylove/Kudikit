@@ -9,7 +9,8 @@ import 'package:kudipay/shared/widgets/network_logo.dart';
 import 'package:kudipay/features/bills/domain/entities/bill_model.dart';
 import 'package:kudipay/features/bills/presentation/pages/airtime/airtime_amount_screen.dart';
 
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/bills/presentation/controllers/bills_controllers.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_controllers.dart';
 
 // ============================================================================
 // AirtimePhoneScreen

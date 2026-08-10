@@ -14,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/features/transaction/domain/entities/transaction_model.dart';
 import 'package:kudipay/core/network/dio_provider.dart';
-import 'package:kudipay/services/transaction_service.dart';
+import 'package:kudipay/features/transaction/data/transaction_service.dart';
 
 // ==================== TRANSACTION SERVICE PROVIDER ====================
 

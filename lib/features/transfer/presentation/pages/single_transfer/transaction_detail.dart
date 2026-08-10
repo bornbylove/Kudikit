@@ -6,7 +6,6 @@ import 'package:kudipay/core/app/app_routes.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
-import 'package:kudipay/provider/provider.dart';
 
 class TransactionDetailsScreen extends ConsumerWidget {
   const TransactionDetailsScreen({super.key});

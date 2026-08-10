@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/provider/connectivity/connectivity_provider.dart';
-import 'package:kudipay/provider/provider.dart';
 
 /// Banner widget that shows when there's no internet connection
 /// Automatically appears/disappears based on connectivity status

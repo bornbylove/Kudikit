@@ -26,7 +26,7 @@ import 'package:kudipay/features/bills/domain/entities/bill_model.dart';
 import 'package:kudipay/features/bills/presentation/pages/bill_transaction_detail.dart';
 import 'package:kudipay/features/bills/presentation/controllers/bills_controllers.dart';
 import 'package:kudipay/features/kyc/presentation/controllers/kyc_controllers.dart';
-import 'package:kudipay/features/wallet/presentation/controllers/wallet_provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_controllers.dart';
 
 class AirtimeAmountScreen extends ConsumerStatefulWidget {
   const AirtimeAmountScreen({super.key});

@@ -2,9 +2,9 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:kudipay/features/agent/domain/entities/agent_model.dart';
 import 'package:kudipay/features/agent/domain/entities/cashout_transaction_model.dart';
-import 'package:kudipay/services/agent_service.dart';
-import 'package:kudipay/services/geo_service.dart';
-import 'package:kudipay/services/transaction_code_service.dart';
+import 'package:kudipay/features/cashout/data/agent_service.dart';
+import 'package:kudipay/features/cashout/data/geo_service.dart';
+import 'package:kudipay/features/cashout/data/transaction_code_service.dart';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 

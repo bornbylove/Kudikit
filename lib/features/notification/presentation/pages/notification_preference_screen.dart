@@ -6,7 +6,7 @@ import 'package:kudipay/shared/widgets/shimmer_widget.dart';
 import 'package:kudipay/core/app/app_routes.dart';
 import 'package:kudipay/features/notification/presentation/pages/notification_category_screen.dart';
 import 'package:kudipay/features/notification/presentation/pages/notification_preferences.dart';
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/notification/presentation/controllers/notification_provider.dart';
 
 class NotificationPreferenceScreen extends ConsumerWidget {
   const NotificationPreferenceScreen({super.key});

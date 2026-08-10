@@ -13,8 +13,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/services/connectivity_service.dart';
-import 'package:kudipay/services/storage_services.dart';
+import 'package:kudipay/core/services/connectivity_service.dart';
+import 'package:kudipay/core/services/storage_services.dart';
 
 /// Provides the singleton [StorageService] for all secure/shared-pref storage.
 final storageServiceProvider = Provider<StorageService>((ref) {

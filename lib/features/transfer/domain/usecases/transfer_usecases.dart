@@ -1,8 +1,16 @@
 // lib/features/transfer/domain/usecases/transfer_usecases.dart
 
+import 'package:kudipay/features/transfer/domain/entities/bank_entity.dart';
 import 'package:kudipay/features/transfer/domain/entities/transfer_entities.dart';
 import 'package:kudipay/features/transfer/domain/repositories/transfer_repository.dart';
 import 'package:kudipay/features/transfer/domain/entities/bulk_transfer_model.dart';
+
+class GetBanksUseCase {
+  final TransferRepository _repository;
+  const GetBanksUseCase(this._repository);
+
+  Future<List<Bank>> call() => _repository.getBanks();
+}
 
 class ValidateAccountUseCase {
   final TransferRepository _repository;

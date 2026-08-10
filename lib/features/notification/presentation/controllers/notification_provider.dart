@@ -4,7 +4,7 @@ import 'package:kudipay/core/config/network_config.dart';
 
 import 'package:kudipay/features/notification/presentation/pages/notification_preferences.dart';
 import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
-import 'package:kudipay/services/notification_preference_services.dart';
+import 'package:kudipay/features/notification/data/notification_preference_services.dart';
 import 'package:flutter_riverpod/legacy.dart';
 // ==================== NOTIFICATION PROVIDERS ====================
 

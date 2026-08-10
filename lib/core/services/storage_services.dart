@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:kudipay/core/utils/passcode.dart';
 import 'package:kudipay/model/user/user_info.dart';
 import 'package:kudipay/model/user/user_model.dart';
 
@@ -180,34 +181,16 @@ class StorageService {
     return base64Encode(result);
   }
 
-  /// Validates that a passcode meets the required complexity rules.
-  /// Throws a [StorageException] if any rule is violated.
+  /// Validates that a passcode meets the required format.
+  /// Throws a [StorageException] if it does not.
   ///
-  /// Rules (must match your SignUpScreen validator):
-  ///   - 8 to 12 characters long
-  ///   - At least one uppercase letter
-  ///   - At least one lowercase letter
-  ///   - At least one number
-  ///   - At least one special character: ! @ # $ % ^ & *
+  /// Delegates to [passcodeError] so this cannot drift from the UI validators
+  /// the way the previous hand-copied rule set did. This method throws and is
+  /// reached from savePin() during registration, so a mismatch here fails
+  /// *after* the account has been created server-side.
   void _validatePasscode(String passcode) {
-    if (passcode.isEmpty || passcode.length < 8 || passcode.length > 12) {
-      throw StorageException('Passcode must be 8–12 characters');
-    }
-    if (!RegExp(r'[A-Z]').hasMatch(passcode)) {
-      throw StorageException(
-          'Passcode must contain at least one uppercase letter');
-    }
-    if (!RegExp(r'[a-z]').hasMatch(passcode)) {
-      throw StorageException(
-          'Passcode must contain at least one lowercase letter');
-    }
-    if (!RegExp(r'[0-9]').hasMatch(passcode)) {
-      throw StorageException('Passcode must contain at least one number');
-    }
-    if (!RegExp(r'[!@#$%^&*]').hasMatch(passcode)) {
-      throw StorageException(
-          'Passcode must contain at least one special character (!@#\$%^&*)');
-    }
+    final error = passcodeError(passcode);
+    if (error != null) throw StorageException(error);
   }
 
   /// Saves the user's passcode securely.

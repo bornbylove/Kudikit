@@ -9,7 +9,7 @@ import 'package:kudipay/features/wallet/presentation/pages/addmoney/cash_deposit
 import 'package:kudipay/features/wallet/presentation/pages/addmoney/top_up_with_card.dart';
 import 'package:kudipay/features/bankdeposit/presentation/pages/bank_ussd_screen.dart';
 import 'package:kudipay/features/qrcode/presentation/pages/qr_code_screen.dart';
-import 'package:kudipay/provider/funding/funding_provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_controllers.dart';
 import 'package:kudipay/provider/refresh/refresh_provider.dart';
 
 class AddMoneyScreen extends ConsumerStatefulWidget {

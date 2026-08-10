@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/services/transaction_pin_service.dart';
+import 'package:kudipay/features/transactionpin/data/transaction_pin_service.dart';
 
 // =============================================================================
 // TransactionPinBottomSheet

@@ -7,7 +7,7 @@ import 'package:kudipay/core/utils/responsive.dart';
 
 import 'package:kudipay/features/tier/domain/entities/tier_model.dart';
 import 'package:kudipay/features/tier/presentation/controllers/tier_provider.dart';
-import 'package:kudipay/features/wallet/presentation/controllers/wallet_provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_controllers.dart';
 
 // =============================================================================
 // AccountReadyScreen

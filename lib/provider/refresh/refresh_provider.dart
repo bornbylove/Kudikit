@@ -32,10 +32,9 @@
 // =============================================================================
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kudipay/features/wallet/presentation/controllers/wallet_provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_controllers.dart';
 import 'package:kudipay/features/transaction/presentation/controllers/transaction_provider.dart';
 import 'package:kudipay/features/request/presentation/controllers/request_provider.dart';
-import 'package:kudipay/provider/funding/funding_provider.dart';
 import 'package:flutter_riverpod/legacy.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 // RefreshState

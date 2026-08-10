@@ -13,7 +13,10 @@ import 'package:kudipay/features/bills/presentation/pages/electricity/electricit
 import 'package:kudipay/features/cashout/presentation/pages/cashout_menu_screen.dart';
 import 'package:kudipay/features/request/presentation/pages/request_menu_screen.dart';
 import 'package:kudipay/features/transfer/presentation/pages/single_transfer/transfer_menu_screen.dart';
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/kyc/presentation/controllers/kyc_controllers.dart';
+import 'package:kudipay/features/tier/presentation/controllers/tier_provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_controllers.dart';
+import 'package:kudipay/provider/connectivity/connectivity_provider.dart';
 import 'package:kudipay/provider/refresh/refresh_provider.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 

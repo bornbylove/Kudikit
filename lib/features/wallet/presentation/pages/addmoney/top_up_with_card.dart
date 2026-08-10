@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/model/bankmodel/bank_model.dart';
 import 'package:kudipay/features/otp/presentation/pages/otp_verification_screen.dart';
-import 'package:kudipay/provider/funding/funding_provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_controllers.dart';
 
 class CardTopUpFormScreen extends ConsumerStatefulWidget {
   const CardTopUpFormScreen({super.key});

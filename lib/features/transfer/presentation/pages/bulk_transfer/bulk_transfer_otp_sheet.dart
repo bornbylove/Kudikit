@@ -6,7 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_success.dart';
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:kudipay/features/transfer/presentation/controllers/transfer_controller.dart';
 
 /// Masks a phone number showing only the last 4 digits.
 /// e.g. "08124608695" → "*******8695"

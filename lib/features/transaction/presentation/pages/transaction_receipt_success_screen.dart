@@ -18,7 +18,7 @@ import 'package:intl/intl.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/model/bankmodel/bank_model.dart';
 import 'package:kudipay/features/wallet/presentation/pages/addmoney/add_money_screen.dart';
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/wallet/presentation/controllers/wallet_controllers.dart';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

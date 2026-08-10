@@ -3,7 +3,7 @@ import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/linkdevice/presentation/pages/sign_in_verify_email_screen.dart';
-import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/features/linkdevice/presentation/controllers/device_linking_provider.dart';
 
 class GetVerificationCodeScreen extends ConsumerStatefulWidget {
   const GetVerificationCodeScreen({super.key});

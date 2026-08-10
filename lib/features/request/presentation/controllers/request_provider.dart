@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/network/api_client.dart';
 import 'package:kudipay/core/network/dio_provider.dart';
 
+import 'package:kudipay/features/request/data/repositories/request_repository_impl.dart';
 import 'package:kudipay/features/request/domain/entities/request_model.dart';
+import 'package:kudipay/features/request/domain/repositories/request_repository.dart';
 
 import 'package:flutter_riverpod/legacy.dart';
 
@@ -29,8 +32,8 @@ class RequestProvider extends ChangeNotifier {
   final List<Contact> _recentContacts = [];
   final List<Contact> _allContacts = [];
 
-  final DioClient _client;
-  RequestProvider(this._client);
+  final RequestRepository _repository;
+  RequestProvider(this._repository);
 
   // Getters
   double? get amount => _amount;
@@ -161,22 +164,14 @@ class RequestProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Replace with your actual HTTP client instance
-      final response = await _client.get<Map<String, dynamic>>('/requests');
-      final raw = response.data!['requests'] as List<dynamic>;
+      final result = await _repository.getRequests();
 
-      _sentRequests.clear();
-      _receivedRequests.clear();
-
-      for (final r in raw) {
-        final request = MoneyRequest.fromJson(r as Map<String, dynamic>);
-        // Route to correct list based on requesterId
-        if (request.requesterId == 'current_user_id') {
-          _sentRequests.add(request);
-        } else {
-          _receivedRequests.add(request);
-        }
-      }
+      _sentRequests
+        ..clear()
+        ..addAll(result.sent);
+      _receivedRequests
+        ..clear()
+        ..addAll(result.received);
     } on KudiApiException catch (e) {
       debugPrint('Load requests error: ${e.message}');
       // Optionally expose error: _errorMessage = e.message;
@@ -237,6 +232,10 @@ class RequestProvider extends ChangeNotifier {
 }
 
 // Riverpod Provider
+final requestRepositoryProvider = Provider<RequestRepository>((ref) {
+  return RequestRepositoryImpl(ref.read(dioClientProvider));
+});
+
 final requestProvider = ChangeNotifierProvider<RequestProvider>((ref) {
-  return RequestProvider(ref.read(dioClientProvider));
+  return RequestProvider(ref.read(requestRepositoryProvider));
 });
