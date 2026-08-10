@@ -84,6 +84,7 @@ class VerifyOtpAndRegisterUseCase {
     required String phoneNumber,
     required String passcode,
     required String confirmPasscode,
+    String? referralCode,
   }) =>
       _repository.verifyOtpAndRegister(
         otpId: otpId,
@@ -92,6 +93,7 @@ class VerifyOtpAndRegisterUseCase {
         phoneNumber: phoneNumber,
         passcode: passcode,
         confirmPasscode: confirmPasscode,
+        referralCode: referralCode,
       );
 }
 
@@ -99,12 +101,12 @@ class VerifyOtpAndRegisterUseCase {
 // CompleteOnboardingUseCase
 // ─────────────────────────────────────────────────────────────────────────────
 
-class CompleteOnboardingUseCase {
+class SelectTierUseCase {
   final AuthRepository _repository;
-  const CompleteOnboardingUseCase(this._repository);
+  const SelectTierUseCase(this._repository);
 
-  Future<void> call({required int tierNumber}) =>
-      _repository.completeOnboarding(tierNumber: tierNumber);
+  Future<UserEntity> call({required int tierNumber}) =>
+      _repository.selectTier(tierNumber: tierNumber);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -121,6 +123,45 @@ class UpdateUserUseCase {
 // ─────────────────────────────────────────────────────────────────────────────
 // LogoutUseCase
 // ─────────────────────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Forgot-passcode — three ordered steps
+// ─────────────────────────────────────────────────────────────────────────────
+
+class SendForgotPasscodeOtpUseCase {
+  final AuthRepository _repository;
+  const SendForgotPasscodeOtpUseCase(this._repository);
+
+  Future<String> call({required String identifier}) =>
+      _repository.sendForgotPasscodeOtp(identifier: identifier);
+}
+
+class VerifyForgotPasscodeOtpUseCase {
+  final AuthRepository _repository;
+  const VerifyForgotPasscodeOtpUseCase(this._repository);
+
+  Future<void> call({required String otpReference, required String code}) =>
+      _repository.verifyForgotPasscodeOtp(
+        otpReference: otpReference,
+        code: code,
+      );
+}
+
+class ResetPasscodeUseCase {
+  final AuthRepository _repository;
+  const ResetPasscodeUseCase(this._repository);
+
+  Future<void> call({
+    required String otpReference,
+    required String newPasscode,
+    required String confirmPasscode,
+  }) =>
+      _repository.resetPasscode(
+        otpReference: otpReference,
+        newPasscode: newPasscode,
+        confirmPasscode: confirmPasscode,
+      );
+}
 
 class LogoutUseCase {
   final AuthRepository _repository;

@@ -265,14 +265,15 @@ class SelfieNotifier extends StateNotifier<SelfieState> {
     return path == null ? null : File(path);
   }
 
-  /// Validates the capture locally and retains it. Rejects a file that is
-  /// unreadable or too large to encode now, rather than at submit time.
+  /// Validates the capture locally and retains it.
+  ///
+  /// Only checks that the file is readable — size is enforced at submit time,
+  /// after compression, since compression brings virtually any camera photo
+  /// under the limit.
   Future<void> captureSelfie(String imagePath) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      // Encode-and-discard purely as a pre-flight size/readability check —
-      // the actual encoding happens in the repository at submit time.
-      await encodeImageFile(File(imagePath));
+      await assertImageReadable(File(imagePath));
       state = state.copyWith(
         isLoading: false,
         imagePath: imagePath,
@@ -367,6 +368,11 @@ final addressProvider = StateNotifierProvider<AddressNotifier, AddressData>(
 );
 
 final selectedStateProvider = StateProvider<String?>((ref) => null);
+
+/// Proof-of-address image, held until [SubmitAddressUseCase] consumes it.
+/// verify-address requires `utilityBillImageBase64`, so the address form
+/// cannot be submitted without one.
+final utilityBillProvider = StateProvider<File?>((ref) => null);
 
 final availableLgasProvider = Provider<List<String>>((ref) {
   final selectedState = ref.watch(selectedStateProvider);

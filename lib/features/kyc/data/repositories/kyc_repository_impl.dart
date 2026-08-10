@@ -7,7 +7,6 @@ import 'package:kudipay/features/kyc/data/repositories/kyc_request_builders.dart
 import 'package:kudipay/features/kyc/data/repositories/kyc_status_mapper.dart';
 import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 
-import 'package:dio/dio.dart';
 import 'package:kudipay/features/kyc/domain/repositories/kyc_repositories.dart';
 import 'package:kudipay/features/identity/domain/entities/document_data.dart';
 
@@ -33,10 +32,11 @@ class KycRepositoryImpl implements KycRepository {
       throw Exception('${idType.label} must be exactly 11 digits.');
     }
 
-    // Throws ImageTooLargeException / ImageUnreadableException before the
-    // request is attempted, so an oversized photo surfaces as a clear error
-    // rather than a send timeout.
-    final selfieBase64 = await encodeImageFile(selfieImage);
+    // Downscales and re-encodes before base64, then throws
+    // ImageTooLargeException / ImageUnreadableException before the request is
+    // attempted — so a problem photo surfaces as a clear error rather than a
+    // send timeout.
+    final selfieBase64 = await prepareImageForUpload(selfieImage);
 
     final res = await _client.post<Map<String, dynamic>>(
       kycVerifyPathFor(idType),
@@ -53,33 +53,57 @@ class KycRepositoryImpl implements KycRepository {
   }
 
   @override
-  Future<void> submitAddress(AddressEntity address) async {
-    await _client.post<void>(
-      '/kyc/address',
-      data: {
-        'state': address.state,
-        'city': address.city,
-        'lga': address.lga,
-        'landmark': address.landmark,
-        'street_name': address.streetName,
-        'house_number': address.houseNumber,
-      },
+  Future<KycStatusEntity> submitAddress(
+    AddressEntity address, {
+    required File utilityBill,
+  }) async {
+    final billBase64 = await prepareImageForUpload(utilityBill);
+
+    final res = await _client.post<Map<String, dynamic>>(
+      kVerifyAddressPath,
+      data: buildVerifyAddressBody(
+        houseNumber: address.houseNumber ?? '',
+        street: address.streetName ?? '',
+        lga: address.lga ?? '',
+        city: address.city ?? '',
+        state: address.state ?? '',
+        utilityBillImageBase64: billBase64,
+        landmark: address.landmark,
+        area: address.area,
+      ),
     );
+
+    return kycStatusFromResponse(res.data ?? const {});
   }
 
   @override
-  Future<void> uploadDocument({
-    required File file,
+  Future<KycStatusEntity> uploadDocument({
+    required File frontImage,
+    File? backImage,
     required DocumentType documentType,
   }) async {
-    final formData = FormData.fromMap({
-      'document': await MultipartFile.fromFile(
-        file.path,
-        filename: file.path.split('/').last,
-      ),
-      'document_type': documentType.name,
-    });
+    final wire = idDocumentTypeWire(documentType);
+    if (wire == null) {
+      throw ArgumentError.value(
+        documentType,
+        'documentType',
+        'is not a government ID — a utility bill is proof of address and '
+            'must be submitted via submitAddress()',
+      );
+    }
 
-    await _client.post<void>('/kyc/document', data: formData);
+    final frontBase64 = await prepareImageForUpload(frontImage);
+    final backBase64 = await prepareOptionalImageForUpload(backImage);
+
+    final res = await _client.post<Map<String, dynamic>>(
+      kVerifyIdDocumentPath,
+      data: buildVerifyIdDocumentBody(
+        documentTypeWire: wire,
+        frontImageBase64: frontBase64,
+        backImageBase64: backBase64,
+      ),
+    );
+
+    return kycStatusFromResponse(res.data ?? const {});
   }
 }

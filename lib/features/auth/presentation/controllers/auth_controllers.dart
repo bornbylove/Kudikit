@@ -46,14 +46,20 @@ final resendOtpUseCaseProvider =
     Provider((ref) => ResendOtpUseCase(ref.read(authRepositoryProvider)));
 final verifyOtpAndRegisterUseCaseProvider = Provider(
     (ref) => VerifyOtpAndRegisterUseCase(ref.read(authRepositoryProvider)));
-final completeOnboardingUseCaseProvider = Provider(
-    (ref) => CompleteOnboardingUseCase(ref.read(authRepositoryProvider)));
+final selectTierUseCaseProvider =
+    Provider((ref) => SelectTierUseCase(ref.read(authRepositoryProvider)));
 final updateUserUseCaseProvider =
     Provider((ref) => UpdateUserUseCase(ref.read(authRepositoryProvider)));
 final logoutUseCaseProvider =
     Provider((ref) => LogoutUseCase(ref.read(authRepositoryProvider)));
 final logoutAllUseCaseProvider =
     Provider((ref) => LogoutAllUseCase(ref.read(authRepositoryProvider)));
+final sendForgotPasscodeOtpUseCaseProvider = Provider(
+    (ref) => SendForgotPasscodeOtpUseCase(ref.read(authRepositoryProvider)));
+final verifyForgotPasscodeOtpUseCaseProvider = Provider(
+    (ref) => VerifyForgotPasscodeOtpUseCase(ref.read(authRepositoryProvider)));
+final resetPasscodeUseCaseProvider =
+    Provider((ref) => ResetPasscodeUseCase(ref.read(authRepositoryProvider)));
 
 // =============================================================================
 // AuthNotifier
@@ -65,7 +71,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final SendSignupOtpUseCase _sendOtp;
   final ResendOtpUseCase _resendOtp;
   final VerifyOtpAndRegisterUseCase _verifyAndRegister;
-  final CompleteOnboardingUseCase _completeOnboarding;
+  final SelectTierUseCase _selectTier;
   final UpdateUserUseCase _updateUser;
   final LogoutUseCase _logout;
   final LogoutAllUseCase _logoutAll;
@@ -76,7 +82,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required SendSignupOtpUseCase sendOtp,
     required ResendOtpUseCase resendOtp,
     required VerifyOtpAndRegisterUseCase verifyAndRegister,
-    required CompleteOnboardingUseCase completeOnboarding,
+    required SelectTierUseCase selectTier,
     required UpdateUserUseCase updateUser,
     required LogoutUseCase logout,
     required LogoutAllUseCase logoutAll,
@@ -85,7 +91,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         _sendOtp = sendOtp,
         _resendOtp = resendOtp,
         _verifyAndRegister = verifyAndRegister,
-        _completeOnboarding = completeOnboarding,
+        _selectTier = selectTier,
         _updateUser = updateUser,
         _logout = logout,
         _logoutAll = logoutAll,
@@ -160,6 +166,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String phoneNumber,
     required String passcode,
     required String confirmPasscode,
+    String? referralCode,
   }) async {
     state = state.loading();
     try {
@@ -170,9 +177,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
         phoneNumber: phoneNumber,
         passcode: passcode,
         confirmPasscode: confirmPasscode,
+        referralCode: referralCode,
       );
-      state =
-          state.unauthenticated('Registration successful. Please continue.');
+
+      // register returns AuthTokenResponse and the repository has already
+      // stored the tokens, so the user IS authenticated. Marking the state
+      // unauthenticated here left AuthState.user null, which stranded every
+      // new account on KycFlowManager's "Loading your information..." guard.
+      //
+      // Token is '' to match login() — AuthInterceptor reads the real token
+      // from storage on every request, so AuthState.token is not load-bearing.
+      state = state.authenticated(_toModel(user), '');
       debugPrint('[AuthNotifier] registered: ${user.userId}');
     } catch (e) {
       state = state.error(e.toString().replaceFirst('Exception: ', ''));
@@ -180,15 +195,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  // ── Onboarding ─────────────────────────────────────────────────────────────
+  // ── Tier selection ─────────────────────────────────────────────────────────
 
-  Future<void> completeOnboarding({required int tierNumber}) async {
+  /// Requests [tierNumber] and returns the tier the server actually granted,
+  /// which may be lower while KYC is still outstanding (the backend holds the
+  /// request in `pendingTier` until then).
+  Future<int> selectTier({required int tierNumber}) async {
     try {
-      await _completeOnboarding.call(tierNumber: tierNumber);
+      final user = await _selectTier.call(tierNumber: tierNumber);
       if (state.user != null) {
-        final updated = state.user!.copyWith(selectedTier: tierNumber);
+        final updated = state.user!.copyWith(selectedTier: user.selectedTier);
         state = state.copyWith(user: updated);
       }
+      return user.selectedTier;
     } catch (e) {
       state = state.error(e.toString().replaceFirst('Exception: ', ''));
       rethrow;
@@ -255,7 +274,7 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
     sendOtp: ref.read(sendSignupOtpUseCaseProvider),
     resendOtp: ref.read(resendOtpUseCaseProvider),
     verifyAndRegister: ref.read(verifyOtpAndRegisterUseCaseProvider),
-    completeOnboarding: ref.read(completeOnboardingUseCaseProvider),
+    selectTier: ref.read(selectTierUseCaseProvider),
     updateUser: ref.read(updateUserUseCaseProvider),
     logout: ref.read(logoutUseCaseProvider),
     logoutAll: ref.read(logoutAllUseCaseProvider),

@@ -33,17 +33,25 @@ class SubmitAddressUseCase {
   final KycRepository _repository;
   const SubmitAddressUseCase(this._repository);
 
-  Future<void> call(AddressEntity address) =>
-      _repository.submitAddress(address);
+  Future<KycStatusEntity> call(
+    AddressEntity address, {
+    required File utilityBill,
+  }) =>
+      _repository.submitAddress(address, utilityBill: utilityBill);
 }
 
 class UploadDocumentUseCase {
   final KycRepository _repository;
   const UploadDocumentUseCase(this._repository);
 
-  Future<void> call({
-    required File file,
+  Future<KycStatusEntity> call({
+    required File frontImage,
+    File? backImage,
     required DocumentType documentType,
   }) =>
-      _repository.uploadDocument(file: file, documentType: documentType);
+      _repository.uploadDocument(
+        frontImage: frontImage,
+        backImage: backImage,
+        documentType: documentType,
+      );
 }

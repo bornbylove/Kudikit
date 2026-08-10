@@ -25,8 +25,7 @@ class ApiResponse<T> {
         statusCode: statusCode,
       );
 
-  factory ApiResponse.failure(String message, {int? statusCode}) =>
-      ApiResponse(
+  factory ApiResponse.failure(String message, {int? statusCode}) => ApiResponse(
         success: false,
         message: message,
         statusCode: statusCode,

@@ -1,7 +1,4 @@
-// lib/features/auth/data/auth_service.dart
-//
-// Moved from: lib/services/auth_services.dart
-// Old path kept alive by shim at lib/services/auth_services.dart
+// lib/features/auth/data/auth_services.dart
 //
 // Request shapes below are verified against the backend's OpenAPI spec
 // (GET /v3/api-docs). Every response is enveloped as
@@ -11,8 +8,8 @@
 //   1. POST /api/v1/auth/send-otp   → { identifier?, phoneNumber?, email?, purpose* }
 //   2. POST /api/v1/auth/verify-otp → { otpReference*, code*, purpose* }
 //   3. POST /api/v1/auth/register   → { otpReference*, phoneNumber*, email*,
-//                                       fullName*, passcode*, confirmPasscode*,
-//                                       referralCode? }   ← NOT YET MIGRATED
+//                                       passcode*, confirmPasscode*,
+//                                       referralCode? }
 //
 // Login flow:
 //   POST /api/v1/auth/login         → { identifier*, passcode*,
@@ -23,17 +20,40 @@
 //   POST /api/v1/auth/logout        → { refreshToken }
 //   POST /api/v1/auth/logout-all    → (no body)
 //
-// STALE — these paths are absent from the spec and will not resolve:
-//   GET  /profile                          (used by verifyToken)
+// Session restore exchanges the refresh token via /auth/refresh-token — see
+// AuthRepositoryImpl.checkAuthStatus. There is no token-introspection endpoint.
+//
+// STALE — this path is absent from the spec and will not resolve:
 //   POST /profile/update-profile           (used by updateProfile)
-//   POST /auth/onboarding/complete         (superseded by /auth/select-tier)
 
 import 'package:flutter/foundation.dart';
 import 'package:kudipay/core/network/api_client.dart';
 import 'package:kudipay/model/user/user_info.dart';
 import 'package:kudipay/model/user/user_model.dart';
 import 'package:kudipay/core/utils/device/device_utility.dart';
-import 'package:kudipay/services/storage_services.dart';
+import 'package:kudipay/core/services/storage_services.dart';
+
+/// Maps the app's 1-based tier number onto the backend's tier enum.
+///
+/// Throws rather than defaulting: an unrecognised value silently becoming
+/// 'BASIC' would quietly downgrade a user who picked Pro or Mega, whereas the
+/// throw is caught by the tier screen and surfaces as a retryable error.
+String tierWireValue(int tierNumber) {
+  switch (tierNumber) {
+    case 1:
+      return 'BASIC';
+    case 2:
+      return 'PRO';
+    case 3:
+      return 'MEGA';
+    default:
+      throw ArgumentError.value(
+        tierNumber,
+        'tierNumber',
+        'Expected 1 (Basic), 2 (Pro) or 3 (Mega)',
+      );
+  }
+}
 
 /// The `purpose` discriminator required by send-otp / verify-otp.
 /// Wire values must match the backend's enum exactly.
@@ -78,30 +98,6 @@ class AuthService {
       rethrow;
     } catch (e) {
       throw KudiApiException('Failed to send OTP: ${e.toString()}');
-    }
-  }
-
-  // ── Verify Email OTP ───────────────────────────────────────────────────────
-  Future<Map<String, dynamic>> verifyEmail({
-    required String email,
-    required String code,
-    String otpId = '',
-  }) async {
-    try {
-      final response = await _client.post<Map<String, dynamic>>(
-        '/auth/verify-otp',
-        data: {
-          'email': email,
-          'otp': code,
-          if (otpId.isNotEmpty) 'otpId': otpId,
-          'action': 'registration',
-        },
-      );
-      return response.data!;
-    } on KudiApiException {
-      rethrow;
-    } catch (e) {
-      throw KudiApiException('Email verification failed: ${e.toString()}');
     }
   }
 
@@ -191,6 +187,9 @@ class AuthService {
   }
 
   // ── Refresh Token ──────────────────────────────────────────────────────────
+  // Exception types are preserved rather than flattened into KudiApiException:
+  // session restore has to tell "the server rejected this token" apart from
+  // "the device is offline", and only the former should end the session.
   Future<Map<String, dynamic>> refreshToken(String refreshToken) async {
     try {
       final response = await _client.post<Map<String, dynamic>>(
@@ -198,22 +197,10 @@ class AuthService {
         data: {'refreshToken': refreshToken},
       );
       return response.data!;
+    } on KudiException {
+      rethrow;
     } catch (e) {
       throw KudiApiException('Token refresh failed: ${e.toString()}');
-    }
-  }
-
-  // ── Verify Token ───────────────────────────────────────────────────────────
-  Future<bool> verifyToken(String token) async {
-    try {
-      final response = await _client.get<Map<String, dynamic>>('/profile');
-      return response.data != null;
-    } on KudiUnauthorizedException {
-      return false;
-    } catch (e) {
-      debugPrint(
-          '[AuthService] verifyToken network error — keeping session: $e');
-      return true;
     }
   }
 
@@ -274,24 +261,76 @@ class AuthService {
     }
   }
 
-  // ── Complete Onboarding ────────────────────────────────────────────────────
-  Future<Map<String, dynamic>> completeOnboarding({
-    required String bvn,
-    int? tierNumber,
+  // ── Forgot Passcode ────────────────────────────────────────────────────────
+  // Three steps, mirroring registration:
+  //   1. POST /auth/forgot-passcode/send-otp  { identifier?/phoneNumber?/email?,
+  //                                             purpose: FORGOT_PASSCODE }
+  //   2. POST /auth/verify-otp                { otpReference, code,
+  //                                             purpose: FORGOT_PASSCODE }
+  //   3. POST /auth/forgot-passcode/reset     { otpReference, newPasscode,
+  //                                             confirmPasscode }
+  //
+  // Step 2 is the shared verify-otp endpoint — ResetPasscodeRequest carries no
+  // `code` field, so the reference must already have been verified.
+  Future<Map<String, dynamic>> sendForgotPasscodeOtp({
+    String? identifier,
+    String? phoneNumber,
+    String? email,
   }) async {
     try {
       final response = await _client.post<Map<String, dynamic>>(
-        '/auth/onboarding/complete',
+        '/auth/forgot-passcode/send-otp',
         data: {
-          if (bvn.isNotEmpty) 'bvn': bvn,
-          if (tierNumber != null) 'tier': tierNumber,
+          if (identifier != null) 'identifier': identifier,
+          if (phoneNumber != null) 'phoneNumber': phoneNumber,
+          if (email != null) 'email': email,
+          'purpose': OtpPurpose.forgotPasscode.wire,
         },
       );
       return response.data!;
     } on KudiApiException {
       rethrow;
     } catch (e) {
-      throw KudiApiException('Onboarding failed: ${e.toString()}');
+      throw KudiApiException('Failed to send reset code: ${e.toString()}');
+    }
+  }
+
+  Future<Map<String, dynamic>> resetPasscode({
+    required String otpReference,
+    required String newPasscode,
+    required String confirmPasscode,
+  }) async {
+    try {
+      final response = await _client.post<Map<String, dynamic>>(
+        '/auth/forgot-passcode/reset',
+        data: {
+          'otpReference': otpReference,
+          'newPasscode': newPasscode,
+          'confirmPasscode': confirmPasscode,
+        },
+      );
+      return response.data!;
+    } on KudiApiException {
+      rethrow;
+    } catch (e) {
+      throw KudiApiException('Passcode reset failed: ${e.toString()}');
+    }
+  }
+
+  // ── Select Tier ────────────────────────────────────────────────────────────
+  // Replaces the old /auth/onboarding/complete call, which is not an endpoint
+  // this API has. Returns ApiResponseUserResponse.
+  Future<Map<String, dynamic>> selectTier({required int tierNumber}) async {
+    try {
+      final response = await _client.post<Map<String, dynamic>>(
+        '/auth/select-tier',
+        data: {'tier': tierWireValue(tierNumber)},
+      );
+      return response.data!;
+    } on KudiApiException {
+      rethrow;
+    } catch (e) {
+      throw KudiApiException('Tier selection failed: ${e.toString()}');
     }
   }
 

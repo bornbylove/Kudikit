@@ -11,7 +11,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:kudipay/services/storage_services.dart';
+import 'package:kudipay/core/services/storage_services.dart';
 
 /// Injects the `Authorization: Bearer <token>` header on every request.
 ///

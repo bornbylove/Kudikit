@@ -6,6 +6,7 @@
 // are worth asserting literally.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kudipay/features/identity/domain/entities/document_data.dart';
 import 'package:kudipay/features/kyc/data/repositories/kyc_request_builders.dart';
 import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 
@@ -76,6 +77,167 @@ void main() {
         selfieImageBase64: 'x',
       );
       expect(body.keys.length, 2);
+    });
+  });
+
+  group('idDocumentTypeWire', () {
+    test('maps each accepted type to its server enum value', () {
+      expect(idDocumentTypeWire(DocumentType.passport), 'PASSPORT');
+      expect(
+          idDocumentTypeWire(DocumentType.driversLicense), 'DRIVERS_LICENSE');
+      expect(idDocumentTypeWire(DocumentType.nationalId), 'NATIONAL_ID');
+      expect(idDocumentTypeWire(DocumentType.votersCard), 'VOTERS_CARD');
+    });
+
+    test('utility bill is not an ID document', () {
+      // It is proof of address and belongs to verify-address instead.
+      expect(idDocumentTypeWire(DocumentType.utilityBill), isNull);
+    });
+
+    test('kIdDocumentTypes contains exactly the mappable types', () {
+      final mappable = DocumentType.values
+          .where((t) => idDocumentTypeWire(t) != null)
+          .toList();
+      // Unordered: kIdDocumentTypes drives picker display order, which is a
+      // presentation choice and need not match enum declaration order.
+      expect(kIdDocumentTypes, unorderedEquals(mappable));
+      expect(kIdDocumentTypes.length, 4);
+      expect(kIdDocumentTypes.contains(DocumentType.utilityBill), isFalse);
+    });
+
+    test('every wire value is one the server declares', () {
+      const serverEnum = {
+        'PASSPORT',
+        'DRIVERS_LICENSE',
+        'NATIONAL_ID',
+        'VOTERS_CARD',
+      };
+      for (final t in kIdDocumentTypes) {
+        expect(serverEnum.contains(idDocumentTypeWire(t)), isTrue,
+            reason: '${t.name} -> ${idDocumentTypeWire(t)}');
+      }
+    });
+  });
+
+  group('buildVerifyIdDocumentBody', () {
+    test('includes the back image when supplied', () {
+      final body = buildVerifyIdDocumentBody(
+        documentTypeWire: 'NATIONAL_ID',
+        frontImageBase64: 'FRONT',
+        backImageBase64: 'BACK',
+      );
+      expect(body, {
+        'documentType': 'NATIONAL_ID',
+        'frontImageBase64': 'FRONT',
+        'backImageBase64': 'BACK',
+      });
+    });
+
+    test('omits the back image key entirely when null', () {
+      final body = buildVerifyIdDocumentBody(
+        documentTypeWire: 'PASSPORT',
+        frontImageBase64: 'FRONT',
+      );
+      // Sending an explicit null could fail the server's string validation —
+      // the key must be absent, not present-and-null.
+      expect(body.containsKey('backImageBase64'), isFalse);
+      expect(body, {
+        'documentType': 'PASSPORT',
+        'frontImageBase64': 'FRONT',
+      });
+    });
+
+    test('never emits the pre-audit field names', () {
+      final body = buildVerifyIdDocumentBody(
+        documentTypeWire: 'PASSPORT',
+        frontImageBase64: 'x',
+      );
+      expect(body.containsKey('document'), isFalse);
+      expect(body.containsKey('document_type'), isFalse);
+    });
+  });
+
+  group('kVerifyIdDocumentPath', () {
+    test('is relative to the /api/v1 base url', () {
+      expect(kVerifyIdDocumentPath, '/auth/kyc/verify-id-document');
+      expect(kVerifyIdDocumentPath.contains('/api/v1'), isFalse);
+    });
+  });
+
+  group('buildVerifyAddressBody', () {
+    Map<String, dynamic> build({String? landmark, String? area}) =>
+        buildVerifyAddressBody(
+          houseNumber: '12',
+          street: 'Adeola Odeku',
+          lga: 'Eti-Osa',
+          city: 'Lagos',
+          state: 'Lagos',
+          utilityBillImageBase64: 'BILL',
+          landmark: landmark,
+          area: area,
+        );
+
+    test('emits the documented field names', () {
+      expect(build(), {
+        'houseNumber': '12',
+        'street': 'Adeola Odeku',
+        'lga': 'Eti-Osa',
+        'city': 'Lagos',
+        'state': 'Lagos',
+        'utilityBillImageBase64': 'BILL',
+      });
+    });
+
+    test('never emits the pre-audit snake_case names', () {
+      final body = build();
+      expect(body.containsKey('street_name'), isFalse);
+      expect(body.containsKey('house_number'), isFalse);
+    });
+
+    test('always includes every required key', () {
+      // They are minLength:0 server-side, so presence matters, not content.
+      final body = buildVerifyAddressBody(
+        houseNumber: '',
+        street: '',
+        lga: '',
+        city: '',
+        state: '',
+        utilityBillImageBase64: 'BILL',
+      );
+      for (final key in [
+        'houseNumber',
+        'street',
+        'lga',
+        'city',
+        'state',
+        'utilityBillImageBase64',
+      ]) {
+        expect(body.containsKey(key), isTrue, reason: key);
+      }
+    });
+
+    test('includes the optional fields when populated', () {
+      final body = build(landmark: 'Near the mall', area: 'Victoria Island');
+      expect(body['landmark'], 'Near the mall');
+      expect(body['area'], 'Victoria Island');
+    });
+
+    test('omits optional fields when null or blank', () {
+      expect(build().containsKey('landmark'), isFalse);
+      expect(build().containsKey('area'), isFalse);
+      expect(build(landmark: '', area: '').containsKey('landmark'), isFalse);
+      expect(build(landmark: '', area: '').containsKey('area'), isFalse);
+    });
+
+    test('the utility bill is always present — it is required', () {
+      expect(build()['utilityBillImageBase64'], 'BILL');
+    });
+  });
+
+  group('kVerifyAddressPath', () {
+    test('is relative to the /api/v1 base url', () {
+      expect(kVerifyAddressPath, '/auth/kyc/verify-address');
+      expect(kVerifyAddressPath.contains('/api/v1'), isFalse);
     });
   });
 }

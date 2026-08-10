@@ -40,6 +40,13 @@ String? normalizeNigerianPhone(String raw) {
   return '+234$digits';
 }
 
+/// True when [raw] looks like a Nigerian mobile number rather than an email.
+///
+/// Used to decide whether a single "email or phone" field should be sent as
+/// `phoneNumber` or `email` — the OTP endpoints take them as separate fields.
+bool looksLikeNigerianPhone(String raw) =>
+    normalizeNigerianPhone(raw) != null && !raw.contains('@');
+
 /// A user-facing validation message, or null when [raw] is a valid number.
 String? nigerianPhoneError(String raw) {
   final trimmed = raw.trim();

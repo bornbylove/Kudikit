@@ -21,8 +21,8 @@ import 'package:kudipay/core/services/notification/notification_navigator_servic
 import 'package:kudipay/core/services/notification/notification_services.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
-import 'package:kudipay/provider/provider.dart';
-import 'package:kudipay/services/connectivity_service.dart';
+import 'package:kudipay/provider/connectivity/connectivity_provider.dart';
+import 'package:kudipay/core/services/connectivity_service.dart';
 import 'package:camera/camera.dart';
 
 // FIXED: provides an empty-list default so watching the provider before

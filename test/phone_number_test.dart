@@ -75,6 +75,38 @@ void main() {
     });
   });
 
+  group('looksLikeNigerianPhone', () {
+    // Decides whether a single "email or phone" field is sent as phoneNumber
+    // or email — the OTP endpoints take them as separate fields.
+    test('accepts every phone shape', () {
+      for (final input in [
+        '07015697383',
+        '7015697383',
+        '+2347015697383',
+        '2347015697383',
+        '0701 569 7383',
+      ]) {
+        expect(looksLikeNigerianPhone(input), isTrue, reason: input);
+      }
+    });
+
+    test('rejects emails', () {
+      for (final input in [
+        'user@example.com',
+        'abrahamchidubem@gmail.com',
+        '07015697383@example.com',
+      ]) {
+        expect(looksLikeNigerianPhone(input), isFalse, reason: input);
+      }
+    });
+
+    test('rejects anything that is neither', () {
+      expect(looksLikeNigerianPhone(''), isFalse);
+      expect(looksLikeNigerianPhone('not a phone'), isFalse);
+      expect(looksLikeNigerianPhone('12345'), isFalse);
+    });
+  });
+
   group('nigerianPhoneError', () {
     test('returns null for a valid number', () {
       expect(nigerianPhoneError('07015697383'), isNull);

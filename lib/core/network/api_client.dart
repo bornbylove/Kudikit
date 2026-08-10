@@ -28,8 +28,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kudipay/core/network/app_exception_handler.dart';
 import 'package:kudipay/core/network/dio_interceptor.dart';
-import 'package:kudipay/services/connectivity_service.dart';
-import 'package:kudipay/services/storage_services.dart';
+import 'package:kudipay/core/services/connectivity_service.dart';
+import 'package:kudipay/core/services/storage_services.dart';
 
 // Re-export kBaseUrl so callers that imported it from here still work.
 export 'package:kudipay/core/config/network_config.dart';

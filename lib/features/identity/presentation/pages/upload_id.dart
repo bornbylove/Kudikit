@@ -9,6 +9,7 @@ import 'package:kudipay/model/user/user_info.dart';
 import 'package:kudipay/features/identity/presentation/pages/confirm_info.dart';
 
 import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:kudipay/features/kyc/data/repositories/kyc_request_builders.dart';
 import 'package:kudipay/features/kyc/presentation/controllers/kyc_controllers.dart';
 import 'dart:io';
 
@@ -97,7 +98,10 @@ class UploadIdCardScreen extends ConsumerWidget {
                           hint: const Text('Select Document Type'),
                           isExpanded: true,
                           icon: const Icon(Icons.keyboard_arrow_down),
-                          items: DocumentType.values.map((type) {
+                          // Only government IDs — the server's documentType
+                          // enum has no utility bill, which is proof of
+                          // address and is submitted on the address step.
+                          items: kIdDocumentTypes.map((type) {
                             return DropdownMenuItem<DocumentType>(
                               value: type,
                               child: Text(type.displayName),
@@ -212,12 +216,24 @@ class UploadIdCardScreen extends ConsumerWidget {
                             );
 
                             try {
-                              // Persist document verification flag so
+                              // Actually submit the document. Previously this
+                              // only set a local flag, so the picked file was
+                              // never sent anywhere.
+                              final kyc = await ref
+                                  .read(uploadDocumentUseCaseProvider)
+                                  .call(
+                                    frontImage: documentData.uploadedFile!,
+                                    documentType: documentData.documentType!,
+                                  );
+
+                              // Mirror the server's verdict locally so
                               // KycFlowManager skips this step on re-entry.
+                              // The server may hold it for manual review, in
+                              // which case it is not verified yet.
                               await ref
                                   .read(authProvider.notifier)
                                   .updateKycStatus(
-                                    isDocumentVerified: true,
+                                    isDocumentVerified: kyc.documentVerified,
                                   );
 
                               // Prefer UserInfo from storage (set during ID

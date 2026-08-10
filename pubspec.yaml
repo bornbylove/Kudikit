@@ -24,7 +24,6 @@ dependencies:
   riverpod_annotation:
 
   # Forms & Validation
-  form_field_validator:
   pinput:
 
   # UI Components
@@ -55,6 +54,10 @@ dependencies:
   # Media & Files
   camera: 0.12.0+2
   image_picker:
+  # Downscales KYC images before base64 encoding. CameraController produces
+  # full-resolution files with no quality option, and base64 inflates them a
+  # further ~33% — without this, selfies exceed the payload limit.
+  flutter_image_compress: ^2.3.0
   file_picker:
   csv: ^8.0.0
   permission_handler:

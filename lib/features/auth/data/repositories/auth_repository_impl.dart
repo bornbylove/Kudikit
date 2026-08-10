@@ -5,6 +5,8 @@
 // layer simultaneously. Everything above this uses only domain types.
 
 import 'package:flutter/foundation.dart';
+import 'package:kudipay/core/network/app_exception_handler.dart';
+import 'package:kudipay/core/utils/phone_number.dart';
 import 'package:kudipay/features/auth/data/auth_services.dart';
 
 import 'package:kudipay/features/auth/domain/entities/user_entities.dart';
@@ -13,7 +15,7 @@ import 'package:kudipay/model/user/user_model.dart';
 import 'package:kudipay/model/user/user_model_extension.dart';
 // ADD
 
-import 'package:kudipay/services/storage_services.dart';
+import 'package:kudipay/core/services/storage_services.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthService _authService;
@@ -65,15 +67,53 @@ class AuthRepositoryImpl implements AuthRepository {
     final model = await _storage.getUserModel();
     if (token == null || model == null) return null;
 
-    final isValid = await _authService.verifyToken(token);
-    if (!isValid) {
-      await _storage.clearAuth();
-      return null;
+    // Validate by exchanging the refresh token for a fresh access token.
+    // This previously called GET /profile, which this API does not have — the
+    // 404 fell through to the catch-all and every session was reported valid,
+    // so a revoked or expired token still restored a "logged in" app.
+    final refreshToken = await _storage.getRefreshToken();
+    if (refreshToken == null || refreshToken.isEmpty) {
+      // Nothing to validate against. Keep the session: the access token will
+      // be rejected on first use, and AuthInterceptor clears storage on 401.
+      return model.toEntity();
     }
 
-    final updated = model.copyWith(lastLogin: DateTime.now());
-    await _storage.saveUserModel(updated);
-    return updated.toEntity();
+    try {
+      final res = await _authService.refreshToken(refreshToken);
+
+      if (!_isSuccess(res)) {
+        await _storage.clearAuth();
+        return null;
+      }
+
+      final access = _extractToken(res);
+      if (access == null) {
+        await _storage.clearAuth();
+        return null;
+      }
+      await _storage.saveAuthToken(access);
+
+      // The backend returns a refreshToken alongside the access token, so
+      // persist it in case refresh tokens are rotated on use.
+      final rotated = _extractRefreshToken(res);
+      if (rotated != null && rotated.isNotEmpty) {
+        await _storage.saveRefreshToken(rotated);
+      }
+
+      final updated = model.copyWith(lastLogin: DateTime.now());
+      await _storage.saveUserModel(updated);
+      return updated.toEntity();
+    } on KudiUnauthorizedException {
+      // The only case where the server actively rejected the session.
+      await _storage.clearAuth();
+      return null;
+    } catch (e) {
+      // Offline, timeout or a server-side fault — keep the session rather than
+      // signing the user out because their connection dropped on launch.
+      debugPrint(
+          '[AuthRepository] session refresh failed, keeping session: $e');
+      return model.toEntity();
+    }
   }
 
   @override
@@ -157,6 +197,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String phoneNumber,
     required String passcode,
     required String confirmPasscode,
+    String? referralCode,
   }) async {
     // Step 1: verify OTP
     // `otpId` carries the server's otpReference — the domain param keeps its
@@ -183,6 +224,9 @@ class AuthRepositoryImpl implements AuthRepository {
           phoneNumber: phoneNumber,
           passcode: passcode,
           confirmPasscode: confirmPasscode,
+          referralCode: (referralCode != null && referralCode.isNotEmpty)
+              ? referralCode
+              : null,
         )
         .timeout(const Duration(seconds: 30),
             onTimeout: () => throw Exception('Request timed out.'));
@@ -219,16 +263,102 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> completeOnboarding({required int tierNumber}) async {
-    await _authService.completeOnboarding(
-      bvn: (await _storage.getUserModel())?.bvn ?? '',
-      tierNumber: tierNumber,
-    );
+  Future<UserEntity> selectTier({required int tierNumber}) async {
+    final res = await _authService.selectTier(tierNumber: tierNumber);
+
+    if (!_isSuccess(res)) {
+      throw Exception(res['message'] ?? 'Could not save your tier.');
+    }
+
+    final userJson = _extractUser(res) ?? _payload(res);
+    final existing = await _storage.getUserModel();
+
+    // The response is a UserResponse, which carries no KYC flags — merge onto
+    // the stored model so selecting a tier does not wipe verification state.
+    final updated = UserModel.fromUserResponse(userJson);
+    final merged = existing == null
+        ? updated
+        : existing.copyWith(
+            name: updated.name ?? existing.name,
+            selectedTier: updated.selectedTier,
+          );
+
+    await _storage.saveUserModel(merged);
+    return merged.toEntity();
   }
 
   @override
   Future<void> updateUser(UserEntity user) async {
     await _storage.saveUserModel(UserModelX.fromEntity(user));
+  }
+
+  @override
+  Future<String> sendForgotPasscodeOtp({required String identifier}) async {
+    final trimmed = identifier.trim();
+    final phone = normalizeNigerianPhone(trimmed);
+
+    // send-otp takes email and phoneNumber as distinct fields, so route the
+    // single input to whichever it actually is.
+    final res = await _authService
+        .sendForgotPasscodeOtp(
+          phoneNumber: looksLikeNigerianPhone(trimmed) ? phone : null,
+          email: looksLikeNigerianPhone(trimmed) ? null : trimmed,
+        )
+        .timeout(const Duration(seconds: 30),
+            onTimeout: () => throw Exception('Request timed out.'));
+
+    if (!_isSuccess(res)) {
+      throw Exception(res['message'] ?? 'Could not send the reset code.');
+    }
+
+    final reference = _extractOtpReference(res, '');
+    if (reference.isEmpty) {
+      throw Exception('Could not start the reset — no reference returned.');
+    }
+    return reference;
+  }
+
+  @override
+  Future<void> verifyForgotPasscodeOtp({
+    required String otpReference,
+    required String code,
+  }) async {
+    final res = await _authService
+        .verifyOtp(
+          otpReference: otpReference,
+          code: code,
+          purpose: OtpPurpose.forgotPasscode,
+        )
+        .timeout(const Duration(seconds: 30),
+            onTimeout: () => throw Exception('Request timed out.'));
+
+    if (!_isSuccess(res)) {
+      throw Exception(res['message'] ?? 'That code is not valid.');
+    }
+  }
+
+  @override
+  Future<void> resetPasscode({
+    required String otpReference,
+    required String newPasscode,
+    required String confirmPasscode,
+  }) async {
+    final res = await _authService
+        .resetPasscode(
+          otpReference: otpReference,
+          newPasscode: newPasscode,
+          confirmPasscode: confirmPasscode,
+        )
+        .timeout(const Duration(seconds: 30),
+            onTimeout: () => throw Exception('Request timed out.'));
+
+    if (!_isSuccess(res)) {
+      throw Exception(res['message'] ?? 'Could not reset your passcode.');
+    }
+
+    // The old passcode is no longer valid anywhere — drop any local session so
+    // the user signs in fresh with the new one.
+    await _storage.clearAuth();
   }
 
   @override

@@ -33,6 +33,8 @@ abstract interface class AuthRepository {
 
   /// Verifies [otp] then registers the account.
   /// Returns the new [UserEntity] (token may not be present until login).
+  /// [referralCode] must be supplied here — RegisterRequest is the only place
+  /// in the API that accepts one, so it cannot be attached after registration.
   Future<UserEntity> verifyOtpAndRegister({
     required String otpId,
     required String otp,
@@ -40,13 +42,37 @@ abstract interface class AuthRepository {
     required String phoneNumber,
     required String passcode,
     required String confirmPasscode,
+    String? referralCode,
   });
 
-  /// Marks onboarding complete for the authenticated user.
-  Future<void> completeOnboarding({required int tierNumber});
+  /// Requests [tierNumber] (1 Basic, 2 Pro, 3 Mega) for the authenticated user.
+  ///
+  /// Returns the server's updated user. The granted tier may differ from the
+  /// one requested — the backend tracks a separate `pendingTier` while KYC is
+  /// outstanding — so callers should use the returned value rather than
+  /// assuming the request was granted.
+  Future<UserEntity> selectTier({required int tierNumber});
 
   /// Persists [user] changes locally (e.g. after KYC updates).
   Future<void> updateUser(UserEntity user);
+
+  /// Starts a passcode reset for [identifier] (email or phone).
+  /// Returns the otpReference to carry through the remaining two steps.
+  Future<String> sendForgotPasscodeOtp({required String identifier});
+
+  /// Verifies the reset code. Must succeed before [resetPasscode] is called —
+  /// the reset endpoint takes no code of its own.
+  Future<void> verifyForgotPasscodeOtp({
+    required String otpReference,
+    required String code,
+  });
+
+  /// Sets a new passcode against a verified [otpReference].
+  Future<void> resetPasscode({
+    required String otpReference,
+    required String newPasscode,
+    required String confirmPasscode,
+  });
 
   /// Clears all local session data and calls the logout endpoint.
   Future<void> logout();

@@ -1,20 +1,46 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/features/address/domain/entities/nigeria_state.dart';
+import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 
-import 'package:kudipay/provider/provider.dart';
+// provider.dart re-exports the KYC controllers (addressProvider,
+// utilityBillProvider, submitAddressUseCaseProvider).
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
+import 'package:kudipay/features/kyc/presentation/controllers/kyc_controllers.dart';
 import 'package:kudipay/features/identity/presentation/pages/upload_id.dart';
 
 class AddressVerificationScreen extends ConsumerWidget {
   const AddressVerificationScreen({super.key});
+
+  Future<void> _pickUtilityBill(WidgetRef ref) async {
+    try {
+      final result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png'],
+      );
+      final path = result?.files.single.path;
+      if (path != null) {
+        ref.read(utilityBillProvider.notifier).state = File(path);
+      }
+    } catch (e) {
+      debugPrint('Error picking utility bill: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final addressData = ref.watch(addressProvider);
     final selectedState = ref.watch(selectedStateProvider);
     final availableLgas = ref.watch(availableLgasProvider);
+    final utilityBill = ref.watch(utilityBillProvider);
+    // verify-address requires utilityBillImageBase64, so the form is not
+    // submittable on the text fields alone.
+    final canSubmit = addressData.isComplete && utilityBill != null;
 
     return Scaffold(
       backgroundColor: Color(0xFFF9F9F9),
@@ -192,25 +218,119 @@ class AddressVerificationScreen extends ConsumerWidget {
                   },
                 ),
               ),
+              SizedBox(height: AppLayout.scaleHeight(context, 24)),
+
+              // -- Proof of address ------------------------------------------
+              Text(
+                'Utility Bill',
+                style: TextStyle(
+                  fontSize: AppLayout.fontSize(context, 14),
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+              SizedBox(height: AppLayout.scaleHeight(context, 8)),
+              GestureDetector(
+                onTap: () => _pickUtilityBill(ref),
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppLayout.scaleWidth(context, 16),
+                    vertical: AppLayout.scaleHeight(context, 16),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                        BorderRadius.circular(AppLayout.scaleWidth(context, 8)),
+                    border: Border.all(
+                      color: utilityBill != null
+                          ? AppColors.primaryTeal
+                          : Colors.grey[300]!,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        utilityBill != null
+                            ? Icons.check_circle
+                            : Icons.upload_file,
+                        color: utilityBill != null
+                            ? AppColors.primaryTeal
+                            : Colors.grey,
+                        size: AppLayout.scaleWidth(context, 20),
+                      ),
+                      SizedBox(width: AppLayout.scaleWidth(context, 12)),
+                      Expanded(
+                        child: Text(
+                          utilityBill != null
+                              ? utilityBill.path
+                                  .split(Platform.pathSeparator)
+                                  .last
+                              : 'Upload a recent utility bill',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: AppLayout.fontSize(context, 14),
+                            color: utilityBill != null
+                                ? Colors.black87
+                                : Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
               SizedBox(height: AppLayout.scaleHeight(context, 40)),
               SizedBox(
                 width: double.infinity,
                 height: AppLayout.scaleHeight(context, 52),
                 child: ElevatedButton(
-                  onPressed: addressData.isComplete
+                  onPressed: canSubmit
                       ? () async {
-                          // ✅ Update auth state
-                          await ref.read(authProvider.notifier).updateKycStatus(
-                                isAddressVerified: true,
-                              );
+                          try {
+                            // Actually submit — this previously only set a
+                            // local flag and sent nothing to the server.
+                            final kyc = await ref
+                                .read(submitAddressUseCaseProvider)
+                                .call(
+                                  AddressEntity(
+                                    state: addressData.state,
+                                    city: addressData.city,
+                                    lga: addressData.lga,
+                                    landmark: addressData.landmark,
+                                    streetName: addressData.streetName,
+                                    houseNumber: addressData.houseNumber,
+                                  ),
+                                  utilityBill: utilityBill,
+                                );
 
-                          if (context.mounted) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const UploadIdCardScreen(),
-                              ),
-                            );
+                            // Address verification is agent-visited, so the
+                            // server usually returns PENDING_AGENT_VISIT
+                            // rather than VERIFIED. Mirror its verdict.
+                            await ref
+                                .read(authProvider.notifier)
+                                .updateKycStatus(
+                                  isAddressVerified: kyc.addressVerified,
+                                );
+
+                            if (context.mounted) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const UploadIdCardScreen(),
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Error: ${e.toString()}'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
                           }
                         }
                       : null,
@@ -226,8 +346,7 @@ class AddressVerificationScreen extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: AppLayout.fontSize(context, 16),
                       fontWeight: FontWeight.w600,
-                      color:
-                          addressData.isComplete ? Colors.white : Colors.grey,
+                      color: canSubmit ? Colors.white : Colors.grey,
                     ),
                   ),
                 ),

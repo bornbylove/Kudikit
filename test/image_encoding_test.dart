@@ -115,4 +115,156 @@ void main() {
       expect(encoded.length, 4000);
     });
   });
+
+  group('prepareImageForUpload', () {
+    // The real compressor needs a platform channel, so these use a fake that
+    // returns a size derived from the requested quality.
+    ImageCompressor fakeCompressor(Map<int, int> sizeByQuality,
+        {List<int>? seenQualities, List<int>? seenDimensions}) {
+      return (String path,
+          {required int quality, required int maxDimension}) async {
+        seenQualities?.add(quality);
+        seenDimensions?.add(maxDimension);
+        final size = sizeByQuality[quality];
+        return size == null ? null : Uint8List(size);
+      };
+    }
+
+    test('returns the first compression that fits', () async {
+      final seen = <int>[];
+      final f = fileWith(List.filled(9000, 1));
+
+      final result = await prepareImageForUpload(
+        f,
+        maxBytes: 100,
+        qualityLadder: const [85, 70, 55],
+        compressor:
+            fakeCompressor({85: 50, 70: 20, 55: 10}, seenQualities: seen),
+      );
+
+      expect(base64Decode(result).length, 50);
+      // Stops at the first success — no needless extra passes.
+      expect(seen, [85]);
+    });
+
+    test('steps down the ladder until it fits', () async {
+      final seen = <int>[];
+      final f = fileWith(List.filled(9000, 1));
+
+      final result = await prepareImageForUpload(
+        f,
+        maxBytes: 100,
+        qualityLadder: const [85, 70, 55],
+        compressor:
+            fakeCompressor({85: 500, 70: 300, 55: 90}, seenQualities: seen),
+      );
+
+      expect(base64Decode(result).length, 90);
+      expect(seen, [85, 70, 55]);
+    });
+
+    test('throws when even the lowest quality is too large', () async {
+      final f = fileWith(List.filled(9000, 1));
+
+      expect(
+        () => prepareImageForUpload(
+          f,
+          maxBytes: 100,
+          qualityLadder: const [85, 55],
+          compressor: fakeCompressor({85: 900, 55: 800}),
+        ),
+        throwsA(isA<ImageTooLargeException>()),
+      );
+    });
+
+    test('reports the smallest achieved size in the error', () async {
+      final f = fileWith(List.filled(9000, 1));
+
+      try {
+        await prepareImageForUpload(
+          f,
+          maxBytes: 100,
+          qualityLadder: const [85, 55],
+          compressor: fakeCompressor({85: 900, 55: 800}),
+        );
+        fail('expected ImageTooLargeException');
+      } on ImageTooLargeException catch (e) {
+        expect(e.actualBytes, 800);
+        expect(e.maxBytes, 100);
+      }
+    });
+
+    test('falls back to the raw file when compression is unavailable',
+        () async {
+      // Compressor returns null, as it does when the plugin has no platform
+      // implementation.
+      final f = fileWith([1, 2, 3, 4, 5]);
+
+      final result = await prepareImageForUpload(
+        f,
+        maxBytes: 100,
+        compressor: (path,
+                {required int quality, required int maxDimension}) async =>
+            null,
+      );
+
+      expect(result, base64Encode([1, 2, 3, 4, 5]));
+    });
+
+    test('fallback still enforces the size limit', () async {
+      final f = fileWith(List.filled(500, 9));
+
+      expect(
+        () => prepareImageForUpload(
+          f,
+          maxBytes: 100,
+          compressor: (path,
+                  {required int quality, required int maxDimension}) async =>
+              null,
+        ),
+        throwsA(isA<ImageTooLargeException>()),
+      );
+    });
+
+    test('passes the configured max dimension through', () async {
+      final dims = <int>[];
+      final f = fileWith(List.filled(9000, 1));
+
+      await prepareImageForUpload(
+        f,
+        maxBytes: 100,
+        maxDimension: 720,
+        qualityLadder: const [85],
+        compressor: fakeCompressor({85: 50}, seenDimensions: dims),
+      );
+
+      expect(dims, [720]);
+    });
+
+    test('throws when the file does not exist', () async {
+      final missing = File('${tmp.path}${Platform.pathSeparator}gone.jpg');
+      expect(
+        () => prepareImageForUpload(missing),
+        throwsA(isA<ImageUnreadableException>()),
+      );
+    });
+  });
+
+  group('prepareOptionalImageForUpload', () {
+    test('returns null for a null file', () async {
+      expect(await prepareOptionalImageForUpload(null), isNull);
+    });
+  });
+
+  group('defaults', () {
+    test('quality ladder descends', () {
+      for (var i = 1; i < kQualityLadder.length; i++) {
+        expect(kQualityLadder[i], lessThan(kQualityLadder[i - 1]));
+      }
+    });
+
+    test('max dimension keeps enough detail for face/document matching', () {
+      expect(kMaxImageDimension, greaterThanOrEqualTo(1024));
+    });
+  });
 }

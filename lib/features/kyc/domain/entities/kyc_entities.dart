@@ -82,6 +82,10 @@ class AddressEntity {
   final String? streetName;
   final String? houseNumber;
 
+  /// Optional neighbourhood/estate. Accepted by verify-address but not yet
+  /// collected by the address form.
+  final String? area;
+
   const AddressEntity({
     this.state,
     this.city,
@@ -89,6 +93,7 @@ class AddressEntity {
     this.landmark,
     this.streetName,
     this.houseNumber,
+    this.area,
   });
 
   bool get isComplete =>
@@ -106,6 +111,7 @@ class AddressEntity {
     String? landmark,
     String? streetName,
     String? houseNumber,
+    String? area,
   }) =>
       AddressEntity(
         state: state ?? this.state,
@@ -114,6 +120,7 @@ class AddressEntity {
         landmark: landmark ?? this.landmark,
         streetName: streetName ?? this.streetName,
         houseNumber: houseNumber ?? this.houseNumber,
+        area: area ?? this.area,
       );
 }
 
