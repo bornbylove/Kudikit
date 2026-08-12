@@ -10,6 +10,7 @@ import 'package:kudipay/features/identity/presentation/pages/confirm_info.dart';
 // set of duplicates that posted to an endpoint the backend does not have.
 import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 import 'package:kudipay/features/kyc/presentation/controllers/kyc_controllers.dart';
+import 'package:kudipay/features/selfie/presentation/pages/selfie_capture_screen.dart';
 
 class IdVerificationScreen extends ConsumerStatefulWidget {
   const IdVerificationScreen({super.key});
@@ -461,6 +462,27 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
     await ref
         .read(idVerificationProvider.notifier)
         .verifyId(_idNumberController.text, selfie);
+
+    if (!mounted) return;
+
+    // Liveness failed. The stored selfie will fail again identically, so drop
+    // it and send the user back to retake rather than leaving them tapping
+    // Verify on a photo that cannot pass.
+    if (ref.read(idVerificationProvider).requiresSelfieRetake) {
+      ref.read(selfieStateProvider.notifier).reset();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(ref.read(idVerificationProvider).error ??
+              'Please retake your selfie.'),
+          backgroundColor: AppColors.avatarOrange,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const SelfieCaptureScreen()),
+      );
+    }
   }
 
   void _handleNext() {

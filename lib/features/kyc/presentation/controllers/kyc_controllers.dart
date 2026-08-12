@@ -52,11 +52,17 @@ class IdVerificationState {
   final String? error;
   final Map<String, dynamic>? data;
 
+  /// True when the failure was the liveness check rather than the ID itself.
+  /// The stored selfie is unusable, so the UI must send the user back to
+  /// retake it — retrying with the same image fails identically.
+  final bool requiresSelfieRetake;
+
   const IdVerificationState({
     required this.idType,
     this.status = VerificationStatus.idle,
     this.error,
     this.data,
+    this.requiresSelfieRetake = false,
   });
 
   IdVerificationState copyWith({
@@ -64,12 +70,14 @@ class IdVerificationState {
     VerificationStatus? status,
     String? error,
     Map<String, dynamic>? data,
+    bool requiresSelfieRetake = false,
   }) =>
       IdVerificationState(
         idType: idType ?? this.idType,
         status: status ?? this.status,
         error: error,
         data: data ?? this.data,
+        requiresSelfieRetake: requiresSelfieRetake,
       );
 }
 
@@ -107,6 +115,20 @@ class IdVerificationController extends StateNotifier<IdVerificationState> {
         idType: state.idType,
         selfieImage: selfieImage,
       );
+
+      // A 2xx does not mean the person passed. Dojah scores the selfie and
+      // the backend only sets livenessVerified above its threshold, so an
+      // unchecked success here would wave through a failed liveness check.
+      if (!status.livenessVerified) {
+        state = state.copyWith(
+          status: VerificationStatus.error,
+          error: 'We could not confirm it is you. Please retake your selfie '
+              'in good lighting, looking straight at the camera.',
+          requiresSelfieRetake: true,
+        );
+        return;
+      }
+
       state = state.copyWith(
         status: VerificationStatus.success,
         data: {

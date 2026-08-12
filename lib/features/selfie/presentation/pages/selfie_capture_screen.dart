@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:kudipay/core/utils/face_check.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
@@ -74,7 +77,6 @@ class _SelfieCaptureScreenState extends ConsumerState<SelfieCaptureScreen> {
           _isCameraInitialized = true;
         });
         ref.read(selfieStateProvider.notifier).setCameraInitialized(true);
-        _simulateFaceDetection();
       }
     } catch (e) {
       debugPrint('Error initializing camera: $e');
@@ -111,14 +113,6 @@ class _SelfieCaptureScreenState extends ConsumerState<SelfieCaptureScreen> {
     );
   }
 
-  void _simulateFaceDetection() {
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        ref.read(selfieStateProvider.notifier).setFaceDetected(true);
-      }
-    });
-  }
-
   Future<void> _capturePhoto() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
       final XFile? image = await _picker.pickImage(
@@ -140,7 +134,26 @@ class _SelfieCaptureScreenState extends ConsumerState<SelfieCaptureScreen> {
     }
   }
 
-  void _processImage(String imagePath) {
+  Future<void> _processImage(String imagePath) async {
+    // Reject an obviously unusable capture here rather than after a round trip
+    // — Dojah scores face_detected and image quality server-side and charges
+    // per call. This is NOT liveness; that decision is the server's.
+    final check = await checkSelfie(File(imagePath));
+    if (!mounted) return;
+
+    ref.read(selfieStateProvider.notifier).setFaceDetected(check.passed);
+
+    if (!check.passed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(check.reason ?? 'Please retake your selfie.'),
+          backgroundColor: Colors.orange,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+      return;
+    }
+
     // Retains the capture locally — it is submitted later as the required
     // selfieImageBase64 field on verify-bvn / verify-nin.
     ref.read(selfieStateProvider.notifier).captureSelfie(imagePath);

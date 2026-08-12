@@ -24,101 +24,86 @@
 //   3. Add a case to AppRouter.generateRoute
 
 import 'package:flutter/material.dart';
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Model imports (needed for typed args classes)
 // ─────────────────────────────────────────────────────────────────────────────
 
 import 'package:kudipay/core/app/app_routes.dart';
+import 'package:kudipay/features/account_ready/presentation/pages/account_ready.dart';
+import 'package:kudipay/features/address/presentation/pages/verify_address.dart'; // AddressVerificationScreen
+import 'package:kudipay/features/agent/presentation/pages/agent_dashboard_screen.dart';
+import 'package:kudipay/features/agent/presentation/pages/agent_registration_flow.dart'; // AgentRegistrationFlow
+// Agent
+import 'package:kudipay/features/agent/presentation/pages/become_agent_screen.dart'; // BecomeAgentLandingScreen
+import 'package:kudipay/features/auth/presentation/pages/login_page.dart';
+import 'package:kudipay/features/bankdeposit/presentation/pages/bank_ussd_screen.dart';
+import 'package:kudipay/features/bankdeposit/presentation/pages/select_bank.dart';
+import 'package:kudipay/features/bankdeposit/presentation/pages/ussd_code_display_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/airtime/airtime_amount_screen.dart';
+// Bills
+import 'package:kudipay/features/bills/presentation/pages/airtime/airtime_phone_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/bill_transaction_detail.dart';
+import 'package:kudipay/features/bills/presentation/pages/cable_tv/cable_tv_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/data/data_phone_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/data/data_plan_screen.dart';
+import 'package:kudipay/features/bills/presentation/pages/electricity/electricity_screen.dart';
+import 'package:kudipay/features/cashout/presentation/pages/agent_detail_screen.dart'; // AgentDetailsScreen
+// Cashout
+import 'package:kudipay/features/cashout/presentation/pages/cashout_map_screen.dart';
+import 'package:kudipay/features/cashout/presentation/pages/enter_amount_screen.dart';
+import 'package:kudipay/features/homescreen/presentation/pages/home_screen.dart';
+// KYC
+import 'package:kudipay/features/identity/presentation/pages/choose_id.dart'; // IdVerificationScreen
+import 'package:kudipay/features/identity/presentation/pages/confirm_info.dart';
+import 'package:kudipay/features/identity/presentation/pages/upload_id.dart'; // UploadIdCardScreen
+import 'package:kudipay/features/linkdevice/presentation/pages/data_sync.dart'; // DataSyncScreen
+import 'package:kudipay/features/linkdevice/presentation/pages/link_device_screen.dart';
 import 'package:kudipay/features/notification/presentation/pages/notification_category_screen.dart';
-
+// Notifications
+import 'package:kudipay/features/notification/presentation/pages/notification_preference_screen.dart';
+import 'package:kudipay/features/onboarding/presentation/pages/onboarding_screen.dart';
+// Profile / Settings
+import 'package:kudipay/features/profile/presentation/pages/profile_screen.dart'; // UserProfileScreen
+import 'package:kudipay/features/qrcode/presentation/pages/qr_code_screen.dart';
+import 'package:kudipay/features/request/presentation/pages/my_request_screen.dart';
+import 'package:kudipay/features/request/presentation/pages/preview_request_screen.dart';
+import 'package:kudipay/features/request/presentation/pages/request_detail_screen.dart';
+// Requests
+import 'package:kudipay/features/request/presentation/pages/request_money_main_screen.dart';
+import 'package:kudipay/features/request/presentation/pages/request_money_screen.dart';
+import 'package:kudipay/features/request/presentation/pages/request_sent_screen.dart';
+import 'package:kudipay/features/request/presentation/pages/select_recipient_screen.dart';
+import 'package:kudipay/features/selfie/presentation/pages/selfie_capture_screen.dart';
+import 'package:kudipay/features/selfie/presentation/pages/selfie_instruction.dart'; // SelfieInstructionsScreen
+import 'package:kudipay/features/signup/presentation/pages/signup.dart';
+import 'package:kudipay/features/signup/presentation/pages/signup_verify.dart'; // EmailVerifySignup
 // ─────────────────────────────────────────────────────────────────────────────
 // Screen imports
 // ─────────────────────────────────────────────────────────────────────────────
 
 import 'package:kudipay/features/splashscreen/presentation/pages/splashscreen.dart';
-import 'package:kudipay/features/onboarding/presentation/pages/onboarding_screen.dart';
-import 'package:kudipay/features/auth/presentation/pages/login_page.dart';
-import 'package:kudipay/features/signup/presentation/pages/signup.dart';
-import 'package:kudipay/features/signup/presentation/pages/signup_verify.dart'; // EmailVerifySignup
-import 'package:kudipay/features/account_ready/presentation/pages/account_ready.dart';
-import 'package:kudipay/shared/widgets/bottom_nav.dart';
-import 'package:kudipay/features/homescreen/presentation/pages/home_screen.dart';
-
-// KYC
-import 'package:kudipay/features/identity/presentation/pages/choose_id.dart'; // IdVerificationScreen
-import 'package:kudipay/features/identity/presentation/pages/confirm_info.dart';
-import 'package:kudipay/features/selfie/presentation/pages/selfie_instruction.dart'; // SelfieInstructionsScreen
-import 'package:kudipay/features/selfie/presentation/pages/selfie_capture_screen.dart';
-import 'package:kudipay/features/address/presentation/pages/verify_address.dart'; // AddressVerificationScreen
-import 'package:kudipay/features/identity/presentation/pages/upload_id.dart'; // UploadIdCardScreen
-
-// Transfer
-import 'package:kudipay/features/transfer/presentation/pages/single_transfer/transfer_amount_screen.dart';
-import 'package:kudipay/features/transfer/presentation/pages/single_transfer/transfer_receipt_screen.dart';
-import 'package:kudipay/features/transfer/presentation/pages/single_transfer/add_recipient_screen.dart'; // AddRecipientsManuallyScreen
-import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_upload_file_screen.dart';
-import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_preview.dart';
-
-// Bills
-import 'package:kudipay/features/bills/presentation/pages/airtime/airtime_phone_screen.dart';
-import 'package:kudipay/features/bills/presentation/pages/airtime/airtime_amount_screen.dart';
-import 'package:kudipay/features/bills/presentation/pages/data/data_phone_screen.dart';
-import 'package:kudipay/features/bills/presentation/pages/data/data_plan_screen.dart';
-import 'package:kudipay/features/bills/presentation/pages/cable_tv/cable_tv_screen.dart';
-import 'package:kudipay/features/bills/presentation/pages/electricity/electricity_screen.dart';
-import 'package:kudipay/features/bills/presentation/pages/bill_transaction_detail.dart';
-
-// Wallet / Add money
-import 'package:kudipay/features/wallet/presentation/pages/addmoney/add_money_screen.dart';
-import 'package:kudipay/features/bankdeposit/presentation/pages/select_bank.dart';
-import 'package:kudipay/features/bankdeposit/presentation/pages/bank_ussd_screen.dart';
-import 'package:kudipay/features/bankdeposit/presentation/pages/ussd_code_display_screen.dart';
-import 'package:kudipay/features/qrcode/presentation/pages/qr_code_screen.dart';
-
-// Transactions
-import 'package:kudipay/features/transaction/presentation/pages/transaction_screen.dart';
-import 'package:kudipay/features/transaction/presentation/pages/transaction_filter_screen.dart';
-
-// Requests
-import 'package:kudipay/features/request/presentation/pages/request_money_main_screen.dart';
-import 'package:kudipay/features/request/presentation/pages/request_money_screen.dart';
-import 'package:kudipay/features/request/presentation/pages/select_recipient_screen.dart';
-import 'package:kudipay/features/request/presentation/pages/preview_request_screen.dart';
-import 'package:kudipay/features/request/presentation/pages/my_request_screen.dart';
-import 'package:kudipay/features/request/presentation/pages/request_detail_screen.dart';
-import 'package:kudipay/features/request/presentation/pages/request_sent_screen.dart';
-
-// Cashout
-import 'package:kudipay/features/cashout/presentation/pages/cashout_map_screen.dart';
-import 'package:kudipay/features/cashout/presentation/pages/enter_amount_screen.dart';
-import 'package:kudipay/features/cashout/presentation/pages/agent_detail_screen.dart'; // AgentDetailsScreen
-
-// Agent
-import 'package:kudipay/features/agent/presentation/pages/become_agent_screen.dart'; // BecomeAgentLandingScreen
-import 'package:kudipay/features/agent/presentation/pages/agent_registration_flow.dart'; // AgentRegistrationFlow
-import 'package:kudipay/features/agent/presentation/pages/agent_dashboard_screen.dart';
-
-// Tier
-import 'package:kudipay/features/tier/presentation/pages/tier_selection_screen.dart';
-import 'package:kudipay/features/tier/presentation/pages/upgrade_tier_screen.dart';
-import 'package:kudipay/features/tier/presentation/pages/upgrade_success_screen.dart';
-
-// Notifications
-import 'package:kudipay/features/notification/presentation/pages/notification_preference_screen.dart';
-
-// Profile / Settings
-import 'package:kudipay/features/profile/presentation/pages/profile_screen.dart'; // UserProfileScreen
-import 'package:kudipay/features/transactionpin/presentation/pages/transaction_pin_screen.dart';
-import 'package:kudipay/features/linkdevice/presentation/pages/link_device_screen.dart';
-import 'package:kudipay/features/linkdevice/presentation/pages/data_sync.dart'; // DataSyncScreen
-
 // Support / Tickets
 import 'package:kudipay/features/support/presentation/pages/support_screen.dart';
 import 'package:kudipay/features/ticket/features/tickets/presentation/screens/tickets_screen.dart';
-
+// Tier
+import 'package:kudipay/features/tier/presentation/pages/tier_selection_screen.dart';
+import 'package:kudipay/features/tier/presentation/pages/upgrade_success_screen.dart';
+import 'package:kudipay/features/tier/presentation/pages/upgrade_tier_screen.dart';
+import 'package:kudipay/features/transaction/presentation/pages/transaction_filter_screen.dart';
+// Transactions
+import 'package:kudipay/features/transaction/presentation/pages/transaction_screen.dart';
+import 'package:kudipay/features/transactionpin/presentation/pages/transaction_pin_screen.dart';
+import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_preview.dart';
+import 'package:kudipay/features/transfer/presentation/pages/bulk_transfer/bulk_transfer_upload_file_screen.dart';
+import 'package:kudipay/features/transfer/presentation/pages/single_transfer/add_recipient_screen.dart'; // AddRecipientsManuallyScreen
+// Transfer
+import 'package:kudipay/features/transfer/presentation/pages/single_transfer/transfer_amount_screen.dart';
+import 'package:kudipay/features/transfer/presentation/pages/single_transfer/transfer_receipt_screen.dart';
 // Tribe
 import 'package:kudipay/features/tribe/presentation/pages/choose_tribe.dart'; // TribeScreen
+// Wallet / Add money
+import 'package:kudipay/features/wallet/presentation/pages/addmoney/add_money_screen.dart';
+import 'package:kudipay/shared/widgets/bottom_nav.dart';
 
 export 'package:kudipay/core/app/app_routes.dart';
 
