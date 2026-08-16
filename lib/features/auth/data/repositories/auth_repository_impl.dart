@@ -9,6 +9,7 @@ import 'package:kudipay/core/network/app_exception_handler.dart';
 import 'package:kudipay/core/utils/phone_number.dart';
 import 'package:kudipay/features/auth/data/auth_services.dart';
 
+import 'package:kudipay/features/auth/domain/entities/login_result.dart';
 import 'package:kudipay/features/auth/domain/entities/user_entities.dart';
 import 'package:kudipay/features/auth/domain/repositories/auth_repositories.dart';
 import 'package:kudipay/model/user/user_model.dart';
@@ -117,19 +118,38 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserEntity> login({
+  Future<LoginResult> login({
     required String identifier,
     required String passcode,
   }) async {
+    final fingerprint = await _storage.getOrCreateDeviceFingerprint();
+
     final res = await _authService
-        .login(identifier: identifier, passcode: passcode)
+        .login(
+          identifier: identifier,
+          passcode: passcode,
+          deviceFingerprint: fingerprint,
+        )
         .timeout(const Duration(seconds: 30),
             onTimeout: () => throw Exception('Request timed out.'));
 
-    debugPrint('[AuthRepository] login response: $res');
-
     if (!_isSuccess(res)) {
       throw Exception(res['message'] ?? 'Login failed. Please try again.');
+    }
+
+    // The credentials were accepted but this install is not a known device.
+    // No tokens are issued; the caller continues through device verification.
+    final payload = _payload(res);
+    if (payload['deviceVerificationRequired'] == true) {
+      final reference = payload['otpReference'] as String?;
+      if (reference == null) {
+        throw Exception('Device verification required but no reference given.');
+      }
+      return LoginNeedsDeviceVerification(
+        otpReference: reference,
+        maskedIdentifier: payload['maskedIdentifier'] as String?,
+        expiresInSeconds: payload['expiresInSeconds'] as int?,
+      );
     }
 
     final token = _extractToken(res);
@@ -147,7 +167,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
     await _storage.saveAuthToken(token);
     await _storage.saveUserModel(model);
-    return model.toEntity();
+    return LoginSuccess(model.toEntity());
   }
 
   @override
@@ -224,6 +244,7 @@ class AuthRepositoryImpl implements AuthRepository {
           phoneNumber: phoneNumber,
           passcode: passcode,
           confirmPasscode: confirmPasscode,
+          deviceFingerprint: await _storage.getOrCreateDeviceFingerprint(),
           referralCode: (referralCode != null && referralCode.isNotEmpty)
               ? referralCode
               : null,

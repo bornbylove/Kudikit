@@ -14,6 +14,7 @@ import 'package:kudipay/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:kudipay/model/user/user.dart';
 import 'package:kudipay/model/user/user_model_extension.dart';
 import '../../domain/auth_state.dart';
+import '../../domain/entities/login_result.dart';
 import '../../domain/entities/user_entities.dart';
 
 export 'package:kudipay/features/auth/domain/auth_state.dart';
@@ -117,17 +118,31 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   // ── Login ──────────────────────────────────────────────────────────────────
 
-  Future<void> login({
+  /// Returns the login outcome so the caller can branch. A
+  /// [LoginNeedsDeviceVerification] result is not an error — credentials were
+  /// accepted, but this install has to be verified before tokens are issued.
+  Future<LoginResult> login({
     required String email,
     required String password,
   }) async {
     state = state.loading();
     try {
-      final user = await _login
+      final result = await _login
           .call(identifier: email, passcode: password)
           .timeout(const Duration(seconds: 30),
               onTimeout: () => throw Exception('Request timed out.'));
-      state = state.authenticated(_toModel(user), '');
+
+      switch (result) {
+        case LoginSuccess(:final user):
+          state = state.authenticated(_toModel(user), '');
+        case LoginNeedsDeviceVerification():
+          // No session yet. Left unauthenticated with a message until the
+          // verify-device flow lands; the caller has the otpReference.
+          state = state.unauthenticated(
+            'We need to verify this device before you can sign in.',
+          );
+      }
+      return result;
     } catch (e) {
       state = state.error(e.toString().replaceFirst('Exception: ', ''));
       rethrow;

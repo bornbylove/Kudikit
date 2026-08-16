@@ -4,6 +4,7 @@
 // Nothing in domain or presentation imports from data/ directly —
 // they only ever depend on this interface.
 
+import 'package:kudipay/features/auth/domain/entities/login_result.dart';
 import 'package:kudipay/features/auth/domain/entities/user_entities.dart';
 
 abstract interface class AuthRepository {
@@ -12,8 +13,11 @@ abstract interface class AuthRepository {
   Future<UserEntity?> checkAuthStatus();
 
   /// Authenticates with [identifier] (email or phone) and [passcode].
-  /// Returns the authenticated [UserEntity] on success.
-  Future<UserEntity> login({
+  ///
+  /// Returns [LoginSuccess] when the device is already trusted, or
+  /// [LoginNeedsDeviceVerification] when the backend wants this install
+  /// verified first. The device fingerprint is supplied by the data layer.
+  Future<LoginResult> login({
     required String identifier,
     required String passcode,
   });

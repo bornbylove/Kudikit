@@ -135,7 +135,9 @@ class AuthService {
     required String passcode,
     required String confirmPasscode,
     String? referralCode,
+    String? deviceFingerprint,
   }) async {
+    final meta = await DeviceInfoService.collect();
     try {
       final response = await _client.post<Map<String, dynamic>>(
         '/auth/register',
@@ -146,6 +148,10 @@ class AuthService {
           'passcode': passcode,
           'confirmPasscode': confirmPasscode,
           if (referralCode != null) 'referralCode': referralCode,
+          // Optional here, but binding the device at signup should spare the
+          // user a verification challenge on their first login.
+          if (deviceFingerprint != null) 'deviceFingerprint': deviceFingerprint,
+          'deviceName': meta.deviceModel,
         },
       );
       return response.data!;
@@ -160,6 +166,7 @@ class AuthService {
   Future<Map<String, dynamic>> login({
     required String identifier,
     required String passcode,
+    required String deviceFingerprint,
   }) async {
     final meta = await DeviceInfoService.collect();
     try {
@@ -168,12 +175,10 @@ class AuthService {
         data: {
           'identifier': identifier,
           'passcode': passcode,
+          // Required since the device-verification release. This is a stable
+          // per-install UUID from StorageService, not a hardware id.
+          'deviceFingerprint': deviceFingerprint,
           'deviceName': meta.deviceModel,
-          // NOTE: deviceFingerprint is intentionally omitted. It is optional in
-          // the API, and DeviceInfoService only yields a coarse OS label
-          // ('Android Device') that would be identical across every device —
-          // sending that as a fingerprint would corrupt server-side device
-          // tracking. Needs device_info_plus or a stored per-install UUID.
         },
       );
       return response.data!;

@@ -12,6 +12,7 @@
 // Called on app start to restore session.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import 'package:kudipay/features/auth/domain/entities/login_result.dart';
 import 'package:kudipay/features/auth/domain/entities/user_entities.dart';
 import 'package:kudipay/features/auth/domain/repositories/auth_repositories.dart';
 
@@ -30,7 +31,7 @@ class LoginUseCase {
   final AuthRepository _repository;
   const LoginUseCase(this._repository);
 
-  Future<UserEntity> call({
+  Future<LoginResult> call({
     required String identifier,
     required String passcode,
   }) =>

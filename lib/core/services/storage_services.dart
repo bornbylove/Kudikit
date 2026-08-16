@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
+import 'package:uuid/uuid.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kudipay/core/utils/passcode.dart';
@@ -74,6 +75,7 @@ class StorageService {
   static const String _userModelKey = 'user_model';
   static const String _isAuthKey = 'is_authenticated';
   static const String _lastLoginKey = 'last_login';
+  static const String _deviceFingerprintKey = 'device_fingerprint';
   static const String _currentTierKey = 'current_tier';
   static const String _lastTierUpgradeKey = 'last_tier_upgrade';
   static const String _completedRequirementsKey = 'completed_requirements';
@@ -120,6 +122,30 @@ class StorageService {
       return await _secureStorage.read(key: _refreshTokenKey);
     } catch (e) {
       return null;
+    }
+  }
+
+  /// Stable per-install identifier sent as `deviceFingerprint` on login and
+  /// register. Generated once and reused for the life of the install.
+  ///
+  /// A random UUID rather than a hardware id: Android's ANDROID_ID is scoped
+  /// to the signing key and resets on factory reset, and iOS's
+  /// identifierForVendor resets once all vendor apps are removed — so neither
+  /// is actually more stable, and both are device identifiers with privacy
+  /// implications a random value does not have.
+  ///
+  /// It rotates on reinstall, which re-triggers device verification. That is
+  /// correct: a fresh install is a device the backend has not seen.
+  Future<String> getOrCreateDeviceFingerprint() async {
+    try {
+      final existing = await _secureStorage.read(key: _deviceFingerprintKey);
+      if (existing != null && existing.isNotEmpty) return existing;
+
+      final generated = const Uuid().v4();
+      await _secureStorage.write(key: _deviceFingerprintKey, value: generated);
+      return generated;
+    } catch (e) {
+      throw StorageException('Failed to read device fingerprint: $e');
     }
   }
 
