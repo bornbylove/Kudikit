@@ -28,8 +28,22 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kudipay/config/api_config.dart';
 import 'package:kudipay/services/connectivity_service.dart';
+import 'package:kudipay/services/session_events.dart';
 import 'package:kudipay/services/storage_services.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ConnectivityChecker — the one method DioClient actually needs from
+// ConnectivityService, extracted as an interface so tests can supply a
+// trivial fake instead of the real connectivity_plus/internet_connection_
+// checker_plus-backed singleton (which needs platform channels and makes
+// real network calls — exactly what a deterministic unit test must avoid).
+// ─────────────────────────────────────────────────────────────────────────────
+
+abstract class ConnectivityChecker {
+  Future<bool> hasInternetConnection();
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Typed exceptions — catch these specifically in providers/notifiers
@@ -75,13 +89,32 @@ class KudiApiException implements Exception {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Auth Interceptor — injects Bearer token on every request
+// Auth Interceptor — injects Bearer token on every request, and on a 401
+// attempts a single-flight token refresh + retry before giving up.
+//
+// `_refreshDio` is a bare Dio instance (no interceptors) used only for the
+// refresh-token call and the retried original request — reusing `_dio` here
+// would re-enter this same interceptor and could recurse forever.
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _AuthInterceptor extends Interceptor {
   final StorageService _storage;
+  final Dio _refreshDio;
 
-  _AuthInterceptor(this._storage);
+  _AuthInterceptor(this._storage, this._refreshDio);
+
+  static const List<String> _noRefreshPaths = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/send-otp',
+    '/auth/verify-otp',
+    '/auth/refresh-token',
+    '/auth/logout',
+  ];
+
+  // Single-flight guard: concurrent 401s share one in-progress refresh
+  // instead of each firing their own refresh-token call.
+  Future<String?>? _refreshInFlight;
 
   @override
   Future<void> onRequest(
@@ -94,12 +127,64 @@ class _AuthInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    // 401 → clear stored auth so the app routes to login on next startup
-    if (err.response?.statusCode == 401) {
-      _storage.clearAuth();
+  Future<void> onError(
+      DioException err, ErrorInterceptorHandler handler) async {
+    final path = err.requestOptions.path;
+    final isAuthEndpoint =
+        _noRefreshPaths.any((p) => path.contains(p));
+    final alreadyRetried = err.requestOptions.extra['kudiRetried'] == true;
+
+    if (err.response?.statusCode != 401 || isAuthEndpoint || alreadyRetried) {
+      handler.next(err);
+      return;
     }
-    handler.next(err);
+
+    final newAccessToken = await _refreshAccessToken();
+    if (newAccessToken == null) {
+      await _storage.clearAuth();
+      SessionEvents.instance.notifySessionExpired();
+      handler.next(err);
+      return;
+    }
+
+    try {
+      final retryOptions = err.requestOptions;
+      retryOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+      retryOptions.extra['kudiRetried'] = true;
+      final retryResponse = await _refreshDio.fetch(retryOptions);
+      handler.resolve(retryResponse);
+    } on DioException catch (retryError) {
+      handler.next(retryError);
+    }
+  }
+
+  Future<String?> _refreshAccessToken() {
+    return _refreshInFlight ??=
+        _doRefresh().whenComplete(() => _refreshInFlight = null);
+  }
+
+  Future<String?> _doRefresh() async {
+    final refreshToken = await _storage.getRefreshToken();
+    if (refreshToken == null || refreshToken.isEmpty) return null;
+
+    try {
+      final response = await _refreshDio.post<Map<String, dynamic>>(
+        '${ApiConfig.authBaseUrl}/auth/refresh-token',
+        data: {'refreshToken': refreshToken},
+      );
+      final data = response.data?['data'] as Map<String, dynamic>?;
+      final newAccessToken = data?['accessToken'] as String?;
+      final newRefreshToken = data?['refreshToken'] as String?;
+      if (newAccessToken == null || newAccessToken.isEmpty) return null;
+
+      await _storage.saveAuthToken(newAccessToken);
+      if (newRefreshToken != null && newRefreshToken.isNotEmpty) {
+        await _storage.saveRefreshToken(newRefreshToken);
+      }
+      return newAccessToken;
+    } catch (_) {
+      return null;
+    }
   }
 }
 
@@ -133,13 +218,15 @@ class _LogInterceptor extends Interceptor {
 
 class DioClient {
   final Dio _dio;
-  final ConnectivityService _connectivity;
+  final ConnectivityChecker _connectivity;
 
   DioClient({
     required String baseUrl,
     required StorageService storage,
-    required ConnectivityService connectivity,
-    Dio? dio, String? authToken, // injectable for testing
+    required ConnectivityChecker connectivity,
+    Dio? dio,
+    Dio? refreshDio, // injectable for testing — see _AuthInterceptor
+    String? authToken, // injectable for testing
   })  : _connectivity = connectivity,
         _dio = dio ??
             Dio(BaseOptions(
@@ -152,7 +239,18 @@ class DioClient {
               receiveTimeout: const Duration(seconds: 30),
               sendTimeout: const Duration(seconds: 30),
             )) {
-    _dio.interceptors.add(_AuthInterceptor(storage));
+    final effectiveRefreshDio = refreshDio ??
+        Dio(BaseOptions(
+          baseUrl: baseUrl,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          connectTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 30),
+        ));
+    _dio.interceptors.add(_AuthInterceptor(storage, effectiveRefreshDio));
     if (kDebugMode) _dio.interceptors.add(_LogInterceptor());
   }
 
@@ -276,7 +374,7 @@ class DioClient {
 
 final dioClientProvider = Provider<DioClient>((ref) {
   return DioClient(
-    baseUrl: 'https://api.Kudikit.com/api/v1',
+    baseUrl: ApiConfig.gatewayBaseUrl,
     storage: StorageService.instance,
     connectivity: ConnectivityService.instance,
   );

@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kudipay/services/storage_services.dart';
@@ -6,34 +7,71 @@ import 'package:shared_preferences/shared_preferences.dart';
 // =============================================================================
 // storage_service_pin_test.dart
 // -----------------------------------------------------------------------------
-// UPDATED: All tests now reflect the new alphanumeric passcode rules:
-//   - 8 to 12 characters
-//   - At least one uppercase letter
-//   - At least one lowercase letter
-//   - At least one number
-//   - At least one special character: ! @ # $ % ^ & *
+// Passcode rules per the PRD's Passcode Security Rules (Registration Screen
+// §8, confirmed 2026-08-10):
+//   a. Length: 6-8 numeric digits only
+//   b. Prohibited patterns:
+//      i.   Sequential (123456, 456789)
+//      ii.  Repetitive (111111, 222222)
+//      iii. Phone number segments (last 6 digits of entered phone)
+//      iv.  Common PINs (a curated subset here — see StorageService's doc
+//           comment on why this isn't a real 10,000-entry breach dataset)
+//      v.   Date patterns (DDMMYY, MMDDYY)
 //
-// Storage key changed from 'user_pin' → 'user_passcode' to match
-// the _userPasscodeKey constant in storage_services.dart.
+// `FlutterSecureStorage` has no in-memory test backend by default and
+// otherwise throws MissingPluginException under `flutter test` — these tests
+// install a fake method-channel handler backed by a plain Map so the real
+// StorageService code path (including its actual encoding) runs
+// deterministically without touching a device/simulator.
 // =============================================================================
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  const secureChannel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  late Map<String, String> secureBackingStore;
+
   late StorageService storageService;
 
-  // ---------------------------------------------------------------------------
-  // Valid test passcodes — meet ALL complexity rules
-  // ---------------------------------------------------------------------------
-  const validPasscode1 = 'Secret1!';      // 8 chars — minimum valid
-  const validPasscode2 = 'MyPass1@2024';  // 12 chars — maximum valid
-  const validPasscode3 = 'Hello\$99';     // 8 chars — alternate special char
+  // ── Valid test passcodes — meet ALL current rules ──────────────────────
+  const validPasscode1 = '284915'; // 6 digits — minimum valid
+  const validPasscode2 = '48293176'; // 8 digits — maximum valid
+  const validPasscode3 = '204837'; // 6 digits — distinct alternate
+
+  setUpAll(() {
+    secureBackingStore = {};
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(secureChannel, (MethodCall call) async {
+      switch (call.method) {
+        case 'write':
+          final args = call.arguments as Map;
+          secureBackingStore[args['key'] as String] = args['value'] as String;
+          return null;
+        case 'read':
+          final args = call.arguments as Map;
+          return secureBackingStore[args['key'] as String];
+        case 'delete':
+          final args = call.arguments as Map;
+          secureBackingStore.remove(args['key'] as String);
+          return null;
+        case 'deleteAll':
+          secureBackingStore.clear();
+          return null;
+        case 'readAll':
+          return secureBackingStore;
+        case 'containsKey':
+          final args = call.arguments as Map;
+          return secureBackingStore.containsKey(args['key'] as String);
+        default:
+          return null;
+      }
+    });
+  });
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
+    secureBackingStore.clear();
     storageService = StorageService.instance;
-    // Always start each test with a clean slate
-    await storageService.deletePasscode();
   });
 
   // ===========================================================================
@@ -45,13 +83,9 @@ void main() {
       await storageService.savePasscode(validPasscode1);
 
       const secureStorage = FlutterSecureStorage();
-      // FIX: key changed from 'user_pin' → 'user_passcode'
       final storedValue = await secureStorage.read(key: 'user_passcode');
 
-      // Verify it is NOT the plaintext passcode
       expect(storedValue, isNot(equals(validPasscode1)));
-
-      // Verify it contains salt:hash:iterations format
       expect(storedValue, contains(':'));
       final parts = storedValue!.split(':');
       expect(parts.length, equals(3));
@@ -65,7 +99,7 @@ void main() {
 
     test('Should reject incorrect passcode', () async {
       await storageService.savePasscode(validPasscode1);
-      final isValid = await storageService.verifyPasscode('WrongPass1!');
+      final isValid = await storageService.verifyPasscode('960273');
       expect(isValid, isFalse);
     });
 
@@ -78,104 +112,130 @@ void main() {
       await storageService.savePasscode(validPasscode1);
       final secondHash = await secureStorage.read(key: 'user_passcode');
 
-      // Hashes should be different due to different random salts
       expect(firstHash, isNot(equals(secondHash)));
-
-      // But verification should still work
       expect(await storageService.verifyPasscode(validPasscode1), isTrue);
     });
 
     test('Alias savePin() should work the same as savePasscode()', () async {
-      // savePin is kept for backwards compatibility — must behave identically
       await storageService.savePin(validPasscode1);
       expect(await storageService.verifyPin(validPasscode1), isTrue);
     });
   });
 
   // ===========================================================================
-  // GROUP 2 — Passcode Validation Rules (NEW ALPHANUMERIC RULES)
+  // GROUP 2 — Passcode Validation Rules (6-8 numeric digits, PRD §8)
   // ===========================================================================
 
   group('Passcode Validation Rules', () {
-    // ── Length rules ──────────────────────────────────────────────────────────
+    // ── Length / format rules ──────────────────────────────────────────────
 
-    test('Should reject passcode shorter than 8 characters', () async {
-      // 'Sec1!' is only 5 chars — too short
+    test('Should reject passcode shorter than 6 digits', () async {
       expect(
-        () => storageService.savePasscode('Sec1!'),
+        () => storageService.savePasscode('2849'),
         throwsA(isA<StorageException>()),
       );
     });
 
-    test('Should reject passcode longer than 12 characters', () async {
-      // 13 chars — too long
+    test('Should reject passcode longer than 8 digits', () async {
       expect(
-        () => storageService.savePasscode('MyLongPass1!X'),
+        () => storageService.savePasscode('482931765'),
         throwsA(isA<StorageException>()),
       );
     });
 
-    test('Should accept 8-character passcode (minimum)', () async {
-      await storageService.savePasscode(validPasscode1); // 'Secret1!'
+    test('Should accept 6-digit passcode (minimum)', () async {
+      await storageService.savePasscode(validPasscode1);
       expect(await storageService.verifyPasscode(validPasscode1), isTrue);
     });
 
-    test('Should accept 12-character passcode (maximum)', () async {
-      await storageService.savePasscode(validPasscode2); // 'MyPass1@2024'
+    test('Should accept 8-digit passcode (maximum)', () async {
+      await storageService.savePasscode(validPasscode2);
       expect(await storageService.verifyPasscode(validPasscode2), isTrue);
     });
 
-    // ── Character type rules ──────────────────────────────────────────────────
-
-    test('Should reject passcode with no uppercase letter', () async {
-      // 'secret1!' — all lowercase, missing uppercase
+    test('Should reject a non-numeric passcode', () async {
       expect(
-        () => storageService.savePasscode('secret1!'),
+        () => storageService.savePasscode('Secret1!'),
         throwsA(isA<StorageException>()),
       );
     });
 
-    test('Should reject passcode with no lowercase letter', () async {
-      // 'SECRET1!' — all uppercase, missing lowercase
+    test('Should reject a passcode containing any letter', () async {
       expect(
-        () => storageService.savePasscode('SECRET1!'),
+        () => storageService.savePasscode('12345a'),
         throwsA(isA<StorageException>()),
       );
     });
 
-    test('Should reject passcode with no number', () async {
-      // 'SecretAA!' — no digit
+    // ── Pattern rules ──────────────────────────────────────────────────────
+
+    test('Should reject an ascending sequential passcode', () async {
       expect(
-        () => storageService.savePasscode('SecretAA!'),
+        () => storageService.savePasscode('456789'),
         throwsA(isA<StorageException>()),
       );
     });
 
-    test('Should reject passcode with no special character', () async {
-      // 'Secret1234' — no special char
+    test('Should reject a descending sequential passcode', () async {
       expect(
-        () => storageService.savePasscode('Secret1234'),
+        () => storageService.savePasscode('987654'),
         throwsA(isA<StorageException>()),
       );
     });
 
-    // ── OLD TESTS REMOVED — these were wrong and must not exist ──────────────
-    // REMOVED: 'Should reject non-numeric PIN' — alphanumeric is now REQUIRED
-    // REMOVED: 'Should reject PIN shorter than 4 digits' — min is now 8 chars
-    // REMOVED: 'Should reject PIN longer than 6 digits' — max is now 12 chars
-    // REMOVED: 'Should accept 4-digit PIN' — '1234' now FAILS validation
-    // REMOVED: 'Should accept 6-digit PIN' — '123456' now FAILS validation
+    test('Should reject a repetitive passcode', () async {
+      expect(
+        () => storageService.savePasscode('222222'),
+        throwsA(isA<StorageException>()),
+      );
+    });
 
-    test('Should accept valid passcode with all special chars in allowed set', () async {
-      // Test each allowed special character
-      final specialChars = ['!', '@', '#', r'$', '%', '^', '&', '*'];
-      for (final char in specialChars) {
-        await storageService.deletePasscode();
-        final passcode = 'Secret1$char';
-        await storageService.savePasscode(passcode);
-        expect(await storageService.verifyPasscode(passcode), isTrue,
-            reason: 'Should accept special char: $char');
-      }
+    test('Should reject a common passcode', () async {
+      expect(
+        () => storageService.savePasscode('123456'),
+        throwsA(isA<StorageException>()),
+      );
+    });
+
+    test('Should reject a date-pattern passcode (DDMMYY)', () async {
+      // 15 03 26 -> day 15, month 03: a plausible DDMMYY date.
+      expect(
+        () => storageService.savePasscode('150326'),
+        throwsA(isA<StorageException>()),
+      );
+    });
+
+    test('Should reject a date-pattern passcode (MMDDYY)', () async {
+      // 03 15 26 -> month 03, day 15: a plausible MMDDYY date (fails the
+      // DDMMYY interpretation since 15 isn't a valid month, but passes the
+      // MMDDYY one).
+      expect(
+        () => storageService.savePasscode('031526'),
+        throwsA(isA<StorageException>()),
+      );
+    });
+
+    test('Date-pattern rule only applies to 6-digit passcodes', () async {
+      // '15032026' is 8 digits; not evaluated as a date, and otherwise
+      // satisfies every other rule.
+      await storageService.savePasscode('15032026');
+      expect(await storageService.verifyPasscode('15032026'), isTrue);
+    });
+
+    test('Should reject a passcode derived from the phone number', () async {
+      // '482931' is non-sequential, non-repetitive, not on the common list,
+      // and not a plausible date (48 is not a valid day/month) — it would
+      // otherwise be a perfectly valid passcode, but it exactly matches the
+      // last 6 digits of the phone number below.
+      expect(
+        () => storageService.savePasscode('482931', phoneNumber: '+2348482931'),
+        throwsA(isA<StorageException>()),
+      );
+    });
+
+    test('Should accept a passcode when no phone number is supplied', () async {
+      await storageService.savePasscode(validPasscode3);
+      expect(await storageService.verifyPasscode(validPasscode3), isTrue);
     });
 
     test('Should handle empty passcode gracefully', () async {
@@ -183,6 +243,14 @@ void main() {
         () => storageService.savePasscode(''),
         throwsA(isA<StorageException>()),
       );
+    });
+
+    test('passcodeValidationError returns null for a valid passcode', () {
+      expect(storageService.passcodeValidationError(validPasscode1), isNull);
+    });
+
+    test('passcodeValidationError returns a message for an invalid passcode', () {
+      expect(storageService.passcodeValidationError('123456'), isNotNull);
     });
   });
 
@@ -208,7 +276,6 @@ void main() {
       expect(await storageService.hasPasscode(), isFalse);
     });
 
-    // Alias tests
     test('hasPin alias should work correctly', () async {
       await storageService.savePin(validPasscode1);
       expect(await storageService.hasPin(), isTrue);
@@ -239,12 +306,11 @@ void main() {
       await storageService.savePasscode(validPasscode1);
 
       final changed = await storageService.changePasscode(
-        oldPasscode: 'WrongOld1!',
+        oldPasscode: '960273',
         newPasscode: validPasscode2,
       );
 
       expect(changed, isFalse);
-      // Old passcode must still be valid
       expect(await storageService.verifyPasscode(validPasscode1), isTrue);
     });
 
@@ -270,7 +336,6 @@ void main() {
       await storageService.savePasscode(validPasscode1);
 
       const secureStorage = FlutterSecureStorage();
-      // FIX: key changed from 'user_pin' → 'user_passcode'
       final storedValue = await secureStorage.read(key: 'user_passcode');
       final parts = storedValue!.split(':');
 
@@ -290,7 +355,6 @@ void main() {
         salts.add(salt);
       }
 
-      // Every salt must be unique
       expect(salts.length, equals(10));
     });
 
@@ -306,11 +370,11 @@ void main() {
       await storageService.savePasscode(validPasscode1);
 
       final stopwatch1 = Stopwatch()..start();
-      await storageService.verifyPasscode('WrongA1!');  // Differs early
+      await storageService.verifyPasscode('960273'); // Differs early
       stopwatch1.stop();
 
       final stopwatch2 = Stopwatch()..start();
-      await storageService.verifyPasscode('Secret1?');  // Differs late
+      await storageService.verifyPasscode('284916'); // Differs late
       stopwatch2.stop();
 
       final timeDiff = (stopwatch1.elapsedMicroseconds - stopwatch2.elapsedMicroseconds).abs();
@@ -325,10 +389,8 @@ void main() {
   group('Edge Cases and Migration', () {
     test('Should handle corrupted storage gracefully', () async {
       const secureStorage = FlutterSecureStorage();
-      // Manually write invalid data to the correct key
       await secureStorage.write(key: 'user_passcode', value: 'corrupted_data');
 
-      // Verification should return false, not throw
       expect(await storageService.verifyPasscode(validPasscode1), isFalse);
       expect(await storageService.hasPasscode(), isFalse);
     });

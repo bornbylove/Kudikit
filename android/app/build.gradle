@@ -58,6 +58,17 @@ kotlinOptions {
             signingConfig signingConfigs.debug
         }
     }
+
+    lint {
+        // Lint was aborting the build on errors coming from third-party
+        // plugins' bundled Android code (e.g. flutter_contacts' Kotlin
+        // source) that this app has no way to fix directly. A baseline
+        // snapshots the current, pre-existing set of errors/warnings as
+        // accepted, so future builds only fail on NEW issues introduced by
+        // this app's own code — not on noise from dependencies.
+        // Generate/refresh it with: cd android && ./gradlew updateLintBaseline
+        baseline = file("lint-baseline.xml")
+    }
 }
 
 flutter {

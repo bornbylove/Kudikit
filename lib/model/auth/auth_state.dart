@@ -39,10 +39,16 @@ class AuthState {
     );
   }
 
-  // Create a loading state
+  // Create a loading state.
+  // Deliberately NOT built via copyWith(): copyWith's `errorMessage ??
+  // this.errorMessage` treats an explicit `null` as "unspecified" and falls
+  // back to the old value, so a stale error would otherwise survive into
+  // the loading state and could flash alongside a loading spinner.
   AuthState loading() {
-    return copyWith(
+    return AuthState(
       status: AuthStatus.loading,
+      user: user,
+      token: token,
       errorMessage: null,
     );
   }

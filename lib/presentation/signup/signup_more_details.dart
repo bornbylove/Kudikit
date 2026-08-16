@@ -4,6 +4,7 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/formatting/widget/connectivity_widget.dart';
 import 'package:kudipay/presentation/tribe/choose_tribe.dart';
 import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/config/dio_client.dart';
 
 
 class KnowYouBetterForm extends ConsumerStatefulWidget {
@@ -16,6 +17,7 @@ class KnowYouBetterForm extends ConsumerStatefulWidget {
 class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
   final TextEditingController _referralCodeController = TextEditingController();
   String? _selectedSource;
+  bool _isSubmitting = false;
 
   final List<String> _hearAboutOptions = [
     'Social Media',
@@ -58,7 +60,7 @@ class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
     super.dispose();
   }
 
-  void _handleContinue() {
+  Future<void> _handleContinue() async {
     final isConnected = ref.read(currentConnectivityProvider);
 
     if (!isConnected) {
@@ -88,27 +90,80 @@ class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
       return;
     }
 
-    if (_selectedSource != null) {
-      // Persist referral/source data through the registration provider.
-      // The registration flow will include this in the final account creation call.
-      final referral = _referralCodeController.text.trim();
-      if (referral.isNotEmpty) {
-        // Store referral code so it can be submitted with the registration payload.
-        // ref.read(registrationProvider.notifier).setReferralCode(referral);
-        // (Un-comment and implement setReferralCode when the backend endpoint
-        //  accepts a referral_code field.)
-      }
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const TribeScreen()),
-      );
-    } else {
+    if (_selectedSource == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please select how you heard about us'),
           backgroundColor: Colors.orange,
         ),
       );
+      return;
+    }
+
+    // This is where /auth/register actually fires — after OTP verification
+    // (screen 2) and referral collection (this screen), matching the
+    // backend's referral-at-registration design.
+    final flow = ref.read(registrationFlowProvider);
+    if (!flow.hasBasicInfo || flow.otpReference == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your session expired — please restart sign up.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final referral = _referralCodeController.text.trim();
+
+    setState(() => _isSubmitting = true);
+    try {
+      final response = await ref.read(authServiceProvider).register(
+            otpReference: flow.otpReference!,
+            phoneNumber: flow.phoneNumber!,
+            email: flow.email!,
+            // fullName intentionally not collected — see the backend
+            // advisory on RegisterRequest.fullName still being @NotBlank
+            // server-side; this call will 400 until that ships.
+            passcode: flow.passcode!,
+            confirmPasscode: flow.passcode!,
+            referralCode: referral.isNotEmpty ? referral : null,
+          );
+
+      final data = response['data'] as Map<String, dynamic>?;
+      if (data == null) {
+        throw Exception(response['message'] ?? 'Registration failed. Please try again.');
+      }
+      await ref.read(authProvider.notifier).completeSession(data);
+      await ref
+          .read(storageServiceProvider)
+          .savePasscode(flow.passcode!, phoneNumber: flow.phoneNumber);
+      ref.read(registrationFlowProvider.notifier).clear();
+
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const TribeScreen()),
+      );
+    } on KudiNetworkException {
+      if (mounted) ConnectivitySnackBar.showNoInternet(context);
+    } on KudiApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Registration failed: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
@@ -327,7 +382,7 @@ class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: _handleContinue,
+                        onPressed: (_isSubmitting || !isOnline) ? null : _handleContinue,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF069494),
                           shape: RoundedRectangleBorder(
@@ -335,30 +390,39 @@ class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
                           ),
                           elevation: 0,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              isOnline
-                                  ? 'Choose Your Tribe'
-                                  : 'No Internet Connection',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            if (!isOnline)
-                              const Padding(
-                                padding: EdgeInsets.only(left: 8),
-                                child: Icon(
-                                  Icons.wifi_off,
-                                  size: 20,
-                                  color: Colors.white,
+                        child: _isSubmitting
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    isOnline
+                                        ? 'Choose Your Tribe'
+                                        : 'No Internet Connection',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  if (!isOnline)
+                                    const Padding(
+                                      padding: EdgeInsets.only(left: 8),
+                                      child: Icon(
+                                        Icons.wifi_off,
+                                        size: 20,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                ],
                               ),
-                          ],
-                        ),
                       ),
                     ),
                   ],

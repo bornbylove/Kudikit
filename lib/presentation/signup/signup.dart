@@ -7,7 +7,10 @@ import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/formatting/widget/color_app_button.dart';
 import 'package:kudipay/formatting/widget/connectivity_widget.dart';
+import 'package:kudipay/config/dio_client.dart';
 import 'package:kudipay/services/api_services.dart';
+import 'package:kudipay/services/auth_services.dart';
+import 'package:kudipay/services/storage_services.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/presentation/login/login_page.dart';
 import 'package:kudipay/presentation/signup/signup_verify.dart';
@@ -27,6 +30,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   // CONTROLLERS
   // ---------------------------------------------------------------------------
 
+ // final TextEditingController fullNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController numberController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -41,10 +45,18 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   // ---------------------------------------------------------------------------
   // PER-FIELD ERROR STRINGS
   
+ // String? _fullNameError;
   String? _emailError;
   String? _phoneError;
   String? _passcodeError;
   String? _confirmPasscodeError;
+
+  // ---------------------------------------------------------------------------
+  // LOADING STATE — local now that this screen only fires send-otp (not the
+  // full register()), so it no longer reflects global authProvider state.
+  // ---------------------------------------------------------------------------
+
+  bool _isLoading = false;
 
   // ---------------------------------------------------------------------------
   // LOCAL TERMS ACCEPTANCE STATE
@@ -55,27 +67,27 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   // ---------------------------------------------------------------------------
   // PASSCODE CRITERIA STATE
   // ---------------------------------------------------------------------------
+  // PRD Passcode Security Rules (Registration Screen §8, confirmed
+  // 2026-08-10): 6-8 numeric digits, not sequential/repetitive/a common
+  // PIN/a date pattern, not derived from the phone number. NOT the 8-12
+  // char alphanumeric+special shape this screen briefly enforced.
 
-  bool _hasMinLength = false;
-  bool _hasUppercase = false;
-  bool _hasLowercase = false;
-  bool _hasNumber = false;
-  bool _hasSpecialChar = false;
+  bool _hasValidLength = false;
+  bool _isDigitsOnly = false;
+  bool _isNotSimplePattern = false;
   bool _passcodeFieldTouched = false;
 
   // ---------------------------------------------------------------------------
   // SUBMIT READINESS
   // ---------------------------------------------------------------------------
- 
+
 
   bool get _fieldsReady =>
       emailController.text.trim().isNotEmpty &&
       numberController.text.trim().length == 10 &&
-      _hasMinLength &&
-      _hasUppercase &&
-      _hasLowercase &&
-      _hasNumber &&
-      _hasSpecialChar &&
+      _hasValidLength &&
+      _isDigitsOnly &&
+      _isNotSimplePattern &&
       confirmPasswordController.text == passwordController.text &&
       confirmPasswordController.text.isNotEmpty;
 
@@ -87,6 +99,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   void initState() {
     super.initState();
     
+  //  fullNameController.addListener(_onFieldChanged);
     emailController.addListener(_onFieldChanged);
     numberController.addListener(_onFieldChanged);
     confirmPasswordController.addListener(_onFieldChanged);
@@ -99,9 +112,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   void dispose() {
+  //  fullNameController.removeListener(_onFieldChanged);
     emailController.removeListener(_onFieldChanged);
     numberController.removeListener(_onFieldChanged);
     confirmPasswordController.removeListener(_onFieldChanged);
+  //  fullNameController.dispose();
     emailController.dispose();
     numberController.dispose();
     passwordController.dispose();
@@ -133,14 +148,32 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   void _updatePasscodeCriteria(String value) {
     setState(() {
       _passcodeFieldTouched = value.isNotEmpty;
-      _hasMinLength = value.length >= 8 && value.length <= 12;
-      _hasUppercase = value.contains(RegExp(r'[A-Z]'));
-      _hasLowercase = value.contains(RegExp(r'[a-z]'));
-      _hasNumber = value.contains(RegExp(r'[0-9]'));
-      _hasSpecialChar = value.contains(RegExp(r'[!@#$%^&*]'));
+      _isDigitsOnly = value.isNotEmpty && RegExp(r'^\d+$').hasMatch(value);
+      _hasValidLength = value.length >= 6 && value.length <= 8;
+      _isNotSimplePattern = _isDigitsOnly &&
+          !_isSequentialPasscode(value) &&
+          !_isRepetitivePasscode(value);
       // Clear the passcode error as the user types
       if (_passcodeError != null) _passcodeError = null;
     });
+  }
+
+  bool _isSequentialPasscode(String value) {
+    var ascending = true;
+    var descending = true;
+    for (var i = 1; i < value.length; i++) {
+      final prev = value.codeUnitAt(i - 1) - 48;
+      final curr = value.codeUnitAt(i) - 48;
+      if (curr != prev + 1) ascending = false;
+      if (curr != prev - 1) descending = false;
+    }
+    return value.length > 1 && (ascending || descending);
+  }
+
+  bool _isRepetitivePasscode(String value) {
+    if (value.isEmpty) return false;
+    final first = value[0];
+    return value.split('').every((c) => c == first);
   }
 
   // ---------------------------------------------------------------------------
@@ -151,6 +184,18 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   bool _validateFields() {
     bool valid = true;
     setState(() {
+      // Full name
+      // final fullName = fullNameController.text.trim();
+      // if (fullName.isEmpty) {
+      //   _fullNameError = 'Please enter your full name';
+      //   valid = false;
+      // } else if (!fullName.contains(' ')) {
+      //   _fullNameError = 'Please enter your first and last name';
+      //   valid = false;
+      // } else {
+      //   _fullNameError = null;
+      // }
+
       // Email
       final email = emailController.text.trim();
       if (email.isEmpty) {
@@ -175,28 +220,23 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         _phoneError = null;
       }
 
-      // Passcode
+      // Passcode — mirrors the server's PasscodeValidator exactly (6-8
+      // digits, numeric only, not sequential/repetitive/common, doesn't
+      // contain the phone number) via StorageService's shared validator.
       final passcode = passwordController.text;
       if (passcode.isEmpty) {
         _passcodeError = 'Please enter a passcode';
         valid = false;
-      } else if (!_hasMinLength) {
-        _passcodeError = 'Passcode must be 8–12 characters';
-        valid = false;
-      } else if (!_hasUppercase) {
-        _passcodeError = 'Must contain at least one uppercase letter';
-        valid = false;
-      } else if (!_hasLowercase) {
-        _passcodeError = 'Must contain at least one lowercase letter';
-        valid = false;
-      } else if (!_hasNumber) {
-        _passcodeError = 'Must contain at least one number';
-        valid = false;
-      } else if (!_hasSpecialChar) {
-        _passcodeError = 'Must contain at least one special character (!@#\$%^&*)';
-        valid = false;
       } else {
-        _passcodeError = null;
+        final fullPhone = '+234${numberController.text.trim()}';
+        final error = StorageService.instance
+            .passcodeValidationError(passcode, phoneNumber: fullPhone);
+        if (error != null) {
+          _passcodeError = error;
+          valid = false;
+        } else {
+          _passcodeError = null;
+        }
       }
 
       // Confirm passcode
@@ -238,15 +278,26 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       return;
     }
 
+   // final fullName = fullNameController.text.trim();
     final email = emailController.text.trim();
     final phoneNumber = '+234${numberController.text.trim()}';
     final password = passwordController.text.trim();
 
+    // Hold the collected data — the actual /auth/register call fires later,
+    // from KnowYouBetterForm, after OTP verification and referral collection.
+    ref.read(registrationFlowProvider.notifier).setBasicInfo(
+          phoneNumber: phoneNumber,
+          email: email,
+          passcode: password
+   //       fullName: fullName,
+        );
+
+    setState(() => _isLoading = true);
     try {
-      await ref.read(authProvider.notifier).signup(
-            email: email,
+      await ref.read(authServiceProvider).sendOtp(
             phoneNumber: phoneNumber,
-            password: password,
+            email: email,
+            purpose: OtpPurpose.registration,
           );
 
       if (!mounted) return;
@@ -257,13 +308,31 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           builder: (context) => EmailVerifySignup(
             email: email,
             phoneNumber: phoneNumber,
-            passcode: password,
           ),
         ),
       );
     } on NoInternetException {
       if (!mounted) return;
       ConnectivitySnackBar.showNoInternet(context);
+    } on KudiNetworkException {
+      if (!mounted) return;
+      ConnectivitySnackBar.showNoInternet(context);
+    } on KudiTimeoutException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: AppColors.avatarOrange,
+        ),
+      );
+    } on KudiApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: AppColors.avatarRed,
+        ),
+      );
     } on TimeoutException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -280,6 +349,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           backgroundColor: AppColors.avatarRed,
         ),
       );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -289,9 +360,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
     final connectivityState = ref.watch(connectivityStateProvider);
-    final isLoading = authState.isLoading;
+    final isLoading = _isLoading;
     final isOnline = connectivityState.isConnected;
     final termsAccepted = ref.watch(_termsAcceptedProvider);
     final canSubmit = _fieldsReady && termsAccepted;
@@ -326,6 +396,26 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           ),
                         ),
                         SizedBox(height: AppLayout.scaleHeight(context, 25)),
+
+                        // ── Full Name ──────────────────────────────────────
+                        // _buildLabel(context, 'Full Name'),
+                        // SizedBox(height: AppLayout.scaleHeight(context, 8)),
+                        // _buildPlainField(
+                        //   context,
+                        //   controller: fullNameController,
+                        //   keyboardType: TextInputType.name,
+                        //   enabled: !isLoading && isOnline,
+                        //   hasError: _fullNameError != null,
+                        //   onChanged: (_) {
+                        //     if (_fullNameError != null) {
+                        //       setState(() => _fullNameError = null);
+                        //     }
+                        //   },
+                        // ),
+                        // // ERROR BELOW FIELD
+                        // _buildFieldError(_fullNameError),
+                        //
+                        // SizedBox(height: AppLayout.scaleHeight(context, 16)),
 
                         // ── Email ──────────────────────────────────────────
                         _buildLabel(context, 'Email'),
@@ -381,6 +471,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           obscureText: !ref.watch(pinVisibilityProvider),
                           enabled: !isLoading && isOnline,
                           hasError: _passcodeError != null,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(8),
+                          ],
                           onChanged: (v) {
                             _updatePasscodeCriteria(v);
                           },
@@ -414,6 +509,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           obscureText: !ref.watch(confirmPinVisibilityProvider),
                           enabled: !isLoading && isOnline,
                           hasError: _confirmPasscodeError != null,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(8),
+                          ],
                           onChanged: (_) {
                             if (_confirmPasscodeError != null) {
                               setState(() => _confirmPasscodeError = null);
@@ -761,11 +861,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildCriteriaRow(context, '8–12 characters', _hasMinLength),
-        _buildCriteriaRow(context, 'At least one uppercase letter', _hasUppercase),
-        _buildCriteriaRow(context, 'At least one lowercase letter', _hasLowercase),
-        _buildCriteriaRow(context, 'At least one number', _hasNumber),
-        _buildCriteriaRow(context, 'At least one special character (!@#\$%^&*)', _hasSpecialChar),
+        _buildCriteriaRow(context, '6-8 digits', _hasValidLength),
+        _buildCriteriaRow(context, 'Numbers only', _isDigitsOnly),
+        _buildCriteriaRow(context, 'Not sequential or repetitive (e.g. 123456 or 111111)',
+            _isNotSimplePattern),
       ],
     );
   }

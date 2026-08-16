@@ -179,43 +179,129 @@ class StorageService {
     return base64Encode(result);
   }
 
-  /// Validates that a passcode meets the required complexity rules.
-  /// Throws a [StorageException] if any rule is violated.
+  /// Validates a passcode against the PRD's Passcode Security Rules
+  /// (Registration Screen §8, confirmed 2026-08-10 — supersedes the
+  /// 8-12-char alphanumeric rule this briefly used):
   ///
-  /// Rules (must match your SignUpScreen validator):
-  ///   - 8 to 12 characters long
-  ///   - At least one uppercase letter
-  ///   - At least one lowercase letter
-  ///   - At least one number
-  ///   - At least one special character: ! @ # $ % ^ & *
-  void _validatePasscode(String passcode) {
-    if (passcode.isEmpty || passcode.length < 8 || passcode.length > 12) {
-      throw StorageException('Passcode must be 8–12 characters');
+  ///   a. Length: 6-8 numeric digits only
+  ///   b. Prohibited patterns:
+  ///      i.   Sequential (123456, 456789)
+  ///      ii.  Repetitive (111111, 222222)
+  ///      iii. Phone number segments (last 6 digits of entered phone)
+  ///      iv.  Common PINs (PRD: "top 10,000 from breached databases")
+  ///      v.   Date patterns (DDMMYY, MMDDYY)
+  ///
+  /// On (b)(iv): this checks a small curated list of well-known common PINs,
+  /// not a real 10,000-entry breach-frequency dataset — fabricating one
+  /// would be worse than not having it. A real "top 10,000" blocklist is a
+  /// genuine follow-up (arguably better maintained centrally/backend-side
+  /// than baked into the app binary), not something to treat as done here.
+  ///
+  /// (c) bcrypt work-factor-12 hashing and (d) hashed-only storage are
+  /// server-side requirements already met by kudikit_auth_service's
+  /// PasscodeValidator/User credential storage — this method validates the
+  /// *format* rules mobile is responsible for; the hash below this method
+  /// (PBKDF2-HMAC-SHA256, 10k iterations) is this app's LOCAL passcode
+  /// storage for biometric/offline-unlock convenience, a separate concern
+  /// from the account's authoritative server-side credential.
+  ///
+  /// Mirrors lib/presentation/signup/signup.dart's `_updatePasscodeCriteria`
+  /// — keep the two in sync if either changes.
+  ///
+  /// Throws a [StorageException] if any rule is violated.
+  static const _commonPasscodes = {
+    '123456', '654321', '111111', '000000', '121212', '112233', '123123',
+    '696969', '123321', '111222', '102030', '789456', '147258', '159753',
+    '246810', '135791', '101010', '202020', '070707', '010101', '222222',
+    '333333', '444444', '555555', '666666', '777777', '888888', '999999',
+  };
+
+  void _validatePasscode(String passcode, {String? phoneNumber}) {
+    if (passcode.isEmpty) {
+      throw StorageException('Passcode cannot be empty');
     }
-    if (!RegExp(r'[A-Z]').hasMatch(passcode)) {
-      throw StorageException('Passcode must contain at least one uppercase letter');
+    if (!RegExp(r'^\d+$').hasMatch(passcode)) {
+      throw StorageException('Passcode must contain only digits');
     }
-    if (!RegExp(r'[a-z]').hasMatch(passcode)) {
-      throw StorageException('Passcode must contain at least one lowercase letter');
+    if (passcode.length < 6 || passcode.length > 8) {
+      throw StorageException('Passcode must be 6-8 digits');
     }
-    if (!RegExp(r'[0-9]').hasMatch(passcode)) {
-      throw StorageException('Passcode must contain at least one number');
+    if (_isSequential(passcode)) {
+      throw StorageException('Passcode cannot be a sequential pattern');
     }
-    if (!RegExp(r'[!@#$%^&*]').hasMatch(passcode)) {
-      throw StorageException('Passcode must contain at least one special character (!@#\$%^&*)');
+    if (_isRepetitive(passcode)) {
+      throw StorageException('Passcode cannot be a repetitive pattern');
+    }
+    if (_commonPasscodes.contains(passcode)) {
+      throw StorageException('This passcode is too common, please choose another');
+    }
+    if (passcode.length == 6 && _isDatePattern(passcode)) {
+      throw StorageException('Passcode cannot be a date (e.g. DDMMYY)');
+    }
+    if (phoneNumber != null && phoneNumber.length >= 6) {
+      final lastSixOfPhone = phoneNumber.substring(phoneNumber.length - 6);
+      if (passcode.contains(lastSixOfPhone)) {
+        throw StorageException('Passcode cannot contain your phone number');
+      }
+    }
+  }
+
+  /// True if a 6-digit [passcode] reads as a plausible DDMMYY or MMDDYY
+  /// date — simple range checks (day 01-31, month 01-12), not full
+  /// calendar validation (e.g. doesn't reject "300200" for a non-existent
+  /// Feb 30); that's the standard, sufficient bar for a PIN-policy check.
+  bool _isDatePattern(String passcode) {
+    final a = int.parse(passcode.substring(0, 2));
+    final b = int.parse(passcode.substring(2, 4));
+    // DDMMYY: a=day, b=month
+    if (a >= 1 && a <= 31 && b >= 1 && b <= 12) return true;
+    // MMDDYY: a=month, b=day
+    if (a >= 1 && a <= 12 && b >= 1 && b <= 31) return true;
+    return false;
+  }
+
+  bool _isSequential(String passcode) {
+    var ascending = true;
+    var descending = true;
+    for (var i = 1; i < passcode.length; i++) {
+      final prev = passcode.codeUnitAt(i - 1) - 48;
+      final curr = passcode.codeUnitAt(i) - 48;
+      if (curr != prev + 1) ascending = false;
+      if (curr != prev - 1) descending = false;
+    }
+    return ascending || descending;
+  }
+
+  bool _isRepetitive(String passcode) {
+    final first = passcode[0];
+    return passcode.split('').every((c) => c == first);
+  }
+
+  /// Returns a human-readable validation error, or null if [passcode] is
+  /// valid — exposed so signup/login forms can validate before submitting,
+  /// using the exact same rule set [savePasscode] enforces.
+  String? passcodeValidationError(String passcode, {String? phoneNumber}) {
+    try {
+      _validatePasscode(passcode, phoneNumber: phoneNumber);
+      return null;
+    } on StorageException catch (e) {
+      return e.message;
     }
   }
 
   /// Saves the user's passcode securely.
   ///
   /// Steps:
-  ///   1. Validate the passcode meets complexity rules.
+  ///   1. Validate the passcode meets the server's complexity rules.
   ///   2. Generate a random salt.
   ///   3. Hash the passcode with the salt.
   ///   4. Store "salt:hash:iterations" in encrypted storage.
-  Future<void> savePasscode(String passcode) async {
+  ///
+  /// [phoneNumber], when provided, is used only for the "doesn't contain
+  /// phone number" validation rule above — it is never stored.
+  Future<void> savePasscode(String passcode, {String? phoneNumber}) async {
     try {
-      _validatePasscode(passcode); // Step 1 — throws if invalid
+      _validatePasscode(passcode, phoneNumber: phoneNumber); // Step 1 — throws if invalid
 
       final salt = _generateSalt();         // Step 2
       const iterations = 10000;
@@ -236,7 +322,8 @@ class StorageService {
   }
 
   // Keep savePin as an alias so existing call sites (auth_provider.dart) don't break.
-  Future<void> savePin(String pin) => savePasscode(pin);
+  Future<void> savePin(String pin, {String? phoneNumber}) =>
+      savePasscode(pin, phoneNumber: phoneNumber);
 
   /// Reads and parses the stored passcode hash data.
   /// Returns null if no passcode is stored or the format is invalid.

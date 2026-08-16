@@ -1,12 +1,8 @@
 // lib/presentation/signup/signup_verify.dart
 //
-// FIXED:
-//   - Constructor parameter renamed: `pin` → `passcode`.
-//     The old name `pin` was ambiguous — the same word was used inside
-//     the Pinput widget for the OTP code, causing a naming collision that
-//     made the code confusing and error-prone for future developers.
-//   - All internal references updated accordingly.
-//   - No logic changes — only naming clarity.
+// Wired to the real /auth/send-otp + /auth/verify-otp contract. The
+// otpReference send-otp returns is stashed in registrationFlowProvider so
+// KnowYouBetterForm can pass it to /auth/register at the end of the flow.
 
 import 'dart:async';
 
@@ -17,24 +13,20 @@ import 'package:kudipay/formatting/widget/app_loading_indicator.dart';
 import 'package:kudipay/formatting/widget/color_app_button.dart';
 import 'package:kudipay/formatting/widget/connectivity_widget.dart';
 import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/config/dio_client.dart';
 import 'package:kudipay/presentation/signup/signup_more_details.dart';
 import 'package:kudipay/services/api_services.dart';
+import 'package:kudipay/services/auth_services.dart';
 import 'package:pinput/pinput.dart';
 
 class EmailVerifySignup extends ConsumerStatefulWidget {
   final String email;
   final String phoneNumber;
 
-  // FIXED: renamed from `pin` to `passcode` — this is the user's signup
-  // passcode (8-12 char alphanumeric), NOT the 6-digit OTP shown in the
-  // Pinput widget below. Using `pin` for both caused a naming collision.
-  final String passcode;
-
   const EmailVerifySignup({
     super.key,
     required this.email,
     required this.phoneNumber,
-    required this.passcode,
   });
 
   @override
@@ -165,9 +157,18 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
     });
 
     try {
-      // TODO: Replace this delay with the real auth service call:
-      // ref.read(authProvider.notifier).resendVerification(widget.email)
-      await Future.delayed(const Duration(seconds: 1));
+      final response = await ref.read(authServiceProvider).sendOtp(
+            phoneNumber: widget.phoneNumber,
+            email: widget.email,
+            purpose: OtpPurpose.registration,
+          );
+      final otpReference = (response['data']
+          as Map<String, dynamic>?)?['otpReference'] as String?;
+      if (otpReference != null && otpReference.isNotEmpty) {
+        ref
+            .read(registrationFlowProvider.notifier)
+            .setOtpReference(otpReference);
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -180,6 +181,28 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
     } on NoInternetException {
       if (mounted) {
         ConnectivitySnackBar.showNoInternet(context);
+      }
+    } on KudiNetworkException {
+      if (mounted) {
+        ConnectivitySnackBar.showNoInternet(context);
+      }
+    } on KudiTimeoutException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    } on KudiApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } on TimeoutException catch (e) {
       if (mounted) {
@@ -229,41 +252,61 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
       return;
     }
 
+    final otpReference = ref.read(registrationFlowProvider).otpReference;
+    if (otpReference == null || otpReference.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Verification code expired — please resend and try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       isLoading = true;
     });
 
     try {
-      // TODO: Replace this delay with the real auth service call:
-      // ref.read(authProvider.notifier).verifyEmail(widget.email, otp)
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (otp.isNotEmpty) {
-        final userId = 'user_${DateTime.now().millisecondsSinceEpoch}';
-        ref.read(userIdProvider.notifier).state = userId;
-        ref.read(userEmailProvider.notifier).state = widget.email;
-
-        if (mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const KnowYouBetterForm(),
-            ),
+      await ref.read(authServiceProvider).verifyOtp(
+            otpReference: otpReference,
+            code: otp,
+            purpose: OtpPurpose.registration,
           );
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Account verified successfully!'),
-              backgroundColor: Color.fromARGB(255, 6, 148, 42),
-            ),
-          );
-        }
-      } else {
-        throw Exception('Invalid verification code');
+      ref.read(userEmailProvider.notifier).state = widget.email;
+
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const KnowYouBetterForm(),
+          ),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Account verified successfully!'),
+            backgroundColor: Color.fromARGB(255, 6, 148, 42),
+          ),
+        );
       }
     } on NoInternetException {
       if (mounted) {
         ConnectivitySnackBar.showNoInternet(context);
+      }
+    } on KudiNetworkException {
+      if (mounted) {
+        ConnectivitySnackBar.showNoInternet(context);
+      }
+    } on KudiApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } on TimeoutException catch (e) {
       if (mounted) {

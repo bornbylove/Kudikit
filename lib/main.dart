@@ -15,8 +15,7 @@ import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/services/connectivity_service.dart';
 import 'package:camera/camera.dart';
 
-// FIXED: provides an empty-list default so watching the provider before
-// main() finishes never throws UnimplementedError.
+
 final availableCamerasProvider = Provider<List<CameraDescription>>((ref) => const []);
 
 void main() async {

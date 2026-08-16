@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/formatting/widget/app_loading_indicator.dart';
@@ -11,6 +12,7 @@ import 'package:kudipay/presentation/linkdevice/link_device_screen.dart';
 import 'package:kudipay/presentation/signup/signup.dart';
 import 'package:kudipay/presentation/support/support_screen.dart';
 import 'package:kudipay/provider/provider.dart';
+import 'package:kudipay/config/dio_client.dart';
 import 'package:kudipay/services/api_services.dart';
 import 'package:kudipay/services/storage_services.dart';
 
@@ -121,8 +123,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
 
-    if (password.length < 8) {
-      _errorNotifier.value = 'Passcode must be at least 8 characters';
+    if (password.length < 6) {
+      _errorNotifier.value = 'Passcode must be at least 6 digits';
       return;
     }
 
@@ -130,16 +132,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     _errorNotifier.value = null;
 
     try {
-      final isValid = await StorageService.instance.verifyPin(password);
-      if (!mounted) return;
-
-      if (!isValid) {
-        _errorNotifier.value = 'Incorrect passcode, kindly try again';
-        _passwordCtrl.clear();
-        if (mounted) setState(() => _isLoading = false);
-        return;
-      }
-
+      // The server is authoritative for passcode correctness — a stale or
+      // absent local passcode hash (fresh install, new device, reinstall)
+      // must never block a login attempt that the backend would accept.
       final email =
           widget.email ?? user?.email ?? ref.read(userEmailProvider) ?? '';
       await ref.read(authProvider.notifier).login(
@@ -156,6 +151,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       );
     } on NoInternetException {
       if (mounted) ConnectivitySnackBar.showNoInternet(context);
+    } on KudiNetworkException {
+      if (mounted) ConnectivitySnackBar.showNoInternet(context);
+    } on KudiApiException catch (e) {
+      _errorNotifier.value = e.message;
+      _passwordCtrl.clear();
     } on TimeoutException catch (e) {
       _errorNotifier.value = e.toString();
     } catch (e) {
@@ -622,6 +622,11 @@ class _PasswordField extends StatelessWidget {
         controller: controller,
         obscureText: !visible,
         enabled: enabled,
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(8),
+        ],
         textInputAction: TextInputAction.done,
         onSubmitted: (_) => onSubmitted(),
         style: TextStyle(

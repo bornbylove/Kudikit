@@ -91,7 +91,7 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
   final ConnectivityService _connectivityService;
 
   ConnectivityNotifier(this._connectivityService)
-      : super(ConnectivityState(isConnected: false)) {
+      : super(ConnectivityState(isConnected: true)) {
     _initialize();
   }
 
@@ -101,6 +101,7 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
     final isConnected = _connectivityService.hasConnection;
     final connectivityTypes = await _connectivityService.getConnectivityType();
 
+    if (!mounted) return;
     state = ConnectivityState(
       isConnected: isConnected,
       connectionType: connectivityTypes.isNotEmpty
@@ -111,7 +112,7 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
 
     _connectivityService.connectionChange.listen((isConnected) async {
       final connectivityTypes = await _connectivityService.getConnectivityType();
-
+      if (!mounted) return;
       state = ConnectivityState(
         isConnected: isConnected,
         connectionType: connectivityTypes.isNotEmpty

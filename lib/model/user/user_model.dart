@@ -111,6 +111,41 @@ class UserModel {
     };
   }
 
+  /// Builds a [UserModel] from kudikit_auth_service's `UserResponse` shape
+  /// (the `data.user` object of an AuthTokenResponse — same for /auth/login
+  /// and /auth/register). This is deliberately separate from [fromJson]
+  /// (which round-trips the app's own local-storage shape) because the two
+  /// field sets genuinely differ: the server has no concept of this app's
+  /// local `userId`/verification-flag fields, and this app has no local
+  /// concept of the server's `tier`/`status`/`registrationComplete`.
+  factory UserModel.fromAuthResponse(Map<String, dynamic> json) {
+    return UserModel(
+      userId: (json['customerId'] as String?) ?? '',
+      email: (json['email'] as String?) ?? '',
+      phoneNumber: (json['phoneNumber'] as String?) ?? '',
+      name: json['fullName'] as String?,
+      // A successful register/login response means the identity behind this
+      // account was already OTP-verified — this app has no separate signal
+      // for "verified" beyond that.
+      isEmailVerified: true,
+      isPhoneVerified: true,
+      lastLogin: DateTime.now(),
+      selectedTier: _tierStringToInt(json['tier'] as String?),
+    );
+  }
+
+  static int _tierStringToInt(String? tier) {
+    switch (tier) {
+      case 'PRO':
+        return 2;
+      case 'MEGA':
+        return 3;
+      case 'BASIC':
+      default:
+        return 1;
+    }
+  }
+
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       userId: json['userId'] as String,

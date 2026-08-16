@@ -1,4 +1,5 @@
 export 'auth/auth_provider.dart';
+export 'auth/registration_flow_provider.dart';
 export 'transaction/transaction_provider.dart';
 export 'Identity_verify/identity_verify_provider.dart';
 export 'connectivity/connectivity_provider.dart';

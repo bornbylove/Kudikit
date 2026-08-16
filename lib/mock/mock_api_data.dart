@@ -40,8 +40,9 @@
 // =============================================================================
 
 import 'package:kudipay/model/device/device_metadata.dart';
+import 'package:kudipay/config/api_config.dart' show kBaseUrl;
 
-const String kBaseUrl = 'https://api.Kudikit.com/api/v1';
+export 'package:kudipay/config/api_config.dart' show kBaseUrl;
 
 String _txId() => 'TXN${DateTime.now().millisecondsSinceEpoch}';
 String _mockToken() =>
