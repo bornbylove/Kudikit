@@ -8,8 +8,10 @@ import 'package:kudipay/features/identity/presentation/pages/confirm_info.dart';
 // IdType, VerificationStatus, IdVerificationState and idVerificationProvider
 // all come from the KYC feature now — this screen previously used a parallel
 // set of duplicates that posted to an endpoint the backend does not have.
+import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
 import 'package:kudipay/features/kyc/domain/entities/kyc_entities.dart';
 import 'package:kudipay/features/kyc/presentation/controllers/kyc_controllers.dart';
+import 'package:kudipay/features/kyc/presentation/pages/kyc_flow_manager.dart';
 import 'package:kudipay/features/selfie/presentation/pages/selfie_capture_screen.dart';
 
 class IdVerificationScreen extends ConsumerStatefulWidget {
@@ -464,16 +466,43 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
         .verifyId(_idNumberController.text, selfie);
 
     if (!mounted) return;
+    final result = ref.read(idVerificationProvider);
 
-    // Liveness failed. The stored selfie will fail again identically, so drop
-    // it and send the user back to retake rather than leaving them tapping
-    // Verify on a photo that cannot pass.
-    if (ref.read(idVerificationProvider).requiresSelfieRetake) {
+    // Escalated to a human. The selfie is KEPT and the user stays put — there
+    // is nothing for them to redo, and retaking would queue a second review.
+    if (result.requiresManualReview) {
+      await showDialog<void>(
+        context: context,
+        builder: (_) => _UnderReviewDialog(message: result.error),
+      );
+      if (!mounted) return;
+
+      // Records that this step needs no further input from the user, so
+      // KycFlowManager advances instead of looping them back here to
+      // resubmit — which would queue a duplicate review. It is a routing
+      // flag, NOT proof of verification: the authoritative result stays on
+      // the server and is read back via GET /auth/kyc/status.
+      await ref.read(authProvider.notifier).updateKycStatus(
+            isBvnVerified: true,
+          );
+      if (!mounted) return;
+
+      // Hand back to the flow manager, which resolves whatever is next for
+      // this tier — a further KYC step, or the transaction PIN.
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const KycFlowManager()),
+      );
+      return;
+    }
+
+    // A liveness failure the backend did not escalate. The stored selfie will
+    // fail again identically, so drop it and send the user back to retake.
+    if (result.requiresSelfieRetake) {
       ref.read(selfieStateProvider.notifier).reset();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(ref.read(idVerificationProvider).error ??
-              'Please retake your selfie.'),
+          content: Text(result.error ?? 'Please retake your selfie.'),
           backgroundColor: AppColors.avatarOrange,
           duration: const Duration(seconds: 5),
         ),
@@ -515,6 +544,93 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => ConfirmInfoScreen(userInfo: userInfo),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// _UnderReviewDialog
+// Shown when the backend escalates a submission to MANUAL_REVIEW — which is
+// what a liveness-only failure does. Deliberately offers no retake: a reviewer
+// already has the case, and resubmitting would create a duplicate.
+// =============================================================================
+class _UnderReviewDialog extends StatelessWidget {
+  final String? message;
+
+  const _UnderReviewDialog({this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 20)),
+      ),
+      contentPadding: EdgeInsets.all(AppLayout.scaleWidth(context, 24)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: AppLayout.scaleWidth(context, 64),
+            height: AppLayout.scaleWidth(context, 64),
+            decoration: BoxDecoration(
+              color: AppColors.avatarOrange.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.hourglass_top_rounded,
+              color: AppColors.avatarOrange,
+              size: AppLayout.scaleWidth(context, 30),
+            ),
+          ),
+          SizedBox(height: AppLayout.scaleHeight(context, 20)),
+          Text(
+            'Verification under review',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: AppLayout.fontSize(context, 18),
+              fontWeight: FontWeight.w600,
+              color: AppColors.textDark,
+            ),
+          ),
+          SizedBox(height: AppLayout.scaleHeight(context, 10)),
+          Text(
+            message ??
+                'Your verification is being reviewed. We will let you know '
+                    'once it is complete.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: AppLayout.fontSize(context, 14),
+              color: Colors.grey[600],
+              height: 1.4,
+            ),
+          ),
+          SizedBox(height: AppLayout.scaleHeight(context, 24)),
+          SizedBox(
+            width: double.infinity,
+            height: AppLayout.scaleHeight(context, 50),
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryTeal,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(AppLayout.scaleWidth(context, 25)),
+                ),
+              ),
+              child: Text(
+                'Got it',
+                style: TextStyle(
+                  fontSize: AppLayout.fontSize(context, 16),
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -183,7 +183,10 @@ class AuthService {
       );
       return response.data!;
     } on KudiUnauthorizedException {
-      throw KudiApiException('Invalid credentials. Please try again.');
+      // Preserved as-is so the login screen can tell "wrong passcode" apart
+      // from a network or server failure and show the right error state.
+      // Flattening it into KudiApiException made every failure look alike.
+      rethrow;
     } on KudiApiException {
       rethrow;
     } catch (e) {

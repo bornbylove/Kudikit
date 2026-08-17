@@ -1,4 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:kudipay/features/transactionpin/data/transaction_pin_api.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'dart:math';
@@ -21,6 +22,13 @@ class TransactionPinException implements Exception {
 class TransactionPinService {
   TransactionPinService._();
   static final TransactionPinService instance = TransactionPinService._();
+
+  /// Set once the PIN endpoints exist; see transaction_pin_api.dart.
+  /// Null keeps the service device-local, which is today's behaviour.
+  TransactionPinApi? _api;
+
+  // ignore: use_setters_to_change_properties
+  void attachApi(TransactionPinApi api) => _api = api;
   factory TransactionPinService() => instance;
 
   static const String _txPinKey = 'kudipay_transaction_pin_v1';
@@ -40,6 +48,15 @@ class TransactionPinService {
       throw TransactionPinException(
           'Transaction PIN must be exactly 4 digits.');
     }
+
+    // Register with the server FIRST, so a network failure does not leave a
+    // PIN that works on this handset and nowhere else. Inactive until the
+    // endpoint exists — see transaction_pin_api.dart.
+    final api = _api;
+    if (kTransactionPinServerSyncEnabled && api != null) {
+      await api.setPin(pin);
+    }
+
     final salt = _generateSalt();
     final hash = _hashPin(pin, salt);
     await _secureStorage.write(
@@ -49,7 +66,18 @@ class TransactionPinService {
   // ---------------------------------------------------------------------------
   // Verify transaction PIN
   // ---------------------------------------------------------------------------
+  /// Verifies [pin].
+  ///
+  /// WARNING: while kTransactionPinServerSyncEnabled is false this is a purely
+  /// local comparison, which authorises transfers on the strength of data an
+  /// attacker with the handset controls. The server check below is the one
+  /// that actually protects funds.
   Future<bool> verifyTransactionPin(String pin) async {
+    final api = _api;
+    if (kTransactionPinServerSyncEnabled && api != null) {
+      return api.verifyPin(pin);
+    }
+
     final data = await _getStoredPinData();
     if (data == null) return false;
     final expectedHash = _hashPin(pin, data['salt']!);

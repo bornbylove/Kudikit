@@ -21,10 +21,10 @@ import 'package:kudipay/features/wallet/presentation/controllers/wallet_controll
 //   ✓  Account number  (copyable)
 //   ✓  Account name    (from wallet state)
 //   ✓  Account tier    (from tier state) + "Upgrade for Higher Limits" badge
-//   ✓  "Proceed to Dashboard" primary button
+//   ✓  "Continue to Login" primary button
 //
 // NAVIGATION:
-//   Pressing "Proceed to Dashboard" pushes BottomNavBar and removes the
+//   Pressing "Continue to Login" routes to the login screen and removes the
 //   entire onboarding stack — the user cannot go back.
 //
 // DESIGN REFERENCE:
@@ -225,7 +225,7 @@ class _AccountReadyScreenState extends ConsumerState<AccountReadyScreen>
                 ),
               ),
 
-              // ── Sticky "Proceed to Dashboard" button ─────────────────────
+              // ── Sticky "Continue to Login" button ────────────────────────
               FadeTransition(
                 opacity: _fadeAnim,
                 child: _buildProceedButton(context),
@@ -430,10 +430,12 @@ class _AccountReadyScreenState extends ConsumerState<AccountReadyScreen>
           height: AppLayout.scaleHeight(context, 54),
           child: ElevatedButton(
             onPressed: () {
-              // Remove the entire onboarding / KYC stack and land on the
-              // main dashboard. The user cannot navigate back.
+              // Clear the entire onboarding / KYC stack and send the user to
+              // login, so they sign in once with the passcode they just
+              // created before reaching any money screens. The stored user
+              // supplies the identifier, so they only enter the passcode.
               Navigator.pushNamedAndRemoveUntil(
-                  context, AppRoutes.bottomNav, (_) => false);
+                  context, AppRoutes.login, (_) => false);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryTeal,
@@ -445,7 +447,7 @@ class _AccountReadyScreenState extends ConsumerState<AccountReadyScreen>
               ),
             ),
             child: Text(
-              'Proceed to Dashboard',
+              'Continue to Login',
               style: TextStyle(
                 fontSize: AppLayout.fontSize(context, 16),
                 fontWeight: FontWeight.w600,

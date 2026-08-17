@@ -2,12 +2,11 @@ import 'dart:async';
 import 'package:kudipay/core/theme/app_theme.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/app/app_routes.dart';
 import 'package:kudipay/core/utils/passcode.dart';
 import 'package:kudipay/core/utils/responsive.dart';
-import 'package:kudipay/features/passcode/presentation/pages/numeric_keypad.dart';
-import 'package:kudipay/features/passcode/presentation/pages/passcode_dots.dart';
 import 'package:kudipay/shared/widgets/app_loading_indicator.dart';
 import 'package:kudipay/shared/widgets/connectivity_widget.dart';
 import 'package:kudipay/model/user/user_model.dart';
@@ -39,9 +38,8 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  /// Digits entered on the keypad. Replaces the old TextEditingController —
-  /// the passcode is numeric and entered in-app, so there is no text field.
-  String _passcode = '';
+  final TextEditingController _passwordCtrl = TextEditingController();
+  bool _passwordVisible = false;
   bool _showingPhone = true;
   bool _isLoading = false;
 
@@ -52,6 +50,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   void initState() {
     super.initState();
+    _passwordCtrl.addListener(_onPasswordChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _setupConnectivityListener();
     });
@@ -59,30 +58,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   void dispose() {
+    _passwordCtrl.removeListener(_onPasswordChanged);
+    _passwordCtrl.dispose();
     _errorNotifier.dispose();
     _passwordNotEmpty.dispose();
     super.dispose();
   }
 
-  void _onPasscodeDigit(String digit, UserModel? user) {
-    if (_passcode.length >= kPasscodeLength) return;
-    setState(() {
-      _passcode += digit;
-      _errorNotifier.value = null;
-      _passwordNotEmpty.value = _passcode.isNotEmpty;
-    });
-    // Submit as soon as the passcode is complete — there is nothing else for
-    // the user to fill in on this screen.
-    if (_passcode.length == kPasscodeLength) _handleLogin(user);
-  }
-
-  void _onPasscodeBackspace() {
-    if (_passcode.isEmpty) return;
-    setState(() {
-      _passcode = _passcode.substring(0, _passcode.length - 1);
-      _errorNotifier.value = null;
-      _passwordNotEmpty.value = _passcode.isNotEmpty;
-    });
+  void _onPasswordChanged() {
+    // Clear the error as soon as the user starts typing again.
+    if (_errorNotifier.value != null) _errorNotifier.value = null;
+    // Enable Continue only once a full-length passcode has been entered.
+    _passwordNotEmpty.value = _passwordCtrl.text.length == kPasscodeLength;
   }
 
   void _setupConnectivityListener() {
@@ -91,7 +78,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         final wasConnected = previous?.value ?? true;
         if (wasConnected && !isConnected) {
           ConnectivitySnackBar.showNoInternet(context);
-          setState(() => _passcode = '');
+          _passwordCtrl.clear();
           _errorNotifier.value = null;
         } else if (!wasConnected && isConnected) {
           ConnectivitySnackBar.showConnectionRestored(context);
@@ -129,7 +116,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
 
-    final password = _passcode;
+    final password = _passwordCtrl.text;
     final passcodeProblem = passcodeError(password);
     if (passcodeProblem != null) {
       _errorNotifier.value = passcodeProblem;
@@ -161,6 +148,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           context, AppRoutes.bottomNav, (_) => false);
     } on NoInternetException {
       if (mounted) ConnectivitySnackBar.showNoInternet(context);
+    } on KudiUnauthorizedException {
+      // Wrong passcode specifically — gets the dedicated sheet rather than the
+      // inline line, which is reserved for everything else.
+      if (mounted) await _showIncorrectPasscodeSheet();
     } on TimeoutException catch (e) {
       _errorNotifier.value = e.toString();
     } catch (e) {
@@ -168,6 +159,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  /// Shown when the server rejects the passcode. Dismissing it leaves the
+  /// inline message in place so the screen still explains itself.
+  Future<void> _showIncorrectPasscodeSheet() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => const _IncorrectPasscodeSheet(),
+    );
+    if (!mounted) return;
+    _errorNotifier.value = 'Incorrect passcode, kindly try again';
+    _passwordCtrl.clear();
   }
 
   // ---------------------------------------------------------------------------
@@ -360,6 +365,32 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                 ),
 
+                // ── Error message — sits under the heading, above the
+                // fields, per the login error design ──────────────────────
+                ValueListenableBuilder<String?>(
+                  valueListenable: _errorNotifier,
+                  builder: (context, errorText, _) => AnimatedSize(
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeInOut,
+                    child: errorText == null
+                        ? const SizedBox.shrink()
+                        : Padding(
+                            padding: EdgeInsets.only(
+                              top: AppLayout.scaleHeight(context, 8),
+                            ),
+                            child: Text(
+                              errorText,
+                              style: TextStyle(
+                                fontSize: AppLayout.fontSize(context, 14),
+                                fontWeight: FontWeight.w400,
+                                color: const Color(0xFFE53935),
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
+
                 SizedBox(height: AppLayout.scaleHeight(context, 20)),
 
                 // ── Identifier field ──────────────────────────────────────
@@ -373,68 +404,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   onTap: () => _showIdentifierMenu(user),
                 ),
 
-                // ── Error message — directly below identifier field ────────
-                ValueListenableBuilder<String?>(
-                  valueListenable: _errorNotifier,
-                  builder: (context, errorText, _) {
-                    return AnimatedSize(
-                      duration: const Duration(milliseconds: 180),
-                      curve: Curves.easeInOut,
-                      child: errorText != null
-                          ? Padding(
-                              padding: EdgeInsets.only(
-                                top: AppLayout.scaleHeight(context, 8),
-                                left: AppLayout.scaleWidth(context, 2),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.error_outline,
-                                    size: AppLayout.scaleWidth(context, 14),
-                                    color: const Color(0xFFE53935),
-                                  ),
-                                  SizedBox(
-                                      width: AppLayout.scaleWidth(context, 4)),
-                                  Expanded(
-                                    child: Text(
-                                      errorText,
-                                      style: TextStyle(
-                                        fontSize:
-                                            AppLayout.fontSize(context, 13),
-                                        fontWeight: FontWeight.w400,
-                                        color: const Color(0xFFE53935),
-                                        height: 1.3,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : const SizedBox.shrink(),
-                    );
-                  },
-                ),
-
                 SizedBox(height: AppLayout.scaleHeight(context, 12)),
 
-                // ── Passcode: dots + keypad ───────────────────────────────
-                // The passcode is kPasscodeLength digits, so this uses the
-                // in-app keypad rather than a text field and the OS keyboard.
-                PasscodeDotsIndicator(
-                  length: kPasscodeLength,
-                  filledCount: _passcode.length,
-                  showError: _errorNotifier.value != null,
-                ),
-                SizedBox(height: AppLayout.scaleHeight(context, 16)),
-                IgnorePointer(
-                  ignoring: _isLoading || !isOnline,
-                  child: Opacity(
-                    opacity: (_isLoading || !isOnline) ? 0.5 : 1.0,
-                    child: NumericKeypad(
-                      onNumberPressed: (d) => _onPasscodeDigit(d, user),
-                      onBackspacePressed: _onPasscodeBackspace,
-                    ),
-                  ),
+                // ── Password field ────────────────────────────────────────
+                _PasswordField(
+                  controller: _passwordCtrl,
+                  visible: _passwordVisible,
+                  enabled: !_isLoading && isOnline,
+                  onToggleVisibility: () =>
+                      setState(() => _passwordVisible = !_passwordVisible),
+                  onSubmitted: () => _handleLogin(user),
                 ),
 
                 // ── Forgot PIN ────────────────────────────────────────────
@@ -847,4 +826,172 @@ class _KudiKitLogoPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_KudiKitLogoPainter _) => false;
+}
+
+class _PasswordField extends StatelessWidget {
+  final TextEditingController controller;
+  final bool visible;
+  final bool enabled;
+  final VoidCallback onToggleVisibility;
+  final VoidCallback onSubmitted;
+
+  const _PasswordField({
+    required this.controller,
+    required this.visible,
+    required this.enabled,
+    required this.onToggleVisibility,
+    required this.onSubmitted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: enabled ? Colors.white : const Color(0xFFF8F8F8),
+        borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
+        border: Border.all(color: const Color(0xFFD6EAE0), width: 1),
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: !visible,
+        enabled: enabled,
+        // The passcode is kPasscodeLength digits, so show the number pad and
+        // refuse anything else at the source rather than only at validation.
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(kPasscodeLength),
+        ],
+        textInputAction: TextInputAction.done,
+        onSubmitted: (_) => onSubmitted(),
+        style: TextStyle(
+          fontSize: AppLayout.fontSize(context, 15),
+          fontWeight: FontWeight.w500,
+          color: const Color(0xFF171515),
+        ),
+        decoration: InputDecoration(
+          hintText: 'Passcode',
+          hintStyle: TextStyle(
+            fontSize: AppLayout.fontSize(context, 15),
+            color: Colors.grey[400],
+            fontWeight: FontWeight.w400,
+          ),
+          prefixIcon: Padding(
+            padding: EdgeInsets.only(
+              left: AppLayout.scaleWidth(context, 16),
+              right: AppLayout.scaleWidth(context, 10),
+            ),
+            child: Icon(
+              Icons.lock_outline_rounded,
+              color: Colors.grey[400],
+              size: AppLayout.scaleWidth(context, 15),
+            ),
+          ),
+          prefixIconConstraints: const BoxConstraints(),
+          suffixIcon: IconButton(
+            icon: Icon(
+              visible
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
+              color: Colors.grey[400],
+              size: AppLayout.scaleWidth(context, 20),
+            ),
+            splashRadius: AppLayout.scaleWidth(context, 18),
+            onPressed: onToggleVisibility,
+          ),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: AppLayout.scaleWidth(context, 16),
+            vertical: AppLayout.scaleHeight(context, 17),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// _IncorrectPasscodeSheet
+// Shown when the server rejects the passcode (401). Matches the login error
+// design: red cross, title, supporting line, and a single "Try again" action.
+// =============================================================================
+class _IncorrectPasscodeSheet extends StatelessWidget {
+  const _IncorrectPasscodeSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppLayout.scaleWidth(context, 24)),
+        ),
+      ),
+      padding: EdgeInsets.fromLTRB(
+        AppLayout.scaleWidth(context, 24),
+        AppLayout.scaleHeight(context, 32),
+        AppLayout.scaleWidth(context, 24),
+        AppLayout.scaleHeight(context, 24),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.close_rounded,
+              color: const Color(0xFFE53935),
+              size: AppLayout.scaleWidth(context, 44),
+            ),
+            SizedBox(height: AppLayout.scaleHeight(context, 20)),
+            Text(
+              'Incorrect passcode entered',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: AppLayout.fontSize(context, 18),
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF171515),
+              ),
+            ),
+            SizedBox(height: AppLayout.scaleHeight(context, 8)),
+            Text(
+              'Kindly check the passcode and try again',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: AppLayout.fontSize(context, 14),
+                fontWeight: FontWeight.w400,
+                color: Colors.grey[600],
+                height: 1.4,
+              ),
+            ),
+            SizedBox(height: AppLayout.scaleHeight(context, 28)),
+            SizedBox(
+              width: double.infinity,
+              height: AppLayout.scaleHeight(context, 52),
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF4F4F4),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                        AppLayout.scaleWidth(context, 28)),
+                  ),
+                ),
+                child: Text(
+                  'Try again',
+                  style: TextStyle(
+                    fontSize: AppLayout.fontSize(context, 16),
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF171515),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

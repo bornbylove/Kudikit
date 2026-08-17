@@ -135,28 +135,33 @@ class _SelfieCaptureScreenState extends ConsumerState<SelfieCaptureScreen> {
   }
 
   Future<void> _processImage(String imagePath) async {
+    final notifier = ref.read(selfieStateProvider.notifier);
+
+    // Face detection takes a moment on-device; show the spinner so the capture
+    // does not appear to do nothing while it runs.
+    notifier.setLoading(true);
+
     // Reject an obviously unusable capture here rather than after a round trip
     // — Dojah scores face_detected and image quality server-side and charges
     // per call. This is NOT liveness; that decision is the server's.
     final check = await checkSelfie(File(imagePath));
     if (!mounted) return;
 
-    ref.read(selfieStateProvider.notifier).setFaceDetected(check.passed);
+    notifier.setLoading(false);
+    notifier.setFaceDetected(check.passed);
 
     if (!check.passed) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(check.reason ?? 'Please retake your selfie.'),
-          backgroundColor: Colors.orange,
-          duration: const Duration(seconds: 4),
-        ),
-      );
+      // Routed through state so it surfaces as the retake dialog. A snackbar
+      // was too easy to miss, which made a rejected capture look like the
+      // screen had simply done nothing.
+      notifier.failValidation(check.reason ?? 'Please retake your selfie.');
       return;
     }
 
     // Retains the capture locally — it is submitted later as the required
-    // selfieImageBase64 field on verify-bvn / verify-nin.
-    ref.read(selfieStateProvider.notifier).captureSelfie(imagePath);
+    // selfieImageBase64 field on verify-bvn / verify-nin. Setting
+    // validationPassed drives the success dialog immediately.
+    notifier.captureSelfie(imagePath);
   }
 
   @override

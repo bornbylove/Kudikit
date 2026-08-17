@@ -79,8 +79,8 @@ class _CreateTransactionPinScreenState
                               children: [
                                 Text(
                                   state.isConfirmStep
-                                      ? 'Confirm your passcode'
-                                      : 'Create a passcode',
+                                      ? 'Confirm Transaction Pin'
+                                      : 'Create Transaction Pin',
                                   style: TextStyle(
                                     fontSize: AppLayout.fontSize(context, 26),
                                     fontWeight: FontWeight.bold,
@@ -91,8 +91,8 @@ class _CreateTransactionPinScreenState
                                     height: AppLayout.scaleHeight(context, 10)),
                                 Text(
                                   state.isConfirmStep
-                                      ? 'Re-enter your PIN to confirm. Don\'t share it with anyone.'
-                                      : 'Create a passcode to sign in your account securely.\nPlease, don\'t share your passcode with anyone.',
+                                      ? 'Re-enter your transaction pin to confirm. Don\'t share it with anyone.'
+                                      : 'Create a transaction pin in order to able to send money',
                                   style: TextStyle(
                                     fontSize: AppLayout.fontSize(context, 14),
                                     color: Colors.grey[600],
@@ -377,8 +377,9 @@ class _CreateTransactionPinScreenState
                     Navigator.pop(context);
                   } else {
                     // Onboarding / KYC flow — push the congratulations screen.
-                    // AccountReadyScreen will then clear the entire stack and
-                    // push BottomNavBar when the user taps "Proceed to Dashboard".
+                    // AccountReadyScreen clears the stack and routes to LOGIN,
+                    // not the dashboard, so the user signs in with the account
+                    // they just finished setting up.
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(

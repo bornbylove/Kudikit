@@ -57,12 +57,18 @@ class IdVerificationState {
   /// retake it — retrying with the same image fails identically.
   final bool requiresSelfieRetake;
 
+  /// True when the backend escalated to MANUAL_REVIEW. A human is already
+  /// assessing the submission, so the user must NOT be told to retake —
+  /// retaking cannot help and would queue a duplicate review.
+  final bool requiresManualReview;
+
   const IdVerificationState({
     required this.idType,
     this.status = VerificationStatus.idle,
     this.error,
     this.data,
     this.requiresSelfieRetake = false,
+    this.requiresManualReview = false,
   });
 
   IdVerificationState copyWith({
@@ -71,6 +77,7 @@ class IdVerificationState {
     String? error,
     Map<String, dynamic>? data,
     bool requiresSelfieRetake = false,
+    bool requiresManualReview = false,
   }) =>
       IdVerificationState(
         idType: idType ?? this.idType,
@@ -78,6 +85,7 @@ class IdVerificationState {
         error: error,
         data: data ?? this.data,
         requiresSelfieRetake: requiresSelfieRetake,
+        requiresManualReview: requiresManualReview,
       );
 }
 
@@ -118,8 +126,28 @@ class IdVerificationController extends StateNotifier<IdVerificationState> {
 
       // A 2xx does not mean the person passed. Dojah scores the selfie and
       // the backend only sets livenessVerified above its threshold, so an
-      // unchecked success here would wave through a failed liveness check.
+      // unchecked success here would wave through a failed check.
+      //
+      // Order matters. The backend routes a liveness-only failure to
+      // MANUAL_REVIEW — a human is already looking at it, so telling the user
+      // to retake would be wrong advice and would queue a second review.
+      // Manual review is therefore checked BEFORE the retake path.
+      final underReview = status.requiresManualReview ||
+          status.overall == KycOverallStatus.manualReview;
+
+      if (underReview) {
+        state = state.copyWith(
+          status: VerificationStatus.error,
+          error: 'We could not confirm your selfie automatically, so your '
+              'verification is being reviewed. We will let you know once it '
+              'is complete.',
+          requiresManualReview: true,
+        );
+        return;
+      }
+
       if (!status.livenessVerified) {
+        // Retained for a liveness failure the backend does NOT escalate.
         state = state.copyWith(
           status: VerificationStatus.error,
           error: 'We could not confirm it is you. Please retake your selfie '
@@ -310,6 +338,14 @@ class SelfieNotifier extends StateNotifier<SelfieState> {
       );
     }
   }
+
+  /// Records an on-device validation failure so the screen can show the retake
+  /// dialog. Leaves [validationPassed] false, so no selfie is retained.
+  void failValidation(String reason) => state = state.copyWith(
+        isLoading: false,
+        error: reason,
+        validationPassed: false,
+      );
 
   void reset() => state = const SelfieState();
 }

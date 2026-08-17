@@ -17,9 +17,14 @@ import 'dart:io';
 import 'package:flutter/painting.dart' show decodeImageFromList;
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
-/// Smallest share of the frame width a face may occupy. Dojah scores
-/// sharpness, and a face far from the camera survives downscaling badly.
-const double kMinFaceWidthRatio = 0.2;
+/// Smallest share of the frame width a face may occupy.
+///
+/// Deliberately permissive. A front camera held at arm's length puts a face at
+/// roughly 15–25% of frame width, and a high-resolution sensor pushes that
+/// lower still — an aggressive threshold here rejects perfectly good selfies
+/// on real hardware. This exists only to catch a face across the room; Dojah
+/// makes the real quality judgement server-side.
+const double kMinFaceWidthRatio = 0.10;
 
 /// Below this, ML Kit considers the eye closed.
 const double kEyeOpenThreshold = 0.3;

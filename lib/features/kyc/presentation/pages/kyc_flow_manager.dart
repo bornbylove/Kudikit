@@ -12,6 +12,8 @@ import 'package:kudipay/features/selfie/presentation/pages/selfie_instruction.da
 import 'package:kudipay/features/auth/presentation/controllers/auth_controllers.dart';
 import 'package:kudipay/provider/connectivity/connectivity_provider.dart';
 import 'package:kudipay/features/tier/presentation/controllers/tier_provider.dart';
+import 'package:kudipay/features/transactionpin/presentation/controllers/transaction_pin_provider.dart';
+import 'package:kudipay/features/transactionpin/presentation/pages/transaction_pin_screen.dart';
 
 // =============================================================================
 // KycFlowManager
@@ -68,8 +70,11 @@ class KycFlowManager extends ConsumerWidget {
     }
 
     // -- Resolve the next incomplete step and navigate ------------------------
+    // hasPin decides the terminal step (PIN setup vs dashboard); null while the
+    // lookup is in flight.
+    final hasPin = ref.watch(hasTxPinProvider).whenOrNull(data: (v) => v);
     final tier = tierState.currentTier;
-    final nextScreen = _resolveNextScreen(tier, user);
+    final nextScreen = _resolveNextScreen(tier, user, hasPin);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.mounted) {
@@ -89,14 +94,14 @@ class KycFlowManager extends ConsumerWidget {
   // Walk each tier's funnel top-to-bottom. Return the first screen whose
   // prerequisite flag is NOT yet set on the user model.
   // ---------------------------------------------------------------------------
-  Widget _resolveNextScreen(TierLevel tier, dynamic user) {
+  Widget _resolveNextScreen(TierLevel tier, dynamic user, bool? hasPin) {
     switch (tier) {
       // -- Tier 1 (Basic) -----------------------------------------------------
       // Steps: Selfie ? BVN or NIN
       case TierLevel.basic:
         if (!user.isSelfieVerified) return const SelfieInstructionsScreen();
         if (!user.isBvnVerified) return const IdVerificationScreen();
-        return const MainShellRedirect();
+        return _afterKyc(hasPin);
 
       // -- Tier 2 (Pro) -------------------------------------------------------
       // Steps: Selfie ? BVN AND NIN ? ID document upload
@@ -104,7 +109,7 @@ class KycFlowManager extends ConsumerWidget {
         if (!user.isSelfieVerified) return const SelfieInstructionsScreen();
         if (!user.isBvnVerified) return const IdVerificationScreen();
         if (!user.isDocumentVerified) return const UploadIdCardScreen();
-        return const MainShellRedirect();
+        return _afterKyc(hasPin);
 
       // -- Tier 3 (Mega) ------------------------------------------------------
       // Steps: Selfie ? BVN AND NIN ? ID document upload ? Address
@@ -113,8 +118,23 @@ class KycFlowManager extends ConsumerWidget {
         if (!user.isBvnVerified) return const IdVerificationScreen();
         if (!user.isDocumentVerified) return const UploadIdCardScreen();
         if (!user.isAddressVerified) return const AddressVerificationScreen();
-        return const MainShellRedirect();
+        return _afterKyc(hasPin);
     }
+  }
+
+  /// Where the user goes once every KYC step for their tier is behind them.
+  ///
+  /// The transaction PIN is set here rather than on the dashboard: a user must
+  /// have one before they can send money, so it belongs in the onboarding
+  /// funnel. CreateTransactionPinScreen runs create-then-confirm and hands off
+  /// to AccountReadyScreen, which routes to login.
+  Widget _afterKyc(bool? hasPin) {
+    if (hasPin == null) {
+      return const _LoadingScreen(message: 'Finishing up...');
+    }
+    return hasPin
+        ? const MainShellRedirect()
+        : const CreateTransactionPinScreen();
   }
 
   // ---------------------------------------------------------------------------
