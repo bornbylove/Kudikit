@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/model/device/device_metadata.dart';
+import 'package:kudipay/provider/auth/auth_provider.dart';
+import 'package:kudipay/services/auth_services.dart';
 import 'package:kudipay/services/device_info_services.dart';
 // ==================== DEVICE LINKING MODELS ====================
 
@@ -15,6 +17,7 @@ class DeviceLinkingData {
   final String? maskedEmail;
   final String? oldDeviceName;
   final String? verificationCode;
+  final String? otpReference;
   final bool isCodeSent;
   final bool isVerified;
   final DateTime? codeSentAt;
@@ -24,6 +27,7 @@ class DeviceLinkingData {
     this.maskedEmail,
     this.oldDeviceName,
     this.verificationCode,
+    this.otpReference,
     this.isCodeSent = false,
     this.isVerified = false,
     this.codeSentAt,
@@ -34,6 +38,7 @@ class DeviceLinkingData {
     String? maskedEmail,
     String? oldDeviceName,
     String? verificationCode,
+    String? otpReference,
     bool? isCodeSent,
     bool? isVerified,
     DateTime? codeSentAt,
@@ -43,6 +48,7 @@ class DeviceLinkingData {
       maskedEmail: maskedEmail ?? this.maskedEmail,
       oldDeviceName: oldDeviceName ?? this.oldDeviceName,
       verificationCode: verificationCode ?? this.verificationCode,
+      otpReference: otpReference ?? this.otpReference,
       isCodeSent: isCodeSent ?? this.isCodeSent,
       isVerified: isVerified ?? this.isVerified,
       codeSentAt: codeSentAt ?? this.codeSentAt,
@@ -139,32 +145,43 @@ class DeviceLinkingException implements Exception {
 }
 
 class DeviceLinkingService {
-  final String baseUrl;
-  final String? authToken;
+  final AuthService _authService;
 
-  DeviceLinkingService({
-    required this.baseUrl,
-    this.authToken,
-  });
+  DeviceLinkingService({required AuthService authService})
+      : _authService = authService;
 
   Future<DeviceLinkingData> getUserDeviceInfo() async {
     return _mockGetUserDeviceInfo();
   }
 
-  // UPDATED: Now accepts DeviceMetadata so the backend can render the
-  // security email template (Image 1) with device/IP/location context.
-  // This is the most important trigger for Image 1 — the user is explicitly
-  // authorizing a new device, so showing location/IP in the email is critical.
+  // Resend the DEVICE_LINK OTP. The original OTP for a 202 login challenge is
+  // dispatched by POST /auth/login itself — this call is only used when the
+  // user asks to resend the code.
   Future<bool> sendVerificationCode(
     String email,
     VerificationMethod method,
-    DeviceMetadata deviceMetadata,  // NEW
+    DeviceMetadata deviceMetadata, // NEW
   ) async {
-    return _mockSendVerificationCode(email, method, deviceMetadata);
+    await _authService.sendOtp(
+      identifier: email,
+      purpose: OtpPurpose.deviceLink,
+    );
+    return true;
   }
 
-  Future<bool> verifyCode(String code) async {
-    return _mockVerifyCode(code);
+  // Verify the DEVICE_LINK code then complete the login for the challenged
+  // device: verifyOtp consumes the code, verifyDeviceLogin marks the current
+  // deviceFingerprint trusted and returns the AuthTokenResponse envelope.
+  Future<Map<String, dynamic>> verifyCode({
+    required String code,
+    required String otpReference,
+  }) async {
+    await _authService.verifyOtp(
+      otpReference: otpReference,
+      code: code,
+      purpose: OtpPurpose.deviceLink,
+    );
+    return _authService.verifyDeviceLogin(otpReference: otpReference);
   }
 
   Future<bool> syncData(DataSyncSelection selection) async {
@@ -181,23 +198,6 @@ class DeviceLinkingService {
     );
   }
 
-  Future<bool> _mockSendVerificationCode(
-    String email,
-    VerificationMethod method,
-    DeviceMetadata deviceMetadata,  // NEW — passed through to real endpoint later
-  ) async {
-    await Future.delayed(const Duration(seconds: 1));
-    // TODO (real call): POST $baseUrl/device/send-verification-code with:
-    //   { 'email': email, 'method': method.name, ...deviceMetadata.toJson() }
-    // The backend uses device_metadata to populate the security email template.
-    return true;
-  }
-
-  Future<bool> _mockVerifyCode(String code) async {
-    await Future.delayed(const Duration(seconds: 2));
-    return code.length == 6;
-  }
-
   Future<bool> _mockSyncData(DataSyncSelection selection) async {
     await Future.delayed(const Duration(seconds: 2));
     return true;
@@ -208,8 +208,28 @@ class DeviceLinkingService {
 
 class DeviceLinkingNotifier extends StateNotifier<DeviceLinkingState> {
   final DeviceLinkingService _service;
+  final Future<void> Function(Map<String, dynamic> data)? _onDeviceVerified;
 
-  DeviceLinkingNotifier(this._service) : super(const DeviceLinkingState());
+  DeviceLinkingNotifier(this._service, {Future<void> Function(Map<String, dynamic> data)? onDeviceVerified})
+      : _onDeviceVerified = onDeviceVerified,
+        super(const DeviceLinkingState());
+
+  // Seeds the notifier with the 202 login challenge so the existing
+  // SignInVerifyEmailScreen can drive device verification end-to-end. The
+  // DEVICE_LINK OTP has ALREADY been dispatched by POST /auth/login.
+  void startDeviceVerification({
+    required String otpReference,
+    required String identifier,
+    String maskedIdentifier = '',
+  }) {
+    state = const DeviceLinkingState().copyWith(
+      data: DeviceLinkingData(
+        email: identifier,
+        maskedEmail: maskedIdentifier,
+        otpReference: otpReference,
+      ),
+    );
+  }
 
   Future<void> loadUserDeviceInfo() async {
     state = state.copyWith(isLoading: true, clearError: true);
@@ -283,24 +303,36 @@ class DeviceLinkingNotifier extends StateNotifier<DeviceLinkingState> {
     state = state.copyWith(isVerifyingCode: true, clearError: true);
 
     try {
-      final isValid = await _service.verifyCode(code);
-
-      if (isValid) {
+      final otpReference = state.data?.otpReference;
+      if (otpReference == null || otpReference.isEmpty) {
         state = state.copyWith(
           isVerifyingCode: false,
-          data: state.data?.copyWith(
-            verificationCode: code,
-            isVerified: true,
-          ),
-        );
-        return true;
-      } else {
-        state = state.copyWith(
-          isVerifyingCode: false,
-          error: 'Invalid verification code',
+          error: 'No active device verification found. Please log in again.',
         );
         return false;
       }
+
+      final envelope = await _service.verifyCode(
+        code: code,
+        otpReference: otpReference,
+      );
+      final data = envelope['data'] as Map<String, dynamic>?;
+      if (data == null) {
+        throw Exception('Malformed device verification response.');
+      }
+
+      // Complete the session (shared with login()/registration) so the
+      // authenticated state is set from exactly one place.
+      await _onDeviceVerified?.call(data);
+
+      state = state.copyWith(
+        isVerifyingCode: false,
+        data: state.data?.copyWith(
+          verificationCode: code,
+          isVerified: true,
+        ),
+      );
+      return true;
     } on SocketException {
       state = state.copyWith(
         isVerifyingCode: false,
@@ -373,12 +405,16 @@ class DeviceLinkingNotifier extends StateNotifier<DeviceLinkingState> {
 
 final deviceLinkingServiceProvider = Provider<DeviceLinkingService>((ref) {
   return DeviceLinkingService(
-    baseUrl: 'https://api.kudipay.com/api/v1',
+    authService: ref.watch(authServiceProvider),
   );
 });
 
 final deviceLinkingProvider =
     StateNotifierProvider<DeviceLinkingNotifier, DeviceLinkingState>((ref) {
   final service = ref.watch(deviceLinkingServiceProvider);
-  return DeviceLinkingNotifier(service);
+  return DeviceLinkingNotifier(
+    service,
+    onDeviceVerified: (data) =>
+        ref.read(authProvider.notifier).completeSession(data),
+  );
 });

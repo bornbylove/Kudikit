@@ -21,17 +21,16 @@ class OtpVerificationScreen extends ConsumerStatefulWidget {
 class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
   final TextEditingController _otpController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  ProviderSubscription<AsyncValue<bool>>? _connectivitySubscription;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _setupConnectivityListener();
-    });
+    _setupConnectivityListener();
   }
 
   void _setupConnectivityListener() {
-    ref.listen(connectivityProvider, (previous, next) {
+    _connectivitySubscription = ref.listenManual(connectivityProvider, (previous, next) {
       next.whenData((isConnected) {
         if (previous?.value != null && previous!.value! && !isConnected) {
           ConnectivitySnackBar.showNoInternet(context);
@@ -47,6 +46,7 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
   @override
   void dispose() {
     _otpController.dispose();
+    _connectivitySubscription?.close();
     super.dispose();
   }
 

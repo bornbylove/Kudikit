@@ -2,31 +2,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/model/tier/tier_model.dart';
-import 'package:kudipay/provider/tier/tier_provider.dart';
-import 'package:kudipay/presentation/tier/upgrade_success_screen.dart';
-import 'package:kudipay/presentation/tier/upload_document_screen.dart';
+import 'package:kudipay/model/tier/tier_requirements.dart';
+import 'package:kudipay/presentation/kyc/kyc_flow_manager.dart';
+import 'package:kudipay/provider/auth/auth_provider.dart';
 
 
 
-class UpgradeTierScreen extends ConsumerWidget {
+/// SLICE 8 (MO-8.2): server-authoritative tier upgrade screen.
+///
+/// The screen no longer simulates an upgrade locally. Everything it shows is
+/// derived from the server-reconciled UserModel KYC state:
+///  - `isCurrentTier`: target already GRANTED by the server (disabled CTA).
+///  - `requested`: the target is PENDING (pendingTier == target) — the upgrade
+///    is in progress (the PRD's "Pending" display; internal staged statuses are
+///    carried on UserModel but never surfaced); the CTA resumes the KYC funnel.
+///  - otherwise: "Continue Upgrade" records the server-side intent
+///    (AuthNotifier.selectTier → POST /auth/select-tier) and routes into the
+///    KYC funnel to complete the target's requirements.
+/// Requirements rows show REAL completion/rejection (tierRequirementState),
+/// never hardcoded flags.
+class UpgradeTierScreen extends ConsumerStatefulWidget {
   final UpgradeTier tier;
   const UpgradeTierScreen({super.key, required this.tier});
 
-  static const Color _teal = Color(0xFF069494);
   static const Color _bg   = Color(0xFFF9F9F9);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final tierState           = ref.watch(tierProvider);
-    final allRequirementsDone = tier.requirements.every((r) => r.isCompleted);
-    final isCurrentTier       = tierState.currentTier == tier.level;
+  ConsumerState<UpgradeTierScreen> createState() => _UpgradeTierScreenState();
+}
+
+class _UpgradeTierScreenState extends ConsumerState<UpgradeTierScreen> {
+  bool _submitting = false;
+
+  UpgradeTier get tier => widget.tier;
+
+  @override
+  Widget build(BuildContext context) {
+    final user                 = ref.watch(currentUserProvider);
+    final isCurrentTier        = user?.grantedTierOrZero == tier.tierNumber;
+    final requested            = user?.pendingTier == tier.tierNumber;
 
     return Scaffold(
-      backgroundColor: _bg,
+      backgroundColor: UpgradeTierScreen._bg,
 
       // ── AppBar ────────────────────────────────────────────────────────────
       appBar: AppBar(
-        backgroundColor: _bg,
+        backgroundColor: UpgradeTierScreen._bg,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
@@ -102,7 +123,26 @@ class UpgradeTierScreen extends ConsumerWidget {
                 ),
               ),
 
-              SizedBox(height: AppLayout.scaleHeight(context, 28)),
+              SizedBox(height: AppLayout.scaleHeight(context, 16)),
+
+              // ── Server-authoritative status line ─────────────────────────
+              // Honest server state: a pending upgrade is never presented as
+              // granted, and a granted target shows as the current tier.
+              if (requested && !isCurrentTier)
+                _StatusBanner(
+                  icon: Icons.hourglass_top,
+                  text: 'Upgrade request pending — '
+                      'complete your verification to finish.',
+                ),
+              if (isCurrentTier)
+                _StatusBanner(
+                  icon: Icons.check_circle,
+                  text: 'You are already on ${tier.name} (Tier ${tier.tierNumber}).',
+                ),
+              if (requested && !isCurrentTier)
+                SizedBox(height: AppLayout.scaleHeight(context, 12)),
+
+              SizedBox(height: AppLayout.scaleHeight(context, 12)),
 
               // ── Requirements section ──────────────────────────────────────
               _SectionLabel(text: '${tier.name} (Tier ${tier.tierNumber})'),
@@ -111,7 +151,13 @@ class UpgradeTierScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     for (int i = 0; i < tier.requirements.length; i++) ...[
-                      _RequirementRow(requirement: tier.requirements[i]),
+                      _RequirementRow(
+                        requirement: tier.requirements[i],
+                        state: user == null
+                            ? TierRequirementState.incomplete
+                            : tierRequirementState(
+                                tier.requirements[i].title, user),
+                      ),
                       if (i < tier.requirements.length - 1)
                         Divider(
                           height:    1,
@@ -155,46 +201,46 @@ class UpgradeTierScreen extends ConsumerWidget {
 
       // ── Bottom CTA ────────────────────────────────────────────────────────
       bottomNavigationBar: _BottomButton(
-        isLoading:     tierState.isLoading,
+        isLoading:     _submitting,
         isCurrentTier: isCurrentTier,
-        onTap: () => _handleUpgrade(context, ref, allRequirementsDone),
+        label: isCurrentTier
+            ? 'Current Tier'
+            : (requested ? 'Continue Verification' : 'Continue Upgrade'),
+        onTap: () => _handleUpgrade(context),
       ),
     );
   }
 
-  // ── Navigation helpers ─────────────────────────────────────────────────────
+  // ── Actions ─────────────────────────────────────────────────────────────────
 
-  void _handleUpgrade(
-    BuildContext context,
-    WidgetRef ref,
-    bool allRequirementsDone,
-  ) {
-    if (allRequirementsDone) {
-      _completeUpgrade(context, ref);
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => UploadDocumentScreen(tier: tier)),
-      );
+  void _handleUpgrade(BuildContext context) {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+    if (user.grantedTierOrZero == tier.tierNumber) return;
+
+    // Intent already recorded server-side → resume the PRD KYC funnel.
+    if (user.pendingTier == tier.tierNumber) {
+      _goToKyc(context);
+      return;
     }
+    _submitUpgrade(context);
   }
 
-  Future<void> _completeUpgrade(BuildContext context, WidgetRef ref) async {
-    final success =
-        await ref.read(tierProvider.notifier).upgradeTier(tier.level);
-    if (!context.mounted) return;
-
-    if (success) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => UpgradeSuccessScreen(tier: tier)),
-      );
-    } else {
+  /// Records the upgrade request server-side (POST /auth/select-tier sets
+  /// pendingTier and auto-grants when KYC requirements are already met), then
+  /// routes into the KYC funnel to complete the target's remaining
+  /// requirements. The server result is authoritative — no local simulation.
+  Future<void> _submitUpgrade(BuildContext context) async {
+    setState(() => _submitting = true);
+    try {
+      await ref.read(authProvider.notifier).selectTier(tier.tierNumber);
+      if (!context.mounted) return;
+      _goToKyc(context);
+    } catch (e) {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            ref.read(tierProvider).error ?? 'Failed to upgrade tier',
-          ),
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
           backgroundColor: Colors.red.shade700,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -202,7 +248,16 @@ class UpgradeTierScreen extends ConsumerWidget {
           ),
         ),
       );
+    } finally {
+      if (mounted) setState(() => _submitting = false);
     }
+  }
+
+  void _goToKyc(BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const KycFlowManager()),
+    );
   }
 }
 
@@ -229,6 +284,45 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
+/// Inline server-state banner (pending upgrade / already current).
+class _StatusBanner extends StatelessWidget {
+  const _StatusBanner({required this.icon, required this.text});
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: AppLayout.scaleWidth(context, 12),
+        vertical: AppLayout.scaleHeight(context, 10),
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xFF069494).withOpacity(0.08),
+        borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 10)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon,
+              size: AppLayout.scaleWidth(context, 16),
+              color: const Color(0xFF069494)),
+          SizedBox(width: AppLayout.scaleWidth(context, 8)),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: AppLayout.fontSize(context, 12),
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class _OutlinedCard extends StatelessWidget {
   const _OutlinedCard({required this.child});
@@ -254,13 +348,16 @@ class _OutlinedCard extends StatelessWidget {
   }
 }
 
-
 class _RequirementRow extends StatelessWidget {
-  const _RequirementRow({required this.requirement});
+  const _RequirementRow({required this.requirement, required this.state});
   final TierRequirement requirement;
+  final TierRequirementState state;
 
   @override
   Widget build(BuildContext context) {
+    final bool completed = state == TierRequirementState.completed;
+    final bool rejected  = state == TierRequirementState.rejected;
+
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: AppLayout.scaleWidth(context, 16),
@@ -271,7 +368,11 @@ class _RequirementRow extends StatelessWidget {
           Icon(
             requirement.icon ?? Icons.circle_outlined,
             size:  AppLayout.scaleWidth(context, 18),
-            color: Colors.grey.shade500,
+            color: rejected
+                ? Colors.red.shade400
+                : (completed
+                    ? const Color(0xFF069494)
+                    : Colors.grey.shade500),
           ),
           SizedBox(width: AppLayout.scaleWidth(context, 12)),
           Expanded(
@@ -279,24 +380,28 @@ class _RequirementRow extends StatelessWidget {
               requirement.title,
               style: TextStyle(
                 fontSize:   AppLayout.fontSize(context, 14),
-                color:      Colors.black87,
+                color:      rejected ? Colors.red.shade700 : Colors.black87,
                 fontWeight: FontWeight.w400,
               ),
             ),
           ),
-          // Show teal tick only when the step is completed
-          if (requirement.isCompleted)
+          if (completed)
             Icon(
               Icons.check,
               size:  AppLayout.scaleWidth(context, 16),
               color: const Color(0xFF069494),
+            )
+          else if (rejected)
+            Icon(
+              Icons.close,
+              size:  AppLayout.scaleWidth(context, 16),
+              color: Colors.red.shade400,
             ),
         ],
       ),
     );
   }
 }
-
 
 class _BenefitRow extends StatelessWidget {
   const _BenefitRow({required this.benefit});
@@ -337,16 +442,17 @@ class _BenefitRow extends StatelessWidget {
   }
 }
 
-
 class _BottomButton extends StatelessWidget {
   const _BottomButton({
     required this.isLoading,
     required this.isCurrentTier,
+    required this.label,
     required this.onTap,
   });
 
   final bool          isLoading;
   final bool          isCurrentTier;
+  final String        label;
   final VoidCallback  onTap;
 
   @override
@@ -365,7 +471,6 @@ class _BottomButton extends StatelessWidget {
           child: ElevatedButton(
             onPressed: isLoading || isCurrentTier ? null : onTap,
             style: ElevatedButton.styleFrom(
-             
               backgroundColor: isCurrentTier
                   ? Colors.grey.shade400
                   : const Color(0xFF069494),
@@ -376,7 +481,6 @@ class _BottomButton extends StatelessWidget {
               disabledForegroundColor: Colors.white70,
               elevation:    0,
               shadowColor:  Colors.transparent,
-              
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(
                   AppLayout.scaleWidth(context, 32),
@@ -393,7 +497,7 @@ class _BottomButton extends StatelessWidget {
                     ),
                   )
                 : Text(
-                    isCurrentTier ? 'Current Tier' : 'Continue Upgrade',
+                    label,
                     style: TextStyle(
                       fontSize:   AppLayout.fontSize(context, 15),
                       fontWeight: FontWeight.w600,

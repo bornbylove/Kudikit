@@ -76,6 +76,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   bool _isDigitsOnly = false;
   bool _isNotSimplePattern = false;
   bool _passcodeFieldTouched = false;
+  ProviderSubscription<AsyncValue<bool>>? _connectivitySubscription;
 
   // ---------------------------------------------------------------------------
   // SUBMIT READINESS
@@ -103,9 +104,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     emailController.addListener(_onFieldChanged);
     numberController.addListener(_onFieldChanged);
     confirmPasswordController.addListener(_onFieldChanged);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _setupConnectivityListener();
-    });
+    _setupConnectivityListener();
   }
 
   void _onFieldChanged() => setState(() {});
@@ -121,6 +120,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     numberController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+    _connectivitySubscription?.close();
     super.dispose();
   }
 
@@ -129,7 +129,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   // ---------------------------------------------------------------------------
 
   void _setupConnectivityListener() {
-    ref.listen(connectivityProvider, (previous, next) {
+    _connectivitySubscription = ref.listenManual(connectivityProvider, (previous, next) {
       next.whenData((isConnected) {
         final wasConnected = previous?.value ?? true;
         if (wasConnected && !isConnected) {

@@ -5,10 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/formatting/widget/app_loading_indicator.dart';
-import 'package:kudipay/formatting/widget/bottom_nav.dart';
 import 'package:kudipay/formatting/widget/connectivity_widget.dart';
 import 'package:kudipay/model/user/user_model.dart';
+import 'package:kudipay/presentation/kyc/kyc_flow_manager.dart';
 import 'package:kudipay/presentation/linkdevice/link_device_screen.dart';
+import 'package:kudipay/presentation/linkdevice/sign_in_verify_email_screen.dart';
 import 'package:kudipay/presentation/signup/signup.dart';
 import 'package:kudipay/presentation/support/support_screen.dart';
 import 'package:kudipay/provider/provider.dart';
@@ -45,14 +46,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final ValueNotifier<String?> _errorNotifier = ValueNotifier<String?>(null);
   // Drives the Continue button — true only when the password field has text.
   final ValueNotifier<bool> _passwordNotEmpty = ValueNotifier<bool>(false);
+  ProviderSubscription<AsyncValue<bool>>? _connectivitySubscription;
 
   @override
   void initState() {
     super.initState();
     _passwordCtrl.addListener(_onPasswordChanged);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _setupConnectivityListener();
-    });
+    _setupConnectivityListener();
   }
 
   @override
@@ -61,6 +61,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     _passwordCtrl.dispose();
     _errorNotifier.dispose();
     _passwordNotEmpty.dispose();
+    _connectivitySubscription?.close();
     super.dispose();
   }
 
@@ -74,7 +75,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   void _setupConnectivityListener() {
-    ref.listen(connectivityProvider, (previous, next) {
+    _connectivitySubscription = ref.listenManual(connectivityProvider, (previous, next) {
       next.whenData((isConnected) {
         final wasConnected = previous?.value ?? true;
         if (wasConnected && !isConnected) {
@@ -144,9 +145,33 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
       if (!mounted) return;
 
+      // 202 DEVICE_LINK challenge: this device isn't trusted yet. The OTP was
+      // already dispatched by login() itself — route into the existing
+      // device-verification flow (reused as-is) instead of the home screen.
+      final authState = ref.read(authProvider);
+      if (authState.requiresDeviceVerification) {
+        final challenge = authState.deviceChallenge!;
+        ref.read(deviceLinkingProvider.notifier).startDeviceVerification(
+              otpReference: challenge.otpReference,
+              identifier: email,
+              maskedIdentifier: challenge.maskedIdentifier,
+            );
+        if (!mounted) return;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (_) => SignInVerifyEmailScreen(
+              maskedEmail: challenge.maskedIdentifier,
+            ),
+          ),
+          (_) => false,
+        );
+        return;
+      }
+
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const BottomNavBar()),
+        MaterialPageRoute(builder: (_) => const KycFlowManager()),
         (_) => false,
       );
     } on NoInternetException {

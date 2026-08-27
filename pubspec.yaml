@@ -139,12 +139,13 @@ dependencies:
   firebase_core:
   cloud_firestore:
 
-  # Media & Files
+# Media & Files
   camera:
   image_picker:
   file_picker:
   csv:
   permission_handler:
+  google_mlkit_face_detection: ^0.14.0
   flutter_contacts: ^1.1.7  # or latest
 
   # Utilities

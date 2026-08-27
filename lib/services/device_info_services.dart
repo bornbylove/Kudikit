@@ -46,6 +46,11 @@ class DeviceInfoService {
     );
   }
 
+  /// A short, human-friendly device label for the auth-service's optional
+  /// `deviceName` field (e.g. "Android Device", "iPhone / iPad", "Mac").
+  /// Cheap — just the static model map, no network or permission lookups.
+  static String getDeviceName() => _getDeviceModel();
+
   // ---------------------------------------------------------------------------
   // Step A — Device model
   // ---------------------------------------------------------------------------

@@ -40,11 +40,13 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
   final FocusNode _pinFocusNode = FocusNode();
   bool isLoading = false;
   bool isResending = false;
+  ProviderSubscription<AsyncValue<bool>>? _connectivitySubscription;
 
   @override
   void dispose() {
     _otpController.dispose();
     _pinFocusNode.dispose();
+    _connectivitySubscription?.close();
     super.dispose();
   }
 
@@ -52,9 +54,9 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _setupConnectivityListener();
+    _setupConnectivityListener();
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final isConnected = ref.read(currentConnectivityProvider);
       if (isConnected) {
         _sendVerificationCode();
@@ -65,7 +67,7 @@ class _EmailVerifySignupState extends ConsumerState<EmailVerifySignup> {
   }
 
   void _setupConnectivityListener() {
-    ref.listen(connectivityProvider, (previous, next) {
+    _connectivitySubscription = ref.listenManual(connectivityProvider, (previous, next) {
       next.whenData((isConnected) {
         if (previous?.value != null && previous!.value! && !isConnected) {
           ConnectivitySnackBar.showNoInternet(context);

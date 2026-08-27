@@ -29,6 +29,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/config/api_config.dart';
+import 'package:kudipay/model/user/user_model.dart';
 import 'package:kudipay/services/connectivity_service.dart';
 import 'package:kudipay/services/session_events.dart';
 import 'package:kudipay/services/storage_services.dart';
@@ -181,6 +182,18 @@ class _AuthInterceptor extends Interceptor {
       if (newRefreshToken != null && newRefreshToken.isNotEmpty) {
         await _storage.saveRefreshToken(newRefreshToken);
       }
+
+      // Persist the authoritative `data.user` the auth-service returns beside
+      // the rotated token pair (UserResponse, incl. user.kyc). Merging over
+      // the cached model keeps this app's local-only KYC flags (Slice 4B owns
+      // the server-side kyc mapping) while adopting the server's fresher
+      // identity/tier fields — so a silent refresh never resets KYC progress.
+      final userJson = data?['user'] as Map<String, dynamic>?;
+      if (userJson != null) {
+        final existing = await _storage.getUserModel();
+        await _storage.saveUserModel(
+            UserModel.fromAuthResponse(userJson, existing: existing));
+      }
       return newAccessToken;
     } catch (_) {
       return null;
@@ -202,6 +215,9 @@ class _LogInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     debugPrint('[KudiDio] ← ${response.statusCode} ${response.requestOptions.uri}');
+    if (response.requestOptions.path.contains('/kyc/')) {
+      debugPrint('[KudiDio]   body: ${response.data}');
+    }
     handler.next(response);
   }
 

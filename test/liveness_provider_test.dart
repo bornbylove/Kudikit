@@ -1,46 +1,27 @@
 // test/liveness_provider_test.dart
 //
-// State-transition tests for LivenessNotifier, driven through a real
-// LivenessVerificationService/DojahClient pair wired to a fake HTTP adapter
-// (no real network calls, no real Dojah credentials).
+// State-transition tests for LivenessNotifier (Slice 7.5).
+//
+// The selfie step is a local CAPTURE ONLY: it performs no KYC provider calls
+// and makes no liveness claim. The authoritative liveness + selfie/registry
+// match happens server-side inside POST /auth/kyc/verify-bvn | verify-nin
+// (kudikit_auth_service). These tests pin that invariant — the provider must
+// never transition to a "verified/success" state and never touch the network.
 
-import 'dart:typed_data';
-
-import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:kudipay/model/identity/liveness_state.dart';
 import 'package:kudipay/provider/identity/liveness_provider.dart';
-import 'package:kudipay/services/identity/dojah_client.dart';
-import 'package:kudipay/services/identity/liveness_verification_service.dart';
-
-import 'helpers/fake_http_client_adapter.dart';
-
-XFile _fakeSelfie() =>
-    XFile.fromData(Uint8List.fromList([1, 2, 3]), name: 'selfie.jpg');
-
-const _successBody = {
-  'entity': {
-    'face': {'face_detected': true},
-    'liveness': {'liveness_check': true, 'liveness_probability': 90},
-  },
-};
 
 void main() {
-  late FakeHttpClientAdapter adapter;
   late LivenessNotifier notifier;
 
   setUp(() {
-    adapter = FakeHttpClientAdapter();
-    final dio = Dio(BaseOptions(baseUrl: 'https://dojah.test'))
-      ..httpClientAdapter = adapter;
-    final client = DojahClient(dio: dio);
-    final service = LivenessVerificationService(client);
-    notifier = LivenessNotifier(service);
+    notifier = LivenessNotifier();
   });
 
   test('starts in LivenessStatus.initial', () {
     expect(notifier.state.status, LivenessStatus.initial);
+    expect(notifier.state.imagePath, isNull);
   });
 
   test('startCapturing() moves to capturing', () {
@@ -62,92 +43,18 @@ void main() {
     expect(notifier.state.imagePath, isNull);
   });
 
-  test('submit() moves synchronously into checkingLiveness before resolving',
-      () async {
-    adapter.queueJson('/api/v1/ml/liveness', 200, _successBody);
+  test('the selfie step never claims a verified/success liveness result', () {
+    notifier.startCapturing();
     notifier.imageCaptured('/tmp/selfie.jpg');
-
-    final future = notifier.submit(_fakeSelfie());
-    expect(notifier.state.status, LivenessStatus.checkingLiveness);
-    await future;
+    // There is no success/verified status on this step at all — it is a
+    // capture-only stage; liveness is established server-side during BVN/NIN.
+    expect(notifier.state.status, LivenessStatus.imageCaptured);
   });
 
-  test('submit() -> success when liveness_check is true', () async {
-    adapter.queueJson('/api/v1/ml/liveness', 200, _successBody);
-
-    await notifier.submit(_fakeSelfie());
-
-    expect(notifier.state.status, LivenessStatus.success);
-    expect(notifier.state.livenessPassed, true);
-    expect(notifier.state.livenessProbability, 90);
-  });
-
-  test('submit() -> failure when liveness_check is false (not a thrown error)',
-      () async {
-    adapter.queueJson('/api/v1/ml/liveness', 200, {
-      'entity': {
-        'face': {'face_detected': true},
-        'liveness': {'liveness_check': false, 'liveness_probability': 10},
-      },
-    });
-
-    await notifier.submit(_fakeSelfie());
-
-    expect(notifier.state.status, LivenessStatus.failure);
-    expect(notifier.state.livenessPassed, false);
-    expect(notifier.state.errorMessage, isNotNull);
-  });
-
-  test('submit() -> failure with a safe message on an HTTP error (401)',
-      () async {
-    adapter.queueJson('/api/v1/ml/liveness', 401, {'error': 'unauthorized'});
-
-    await notifier.submit(_fakeSelfie());
-
-    expect(notifier.state.status, LivenessStatus.failure);
-    expect(notifier.state.errorMessage, isNotNull);
-    expect(notifier.state.errorMessage, isNot(contains('401')));
-  });
-
-  test('submit() -> networkError-style failure surfaces a safe message on connectionError',
-      () async {
-    adapter.queue('/api/v1/ml/liveness', (options) {
-      throw DioException(
-        requestOptions: options,
-        type: DioExceptionType.connectionError,
-      );
-    });
-
-    await notifier.submit(_fakeSelfie());
-
-    expect(notifier.state.status, LivenessStatus.failure);
-    expect(notifier.state.errorMessage, contains('internet'));
-  });
-
-  test('submit() prevents a duplicate submission while one is in flight',
-      () async {
-    // Only one response queued — if the guard failed and a second real
-    // request went out, it would hit "no response queued".
-    adapter.queueJson('/api/v1/ml/liveness', 200, _successBody);
-
-    final selfie = _fakeSelfie();
-    final first = notifier.submit(selfie);
-    final second = notifier.submit(selfie); // must be a no-op
-    await Future.wait([first, second]);
-
-    expect(adapter.requests, hasLength(1));
-    expect(notifier.state.status, LivenessStatus.success);
-  });
-
-  test('reset() returns to the initial state', () async {
-    adapter.queueJson('/api/v1/ml/liveness', 200, _successBody);
-    await notifier.submit(_fakeSelfie());
-
+  test('reset() returns to the initial state and clears the image path', () {
+    notifier.imageCaptured('/tmp/selfie.jpg');
     notifier.reset();
-
     expect(notifier.state.status, LivenessStatus.initial);
     expect(notifier.state.imagePath, isNull);
-    expect(notifier.state.livenessPassed, false);
-    expect(notifier.state.errorMessage, isNull);
   });
 }

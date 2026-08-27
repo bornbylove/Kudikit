@@ -6,7 +6,6 @@ import 'package:kudipay/formatting/widget/page_transition.dart';
 import 'package:kudipay/model/auth/auth_state.dart';
 import 'package:kudipay/presentation/login/login_page.dart';
 import 'package:kudipay/presentation/onboarding/onboarding_screen.dart';
-import 'package:kudipay/presentation/homescreen/home_screen.dart';
 import 'package:kudipay/presentation/kyc/kyc_flow_manager.dart';
 import 'package:kudipay/provider/auth/auth_provider.dart';
 import 'package:kudipay/provider/onboarding/onboarding_provider.dart';
@@ -71,11 +70,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     // 3. If not seen onboarding → Onboarding
 
     if (authState.status == AuthStatus.authenticated) {
-      if (authState.user!.isKycComplete) {
-        destination = const HomeScreen();
-      } else {
-        destination = const KycFlowManager();
-      }
+      // SLICE 6: always route through KycFlowManager — it is tier-aware and
+      // routes completed users to the main shell (BottomNavBar → Home) while
+      // funnelling Pro/Mega users who have not finished ID/address, and it
+      // surfaces async states (review/pending agent visit/rejected) instead of
+      // assuming top-level VERIFIED == KYC complete (which is false for
+      // Pro/Mega, whose top-level status flips to VERIFIED after just BVN/NIN).
+      destination = const KycFlowManager();
     } else if (hasSeenOnboarding) {
       destination = const LoginPage();
     } else {

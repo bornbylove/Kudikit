@@ -9,6 +9,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/model/user/kyc_status.dart';
+import 'package:kudipay/model/user/user_model.dart';
 import 'package:kudipay/services/session_events.dart';
 import 'package:kudipay/services/storage_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -131,6 +133,141 @@ void main() {
       final retriedRequest = refreshAdapter.requests
           .firstWhere((r) => r.path.contains('/wallet'));
       expect(retriedRequest.headers['Authorization'], 'Bearer new-access');
+    });
+
+    test('a successful refresh persists data.user merged over the cached model',
+        () async {
+      await storage.saveAuthToken('expired-access');
+      await storage.saveRefreshToken('valid-refresh');
+      // Cache a user with locally-completed KYC progress. The refresh response
+      // carries the server's authoritative UserResponse (no local KYC flags) —
+      // persisting it must NOT wipe the local progress.
+      await storage.saveUserModel(UserModel(
+        userId: 'c-1',
+        email: 'a@b.com',
+        phoneNumber: '+2348012345678',
+        name: 'Old Name',
+        isSelfieVerified: true,
+        isBvnVerified: true,
+        bvn: '98765432101',
+        selectedTier: 1,
+      ));
+
+      mainAdapter.queueJson('/wallet', 401, {'status': 'error', 'message': 'expired'});
+      refreshAdapter.queueJson('/auth/refresh-token', 200, {
+        'status': 'success',
+        'data': {
+          'accessToken': 'new-access',
+          'refreshToken': 'new-refresh',
+          'user': {
+            'customerId': 'c-1',
+            'fullName': 'Abraham Chidubem',
+            'phoneNumber': '+2348012345678',
+            'email': 'abraham@example.com',
+            'tier': 'PRO',
+          },
+        },
+      });
+      refreshAdapter.queueJson('/wallet', 200, {'status': 'success', 'data': {}});
+
+      await client.get<Map<String, dynamic>>('/wallet');
+
+      // Tokens rotated as before…
+      expect(await storage.getAuthToken(), 'new-access');
+      expect(await storage.getRefreshToken(), 'new-refresh');
+      // …and the authoritative user was persisted.
+      final user = await storage.getUserModel();
+      expect(user, isNotNull);
+      expect(user!.name, 'Abraham Chidubem');
+      expect(user.email, 'abraham@example.com');
+      expect(user.selectedTier, 2); // PRO -> 2
+      // Local-only KYC flags survived the merge.
+      expect(user.isSelfieVerified, isTrue);
+      expect(user.isBvnVerified, isTrue);
+      expect(user.bvn, '98765432101');
+    });
+
+    test('refresh with no user object leaves the cached user untouched',
+        () async {
+      await storage.saveAuthToken('expired-access');
+      await storage.saveRefreshToken('valid-refresh');
+      await storage.saveUserModel(UserModel(
+        userId: 'c-1',
+        email: 'a@b.com',
+        phoneNumber: '+2348012345678',
+      ));
+
+      mainAdapter.queueJson('/wallet', 401, {'status': 'error', 'message': 'expired'});
+      refreshAdapter.queueJson('/auth/refresh-token', 200, {
+        'status': 'success',
+        'data': {'accessToken': 'new-access', 'refreshToken': 'new-refresh'},
+      });
+      refreshAdapter.queueJson('/wallet', 200, {'status': 'success', 'data': {}});
+
+      await client.get<Map<String, dynamic>>('/wallet');
+
+      final user = await storage.getUserModel();
+      expect(user, isNotNull);
+      expect(user!.email, 'a@b.com');
+    });
+
+    test('refresh carrying server KYC REPLACES cached KYC state wholesale',
+        () async {
+      await storage.saveAuthToken('expired-access');
+      await storage.saveRefreshToken('valid-refresh');
+      // Cache a user with stale, locally-optimistic "VERIFIED everywhere" KYC.
+      await storage.saveUserModel(UserModel(
+        userId: 'c-1',
+        email: 'a@b.com',
+        phoneNumber: '+2348012345678',
+        isSelfieVerified: true,
+        isBvnVerified: true,
+        isDocumentVerified: true,
+        isAddressVerified: true,
+        kycStatus: KycStatus.verified,
+      ));
+
+      mainAdapter.queueJson('/wallet', 401, {'status': 'error', 'message': 'expired'});
+      refreshAdapter.queueJson('/auth/refresh-token', 200, {
+        'status': 'success',
+        'data': {
+          'accessToken': 'new-access',
+          'refreshToken': 'new-refresh',
+          'user': {
+            'customerId': 'c-1',
+            'fullName': 'Abraham Chidubem',
+            'phoneNumber': '+2348012345678',
+            'email': 'abraham@example.com',
+            'tier': 'PRO',
+            // Server-authoritative summary (Slice 4B).
+            'kyc': {
+              'status': 'IN_PROGRESS',
+              'bvnVerified': true,
+              'ninVerified': true,
+              'livenessVerified': false,
+              'idDocumentStatus': 'VERIFIED',
+              'addressStatus': 'NOT_STARTED',
+              'requiresManualReview': false,
+            },
+          },
+        },
+      });
+      refreshAdapter.queueJson('/wallet', 200, {'status': 'success', 'data': {}});
+
+      await client.get<Map<String, dynamic>>('/wallet');
+
+      final user = await storage.getUserModel();
+      expect(user, isNotNull);
+      // The server's typed KYC state wins — stale cached booleans/typed state
+      // are never preserved over server KYC data.
+      expect(user!.kycStatus, KycStatus.inProgress);
+      expect(user.idDocumentStatus, IdDocumentStatus.verified);
+      expect(user.addressStatus, AddressVerificationStatus.notStarted);
+      expect(user.isBvnVerified, isTrue);
+      expect(user.isSelfieVerified, isFalse);
+      expect(user.isDocumentVerified, isTrue);
+      expect(user.isAddressVerified, isFalse);
+      expect(user.isKycComplete, isFalse);
     });
 
     test('does not attempt refresh for a 401 from the login endpoint itself',

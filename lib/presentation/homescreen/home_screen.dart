@@ -17,7 +17,6 @@ import 'package:kudipay/provider/connectivity/connectivity_provider.dart';
 import 'package:kudipay/provider/kyc/kyc_provider.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/provider/refresh/refresh_provider.dart';
-import 'package:kudipay/provider/tier/tier_provider.dart';
 import 'package:kudipay/provider/wallet/wallet_provider.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 
@@ -84,8 +83,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     final userInfo         = ref.watch(userInfoProvider);
     final connectivityState = ref.watch(connectivityStateProvider);
-    final tierState        = ref.watch(tierProvider);
-    final currentTierObject = tierState.getTierObject();
+    // SLICE 7 (P0-3): the header tier derives from the server-authoritative
+    // GRANTED tier (0 = UNVERIFIED), never the local tierProvider.
+    final user             = ref.watch(currentUserProvider);
+    final grantedTier      = user?.grantedTierOrZero ?? 0;
     final wallet           = ref.watch(walletProvider);
     final isOnline         = connectivityState.isConnected;
 
@@ -207,7 +208,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                           AppLayout.scaleWidth(context, 20)),
                                     ),
                                     child: Text(
-                                      'Tier ${currentTierObject.tierNumber}',
+                                      grantedTier > 0
+                                          ? 'Tier $grantedTier'
+                                          : 'UNVERIFIED',
                                       style: TextStyle(
                                         fontSize: AppLayout.fontSize(context, 11),
                                         color: const Color(0xFF069494),

@@ -1,21 +1,25 @@
 // lib/presentation/selfie/liveness_capture_screen.dart
 //
-// Dojah liveness verification screen. Camera/permission handling mirrors
+// Selfie capture screen for KYC onboarding. Camera/permission handling mirrors
 // SelfieCaptureScreen in this same directory (front camera preferred via
 // CameraController, image_picker as a fallback, permission_handler for
-// graceful permission requests) — that screen's mock validation flow is
-// left untouched; this is a new, separate screen wired to the real Dojah
-// API through livenessProvider.
+// graceful permission requests).
 //
 // Flow: Capturing (camera) -> ImageCaptured (preview, retake/continue) ->
-// CheckingLiveness (uploading) -> Success/Failure dialog.
+// IdVerificationScreen (BVN/NIN).
 //
-// NOTE for testing: Dojah's API (like this app's own auth-service — see the
-// CORS advisory from the auth integration work) is very likely to reject or
-// block browser-origin requests. This screen should be exercised on a native
-// Android/iOS device or emulator, not Chrome.
+// This step only captures the selfie. It performs NO liveness check and makes
+// NO KYC provider calls — the authoritative liveness + selfie/registry match
+// happens server-side when the selfie is submitted with BVN/NIN (POST
+// /auth/kyc/verify-bvn | verify-nin in kudikit_auth_service). The captured
+// image is retained in livenessProvider.imagePath for that submission.
+//
+// NOTE for testing: KYC verification calls the auth-service, which (like any
+// third-party-backed API) is very likely to reject or block browser-origin
+// requests. This screen should be exercised on a native Android/iOS device or
+// emulator, not Chrome.
 
-import 'dart:io' show File;
+import 'dart:io' show File, Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:flutter/material.dart';
@@ -24,12 +28,12 @@ import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'package:kudipay/core/utils/liveness_gesture_detector.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/formatting/widget/app_loading_indicator.dart';
 import 'package:kudipay/model/identity/liveness_state.dart';
 import 'package:kudipay/presentation/Identity/chooseID.dart';
 import 'package:kudipay/presentation/selfie/face_overlay.dart';
-import 'package:kudipay/provider/auth/auth_provider.dart';
 import 'package:kudipay/provider/identity/liveness_provider.dart';
 
 class LivenessCaptureScreen extends ConsumerStatefulWidget {
@@ -46,7 +50,13 @@ class _LivenessCaptureScreenState
   bool _isCameraInitialized = false;
   final ImagePicker _picker = ImagePicker();
   XFile? _capturedImage;
-  bool _successDialogShown = false;
+
+  // Client-side active-liveness gate (turn head left/right, open mouth)
+  // before the shutter unlocks. This is anti-spoofing UX only — it never
+  // claims an authoritative liveness result; that stays server-side (see
+  // liveness_gesture_detector.dart).
+  LivenessGestureController? _gestureController;
+  bool _imageStreamActive = false;
 
   @override
   void initState() {
@@ -85,10 +95,21 @@ class _LivenessCaptureScreenState
         frontCamera,
         ResolutionPreset.high,
         enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.jpeg,
+        // takePicture() always returns a JPEG regardless of this setting —
+        // this only controls the startImageStream() buffer format, which
+        // must be a single-plane format ML Kit's InputImage.fromBytes can
+        // consume directly (see liveness_gesture_detector.dart).
+        imageFormatGroup:
+            Platform.isAndroid ? ImageFormatGroup.nv21 : ImageFormatGroup.bgra8888,
       );
 
       await _cameraController!.initialize();
+      if (!mounted) return;
+
+      _gestureController = LivenessGestureController(camera: frontCamera)
+        ..addListener(_onGestureUpdate);
+      await _cameraController!.startImageStream(_onCameraFrame);
+      _imageStreamActive = true;
 
       if (mounted) {
         setState(() => _isCameraInitialized = true);
@@ -130,6 +151,31 @@ class _LivenessCaptureScreenState
     );
   }
 
+  void _onCameraFrame(CameraImage image) {
+    final controller = _cameraController;
+    final gestureController = _gestureController;
+    if (controller == null || gestureController == null) return;
+    gestureController.processCameraImage(image, controller.value.deviceOrientation);
+  }
+
+  void _onGestureUpdate() {
+    if (!mounted) return;
+    if (_gestureController?.isComplete ?? false) {
+      _stopImageStream();
+    }
+    setState(() {});
+  }
+
+  Future<void> _stopImageStream() async {
+    if (!_imageStreamActive) return;
+    _imageStreamActive = false;
+    try {
+      await _cameraController?.stopImageStream();
+    } catch (e) {
+      debugPrint('Error stopping image stream: $e');
+    }
+  }
+
   Future<void> _capturePhoto() async {
     XFile? image;
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
@@ -151,19 +197,37 @@ class _LivenessCaptureScreenState
     ref.read(livenessProvider.notifier).imageCaptured(image.path);
   }
 
-  void _retake() {
+  Future<void> _retake() async {
     setState(() => _capturedImage = null);
     ref.read(livenessProvider.notifier).retake();
+
+    // Re-arm the liveness gesture challenge for the new attempt.
+    _gestureController?.reset();
+    final controller = _cameraController;
+    if (controller != null && controller.value.isInitialized && !_imageStreamActive) {
+      _imageStreamActive = true;
+      await controller.startImageStream(_onCameraFrame);
+    }
   }
 
-  Future<void> _submit() async {
+  /// Confirms the captured selfie and proceeds to ID selection (BVN/NIN).
+  /// No liveness call is made here — liveness + selfie/registry matching are
+  /// performed by the auth-service when the selfie is submitted with BVN/NIN.
+  void _submit() {
     final image = _capturedImage;
     if (image == null) return;
-    await ref.read(livenessProvider.notifier).submit(image);
+    // The image path is retained in livenessProvider (set on capture) for the
+    // BVN/NIN submission step (IdVerificationController.verifyId).
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const IdVerificationScreen()),
+    );
   }
 
   @override
   void dispose() {
+    _gestureController?.removeListener(_onGestureUpdate);
+    _gestureController?.dispose();
     _cameraController?.dispose();
     super.dispose();
   }
@@ -171,36 +235,17 @@ class _LivenessCaptureScreenState
   @override
   Widget build(BuildContext context) {
     final livenessState = ref.watch(livenessProvider);
-
-    ref.listen<LivenessState>(livenessProvider, (previous, next) {
-      if (next.status == LivenessStatus.success && !_successDialogShown) {
-        _successDialogShown = true;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _showSuccessDialog();
-        });
-      }
-      if (next.status == LivenessStatus.failure &&
-          previous?.status != LivenessStatus.failure &&
-          next.errorMessage != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _showFailureDialog(next.errorMessage!);
-        });
-      }
-    });
-
-    final showingPreview = livenessState.status == LivenessStatus.imageCaptured ||
-        livenessState.status == LivenessStatus.checkingLiveness ||
-        livenessState.status == LivenessStatus.failure;
+    final showingPreview = livenessState.status == LivenessStatus.imageCaptured;
 
     return Scaffold(
       backgroundColor: Colors.black,
       body: showingPreview && _capturedImage != null
-          ? _buildPreview(livenessState)
-          : _buildCameraView(livenessState),
+          ? _buildPreview()
+          : _buildCameraView(),
     );
   }
 
-  Widget _buildCameraView(LivenessState livenessState) {
+  Widget _buildCameraView() {
     return Stack(
       children: [
         if (_isCameraInitialized && _cameraController != null)
@@ -211,7 +256,9 @@ class _LivenessCaptureScreenState
             child: const Center(child: AppLoadingIndicator()),
           ),
         CustomPaint(
-          painter: FaceOverlayPainter(faceDetected: false),
+          painter: FaceOverlayPainter(
+            faceDetected: _gestureController?.faceVisible ?? false,
+          ),
           child: Container(),
         ),
         SafeArea(
@@ -243,7 +290,7 @@ class _LivenessCaptureScreenState
                   borderRadius: BorderRadius.circular(
                       AppLayout.scaleWidth(context, 8))),
               child: Text(
-                'Look straight at the camera to verify it\'s really you',
+                _gestureController?.promptText ?? 'Look straight at the camera',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
@@ -259,27 +306,37 @@ class _LivenessCaptureScreenState
           right: 0,
           child: Column(
             children: [
-              GestureDetector(
-                onTap: _isCameraInitialized ? _capturePhoto : null,
-                child: Container(
-                  width: AppLayout.scaleWidth(context, 70),
-                  height: AppLayout.scaleWidth(context, 70),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 4),
-                  ),
-                  child: Container(
-                    margin: EdgeInsets.all(AppLayout.scaleWidth(context, 6)),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
+              Builder(builder: (context) {
+                final gesturesComplete = _gestureController?.isComplete ?? false;
+                final canCapture = _isCameraInitialized && gesturesComplete;
+                return Opacity(
+                  opacity: canCapture ? 1.0 : 0.4,
+                  child: GestureDetector(
+                    onTap: canCapture ? _capturePhoto : null,
+                    child: Container(
+                      width: AppLayout.scaleWidth(context, 70),
+                      height: AppLayout.scaleWidth(context, 70),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 4),
+                      ),
+                      child: Container(
+                        margin: EdgeInsets.all(AppLayout.scaleWidth(context, 6)),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
+                );
+              }),
               SizedBox(height: AppLayout.scaleHeight(context, 12)),
               Text(
-                'Tap to capture',
+                (_gestureController?.isComplete ?? false)
+                    ? 'Tap to capture'
+                    : 'Complete the steps above to unlock capture',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: AppLayout.fontSize(context, 14)),
@@ -291,9 +348,8 @@ class _LivenessCaptureScreenState
     );
   }
 
-  Widget _buildPreview(LivenessState livenessState) {
+  Widget _buildPreview() {
     final image = _capturedImage!;
-    final isSubmitting = livenessState.isSubmitting;
 
     return Stack(
       children: [
@@ -313,7 +369,7 @@ class _LivenessCaptureScreenState
                   icon: Icon(Icons.close,
                       color: Colors.white,
                       size: AppLayout.scaleWidth(context, 30)),
-                  onPressed: isSubmitting ? null : () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
@@ -330,7 +386,7 @@ class _LivenessCaptureScreenState
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: isSubmitting ? null : _retake,
+                    onPressed: _retake,
                     style: OutlinedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
                           vertical: AppLayout.scaleHeight(context, 14)),
@@ -347,7 +403,7 @@ class _LivenessCaptureScreenState
                 SizedBox(width: AppLayout.scaleWidth(context, 16)),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: isSubmitting ? null : _submit,
+                    onPressed: _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF069494),
                       padding: EdgeInsets.symmetric(
@@ -357,146 +413,15 @@ class _LivenessCaptureScreenState
                             AppLayout.scaleWidth(context, 28)),
                       ),
                     ),
-                    child: isSubmitting
-                        ? const AppLoadingIndicator.button()
-                        : const Text('Continue',
-                            style: TextStyle(color: Colors.white)),
+                    child: const Text('Continue',
+                        style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ],
             ),
           ),
         ),
-        if (isSubmitting)
-          Container(
-            color: Colors.black.withOpacity(0.7),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const AppLoadingIndicator(),
-                  SizedBox(height: AppLayout.scaleHeight(context, 16)),
-                  Text(
-                    'Verifying...',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: AppLayout.fontSize(context, 16)),
-                  ),
-                ],
-              ),
-            ),
-          ),
       ],
-    );
-  }
-
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(AppLayout.scaleWidth(context, 20))),
-        contentPadding: EdgeInsets.all(AppLayout.scaleWidth(context, 32)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: AppLayout.scaleWidth(context, 80),
-              height: AppLayout.scaleWidth(context, 80),
-              decoration: BoxDecoration(
-                color: const Color(0xFF069494).withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.check_circle,
-                  color: const Color(0xFF069494),
-                  size: AppLayout.scaleWidth(context, 50)),
-            ),
-            SizedBox(height: AppLayout.scaleHeight(context, 24)),
-            Text(
-              'Identity Verified!',
-              style: TextStyle(
-                  fontSize: AppLayout.fontSize(context, 24),
-                  fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: AppLayout.scaleHeight(context, 12)),
-            Text(
-              'We\'ve confirmed it\'s really you.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: AppLayout.fontSize(context, 14),
-                  color: Colors.grey[600]),
-            ),
-            SizedBox(height: AppLayout.scaleHeight(context, 24)),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  // Same KYC contract as the existing (mock) selfie step —
-                  // see selfie_capture_screen.dart's identical success
-                  // handler — so KycFlowManager never re-routes the user
-                  // back to this step on re-entry.
-                  await ref.read(authProvider.notifier).updateKycStatus(
-                        isSelfieVerified: true,
-                      );
-
-                  if (context.mounted) {
-                    Navigator.pop(context); // close dialog
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const IdVerificationScreen()),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF069494),
-                  padding: EdgeInsets.all(AppLayout.scaleWidth(context, 16)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                        AppLayout.scaleWidth(context, 12)),
-                  ),
-                ),
-                child: Text(
-                  'Continue',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: AppLayout.fontSize(context, 16)),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showFailureDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(AppLayout.scaleWidth(context, 16))),
-        title: const Row(
-          children: [
-            Icon(Icons.error_outline, color: Colors.red),
-            SizedBox(width: 12),
-            Text('Verification Failed'),
-          ],
-        ),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _retake();
-            },
-            child: const Text('Try Again'),
-          ),
-        ],
-      ),
     );
   }
 }

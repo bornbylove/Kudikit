@@ -109,8 +109,12 @@ class TierNotifier extends StateNotifier<TierState> {
   // ---------------------------------------------------------------------------
   // SET TIER FROM ONBOARDING
   // Called by choose_tribe.dart immediately after the user picks a tier.
-  // Unlike upgradeTier(), this does NOT enforce index ordering — the user is
-  // selecting for the first time, not upgrading from a lower tier.
+  // This is a LOCAL display cache of the tier the user selected during
+  // onboarding (PRD §2.1.2: a new user may pick Basic/Pro/Mega directly). It
+  // does NOT grant tiers — the server-authoritative grant lives on
+  // UserModel.grantedTier (see SLICE 7 P0-3), and tier UPGRADES are recorded
+  // server-side via AuthNotifier.selectTier (SLICE 8 MO-8.2/MO-8.3), never
+  // simulated here.
   // ---------------------------------------------------------------------------
   Future<void> setTierFromOnboarding(int tierNumber) async {
     final TierLevel level;
@@ -138,35 +142,6 @@ class TierNotifier extends StateNotifier<TierState> {
         isLoading: false,
         error: 'Failed to save tier: $e',
       );
-    }
-  }
-
-  // Upgrade to a new tier
-  Future<bool> upgradeTier(TierLevel newTier) async {
-    if (newTier.index <= state.currentTier.index) {
-      state = state.copyWith(error: 'Cannot downgrade or upgrade to same tier');
-      return false;
-    }
-
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      await _storageService.saveCurrentTier(newTier);
-      await _storageService.saveLastTierUpgradeDate(DateTime.now());
-
-      state = state.copyWith(
-        currentTier: newTier,
-        lastUpgraded: DateTime.now(),
-        isLoading: false,
-      );
-
-      return true;
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: 'Failed to upgrade tier: $e',
-      );
-      return false;
     }
   }
 

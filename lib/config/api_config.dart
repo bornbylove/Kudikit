@@ -41,25 +41,6 @@ class ApiConfig {
       if (token != null) 'Authorization': 'Bearer $token',
     };
   }
-
-
-  //   flutter run \
-  //     --dart-define=DOJAH_APP_ID=<app-id> \
-  //     --dart-define=DOJAH_SECRET_KEY=<secret-key>
-  //
-  // Dojah's Authorization header takes the raw secret key — NOT "Bearer <key>".
-  static const String dojahAppId = String.fromEnvironment('DOJAH_APP_ID');
-
-  static const String dojahSecretKey =
-      String.fromEnvironment('DOJAH_SECRET_KEY');
-
-  static const String dojahBaseUrl = String.fromEnvironment(
-    'DOJAH_BASE_URL',
-    defaultValue: 'https://sandbox.dojah.io',
-  );
-
-  static bool get isDojahConfigured =>
-      dojahAppId.isNotEmpty && dojahSecretKey.isNotEmpty;
 }
 
 

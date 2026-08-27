@@ -38,7 +38,10 @@ class _ConfirmInfoScreenState extends ConsumerState<ConfirmInfoScreen> {
   bool _isSubmitting = false;
 
   // ---------------------------------------------------------------------------
-  // SUBMIT — calls AuthService, updates KYC flags, then pushes PIN screen.
+  // SUBMIT — saves the UserInfo locally, then pushes PIN screen. Slice 5:
+  // the BVN/NIN verification already happened at the ID-verification step via
+  // the real /auth/kyc/verify-* APIs (whose authoritative summary was applied
+  // to the UserModel) — no bare local success mutation is performed here.
   // ---------------------------------------------------------------------------
   Future<void> _handleSubmit() async {
     if (_isSubmitting) return;
@@ -51,15 +54,6 @@ class _ConfirmInfoScreenState extends ConsumerState<ConfirmInfoScreen> {
       if (!mounted) return;
 
       if (success) {
-        // Persist BVN verification on the user model so KycFlowManager
-        // won't re-route the user to this step on re-entry.
-        await ref.read(authProvider.notifier).updateKycStatus(
-              isBvnVerified: true,
-              bvn: widget.userInfo.bvn,
-            );
-
-        if (!mounted) return;
-
         // pushReplacement so the user cannot go back to confirm screen
         // from the PIN creation screen.
         Navigator.pushReplacement(
@@ -234,6 +228,8 @@ class _ConfirmInfoScreenState extends ConsumerState<ConfirmInfoScreen> {
     final rows = [
       _RowData(label: 'First Name',    value: widget.userInfo.firstName),
       _RowData(label: 'Last Name',     value: widget.userInfo.lastName),
+      if (widget.userInfo.nin.isNotEmpty)
+        _RowData(label: 'NIN',         value: widget.userInfo.maskedNin),
       _RowData(label: 'BVN',           value: widget.userInfo.maskedBvn),
       _RowData(
         label: 'Date of Birth',

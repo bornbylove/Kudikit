@@ -9,6 +9,7 @@ class AddressNotifier extends StateNotifier<AddressData> {
       city: state.city,
       lga: null, // Reset LGA when state changes
       landmark: state.landmark,
+      area: state.area,
       streetName: state.streetName,
       houseNumber: state.houseNumber,
     );
@@ -20,6 +21,7 @@ class AddressNotifier extends StateNotifier<AddressData> {
       city: value,
       lga: state.lga,
       landmark: state.landmark,
+      area: state.area,
       streetName: state.streetName,
       houseNumber: state.houseNumber,
     );
@@ -31,6 +33,7 @@ class AddressNotifier extends StateNotifier<AddressData> {
       city: state.city,
       lga: value,
       landmark: state.landmark,
+      area: state.area,
       streetName: state.streetName,
       houseNumber: state.houseNumber,
     );
@@ -42,6 +45,19 @@ class AddressNotifier extends StateNotifier<AddressData> {
       city: state.city,
       lga: state.lga,
       landmark: value,
+      area: state.area,
+      streetName: state.streetName,
+      houseNumber: state.houseNumber,
+    );
+  }
+
+  void updateArea(String value) {
+    state = AddressData(
+      state: state.state,
+      city: state.city,
+      lga: state.lga,
+      landmark: state.landmark,
+      area: value,
       streetName: state.streetName,
       houseNumber: state.houseNumber,
     );
@@ -53,6 +69,7 @@ class AddressNotifier extends StateNotifier<AddressData> {
       city: state.city,
       lga: state.lga,
       landmark: state.landmark,
+      area: state.area,
       streetName: value,
       houseNumber: state.houseNumber,
     );
@@ -64,6 +81,7 @@ class AddressNotifier extends StateNotifier<AddressData> {
       city: state.city,
       lga: state.lga,
       landmark: state.landmark,
+      area: state.area,
       streetName: state.streetName,
       houseNumber: value,
     );

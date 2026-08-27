@@ -207,7 +207,12 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
             onTap: () => setState(() {
               _selectedIdType = IdType.bvn;
               _idNumberController.clear();
-              ref.read(idVerificationProvider.notifier).reset();
+              // Slice 5 FIX: actually propagate the type to the controller —
+              // the old `reset()` kept state.idType at BVN forever, so NIN was
+              // always verified as BVN.
+              ref
+                  .read(idVerificationProvider.notifier)
+                  .changeIdType(IdType.bvn);
             }),
           ),
         ),
@@ -220,7 +225,9 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
             onTap: () => setState(() {
               _selectedIdType = IdType.nin;
               _idNumberController.clear();
-              ref.read(idVerificationProvider.notifier).reset();
+              ref
+                  .read(idVerificationProvider.notifier)
+                  .changeIdType(IdType.nin);
             }),
           ),
         ),
@@ -454,18 +461,22 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
     final state = ref.read(idVerificationProvider);
     if (state.status != VerificationStatus.success || state.data == null) return;
 
-    // Build a UserInfo from the data returned by the ID verification step.
-    // The mock (and real) API returns first_name, last_name, date_of_birth,
-    // and the raw BVN/NIN number that the user entered.
+    // Slice 5: the real verify-* response exposes the registry identity via
+    // `fullName` / `dateOfBirth` (the old mock's first_name/last_name/
+    // date_of_birth shape does NOT exist on the auth-service). The entered
+    // number goes to bvn or nin depending on which type was verified.
     final data = state.data!;
+    final name = (data['fullName'] as String? ?? '').trim();
+    final nameParts = name.split(' ').where((p) => p.isNotEmpty).toList();
+    final isBvn = state.idType == IdType.bvn;
+    final enteredNumber = _idNumberController.text.trim();
     final userInfo = UserInfo(
-      firstName:   (data['first_name']  as String? ?? '').trim(),
-      lastName:    (data['last_name']   as String? ?? '').trim(),
-      bvn:         _idNumberController.text.trim(),
-      dateOfBirth: DateTime.tryParse(
-                     data['date_of_birth'] as String? ?? '',
-                   ) ??
-                   DateTime(1990, 1, 1),
+      firstName: nameParts.isNotEmpty ? nameParts.first : '',
+      lastName: nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',
+      bvn: isBvn ? enteredNumber : '',
+      nin: isBvn ? '' : enteredNumber,
+      dateOfBirth: DateTime.tryParse(data['dateOfBirth'] as String? ?? '') ??
+          DateTime(1990, 1, 1),
     );
 
     Navigator.push(

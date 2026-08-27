@@ -64,6 +64,7 @@ class StorageService {
   // These are the "labels" under which data is saved.
   // Using constants prevents typos across the codebase.
 
+  static const String _deviceFingerprintKey = 'device_fingerprint';
   static const String _authTokenKey = 'auth_token';
   static const String _refreshTokenKey = 'refresh_token';
   static const String _userPasscodeKey = 'user_passcode'; // renamed from _userPinKey for clarity
@@ -75,6 +76,42 @@ class StorageService {
   static const String _currentTierKey = 'current_tier';
   static const String _lastTierUpgradeKey = 'last_tier_upgrade';
   static const String _completedRequirementsKey = 'completed_requirements';
+
+  // ===========================================================================
+  // DEVICE IDENTITY
+  // ===========================================================================
+  // kudikit_auth_service's LoginRequest requires a `deviceFingerprint` (a
+  // persistent per-install identifier the client generates and stores, NOT an
+  // IMEI — modern mobile OSes block apps from reading those). A login from a
+  // fingerprint not already trusted for the account triggers a DEVICE_LINK
+  // OTP challenge instead of a session, so this must be stable across app
+  // restarts and logins. It is deliberately NOT cleared by clearAuth() — the
+  // identifier belongs to the device install, not to the signed-in user — but
+  // IS wiped by clearAll() (full factory reset).
+  //
+  // Generated once as 16 cryptographically-secure random bytes hex-encoded
+  // (32 chars). No extra package needed.
+
+  /// Returns the stable per-install device fingerprint, generating and
+  /// persisting it on first use.
+  Future<String> getOrCreateDeviceFingerprint() async {
+    try {
+      final existing = await _secureStorage.read(key: _deviceFingerprintKey);
+      if (existing != null && existing.isNotEmpty) return existing;
+
+      final random = Random.secure();
+      final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+      final fingerprint =
+          bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+      await _secureStorage.write(
+        key: _deviceFingerprintKey,
+        value: fingerprint,
+      );
+      return fingerprint;
+    } catch (e) {
+      throw StorageException('Failed to resolve device fingerprint: $e');
+    }
+  }
 
   // ===========================================================================
   // AUTH TOKEN

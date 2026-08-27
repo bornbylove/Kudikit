@@ -55,13 +55,14 @@ class _SignInVerifyEmailScreenState
   int _secondsRemaining = _resendCooldownSeconds;
   Timer? _resendTimer;
   bool _canResend = false;
+  ProviderSubscription<AsyncValue<bool>>? _connectivitySubscription;
 
   @override
   void initState() {
     super.initState();
     _startResendTimer();
+    _setupConnectivityListener();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _setupConnectivityListener();
       // Auto-focus the text field
       _focusNode.requestFocus();
     });
@@ -72,13 +73,14 @@ class _SignInVerifyEmailScreenState
     _codeController.dispose();
     _focusNode.dispose();
     _resendTimer?.cancel();
+    _connectivitySubscription?.close();
     super.dispose();
   }
 
   // ── Connectivity listener ────────────────────────────────────────────────
 
   void _setupConnectivityListener() {
-    ref.listen(connectivityProvider, (previous, next) {
+    _connectivitySubscription = ref.listenManual(connectivityProvider, (previous, next) {
       next.whenData((isConnected) {
         if (previous?.value != null && previous!.value! && !isConnected) {
           ConnectivitySnackBar.showNoInternet(context);

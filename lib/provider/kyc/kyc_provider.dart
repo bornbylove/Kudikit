@@ -63,11 +63,20 @@ class DocumentUploadNotifier extends StateNotifier<DocumentUploadData> {
     state = state.copyWith(documentType: type);
   }
 
-  /// Updates the uploaded file and marks upload as complete
-  void setUploadedFile(File file, String fileName) {
+  /// Sets the front-side image of the document
+  void setFrontImage(File file, String fileName) {
     state = state.copyWith(
-      uploadedFile: file,
-      fileName: fileName,
+      frontImage: file,
+      frontImageName: fileName,
+      uploadProgress: 1.0,
+    );
+  }
+
+  /// Sets the back-side image of the document (required for two-sided docs)
+  void setBackImage(File file, String fileName) {
+    state = state.copyWith(
+      backImage: file,
+      backImageName: fileName,
       uploadProgress: 1.0,
     );
   }

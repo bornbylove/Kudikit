@@ -1,8 +1,8 @@
 // lib/core/utils/image_base64_util.dart
 //
 // Dedicated read -> base64 -> strip-prefix utility for image payloads sent
-// to third-party APIs (currently Dojah liveness). Kept out of UI widgets so
-// this logic exists in exactly one place.
+// to the auth-service KYC APIs (selfie with BVN/NIN, ID documents, utility
+// bills). Kept out of UI widgets so this logic exists in exactly one place.
 //
 // Built on XFile.readAsBytes() rather than dart:io File — XFile (already
 // used throughout this app's selfie/camera flow, re-exported by both the
@@ -20,8 +20,8 @@ class ImageBase64Util {
       RegExp(r'^data:image\/[a-zA-Z0-9.+-]+;base64,');
 
   /// Reads [file]'s bytes and returns a raw base64 string with no
-  /// `data:image/...;base64,` prefix — ready to send as-is in a Dojah
-  /// request body.
+  /// `data:image/...;base64,` prefix — ready to send as-is in an
+  /// auth-service KYC request body.
   static Future<String> encodeToBase64(XFile file) async {
     final bytes = await file.readAsBytes();
     return base64Encode(bytes);

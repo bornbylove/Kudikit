@@ -18,6 +18,7 @@ class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
   final TextEditingController _referralCodeController = TextEditingController();
   String? _selectedSource;
   bool _isSubmitting = false;
+  ProviderSubscription<AsyncValue<bool>>? _connectivitySubscription;
 
   final List<String> _hearAboutOptions = [
     'Social Media',
@@ -32,13 +33,11 @@ class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _setupConnectivityListener();
-    });
+    _setupConnectivityListener();
   }
 
   void _setupConnectivityListener() {
-    ref.listen(connectivityProvider, (previous, next) {
+    _connectivitySubscription = ref.listenManual(connectivityProvider, (previous, next) {
       next.whenData((isConnected) {
         if (previous?.value != null && previous!.value! && !isConnected) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -57,6 +56,7 @@ class _KnowYouBetterFormState extends ConsumerState<KnowYouBetterForm> {
   @override
   void dispose() {
     _referralCodeController.dispose();
+    _connectivitySubscription?.close();
     super.dispose();
   }
 

@@ -4,7 +4,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/formatting/widget/shimmer_widget.dart';
+import 'package:kudipay/model/user/kyc_status.dart';
+import 'package:kudipay/model/tier/tier_model.dart';
+import 'package:kudipay/model/tier/tier_requirements.dart';
 import 'package:kudipay/presentation/email/change_email_screen.dart';
+import 'package:kudipay/presentation/kyc/kyc_flow_manager.dart';
 import 'package:kudipay/presentation/login/login_page.dart';
 import 'package:kudipay/presentation/notification/notification_preference_screen.dart';
 import 'package:kudipay/presentation/tier/upgrade_tier_screen.dart';
@@ -44,8 +48,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   Widget build(BuildContext context) {
     final user           = ref.watch(currentUserProvider);
     final userInfo       = ref.watch(userInfoProvider);
-    final tierState      = ref.watch(tierProvider);
-    final currentTierObj = tierState.getTierObject();
+    // SLICE 7 (P0-3): the tier card derives from the server-authoritative
+    // GRANTED tier, never the local tierProvider.
+    final currentTierObj = _currentTierObject(user);
 
     final firstName = userInfo?.firstName ??
         user?.name?.split(' ').first ?? 'User';
@@ -99,7 +104,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
 
               _sectionLabel(context, 'Current tier'),
               SizedBox(height: AppLayout.scaleHeight(context, 8)),
-              _buildTierCard(context, currentTierObj),
+              _buildTierCard(context, currentTierObj, user),
               SizedBox(height: AppLayout.scaleHeight(context, 24)),
 
               _sectionLabel(context, 'Personal Information'),
@@ -171,7 +176,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   Widget _buildHeaderCard(BuildContext context, user, String firstName) {
     final photoSize    = AppLayout.scaleWidth(context, 40);
     final photoRadius  = AppLayout.scaleWidth(context, 6);
-    final tierNumber   = ref.watch(tierProvider).getTierObject().tierNumber;
+    // SLICE 7 (P0-3): the header shows the server-authoritative GRANTED tier.
+    final tierNumber   = _grantedTierNumber(user);
 
     return Container(
       margin: EdgeInsets.fromLTRB(
@@ -231,37 +237,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                       ),
                     ),
                     SizedBox(width: AppLayout.scaleWidth(context, 5)),
-                    // Verified badge
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppLayout.scaleWidth(context, 8),
-                        vertical: AppLayout.scaleHeight(context, 4),
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryTeal.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(
-                            AppLayout.scaleWidth(context, 20)),
-                        border: Border.all(
-                            color: AppColors.primaryTeal.withOpacity(0.25)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.check_circle_outline,
-                              size: AppLayout.scaleWidth(context, 13),
-                              color: AppColors.primaryTeal),
-                          SizedBox(width: AppLayout.scaleWidth(context, 3)),
-                          Text(
-                            'Verified',
-                            style: TextStyle(
-                              fontSize: AppLayout.fontSize(context, 11),
-                              color: AppColors.primaryTeal,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // SLICE 6 (MO-6): live KYC status badge — no more
+                    // hardcoded "Verified". Derived from the server's typed
+                    // KYC state cached on the UserModel.
+                    _buildKycBadge(context, user),
                   ],
                 ),
                 SizedBox(height: AppLayout.scaleHeight(context, 4)),
@@ -287,7 +266,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                         AppLayout.scaleWidth(context, 20)),
                   ),
                   child: Text(
-                    'Tier $tierNumber',
+                    tierNumber > 0 ? 'Tier $tierNumber' : 'UNVERIFIED',
                     style: TextStyle(
                       fontSize: AppLayout.fontSize(context, 10),
                       color: AppColors.white,
@@ -304,8 +283,16 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   }
 
   // ── Tier card ────────────────────────────────────────────────────────────────
-  Widget _buildTierCard(BuildContext context, currentTierObj) {
+  Widget _buildTierCard(BuildContext context, currentTierObj, user) {
     final iconBoxSize = AppLayout.scaleWidth(context, 38);
+    // SLICE 7 (P0-3): distinguish pending from granted. "pending" only when a
+    // tier is being worked toward (pendingTier) but has NOT been granted —
+    // pendingTier is never shown as the granted tier, and the granted tier is
+    // the server-authoritative user.grantedTier (0 = UNVERIFIED).
+    final granted = user.grantedTierOrZero;
+    final pending = user.pendingTier != null &&
+        user.pendingTier! > granted;
+    final tierName = granted >= 1 ? currentTierObj.name : 'UNVERIFIED';
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: AppLayout.scaleWidth(context, 16)),
@@ -348,21 +335,31 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: currentTierObj.name,
+                        text: tierName,
                         style: TextStyle(
                           fontSize: AppLayout.fontSize(context, 12),
                           fontWeight: FontWeight.w600,
                           color: AppColors.textDark,
                         ),
                       ),
-                      TextSpan(
-                        text: ' (Tier ${currentTierObj.tierNumber})',
-                        style: TextStyle(
-                          fontSize: AppLayout.fontSize(context, 13),
-                          fontWeight: FontWeight.w400,
-                          color: _tierSub,
+                      if (granted >= 1)
+                        TextSpan(
+                          text: ' (Tier ${currentTierObj.tierNumber})',
+                          style: TextStyle(
+                            fontSize: AppLayout.fontSize(context, 13),
+                            fontWeight: FontWeight.w400,
+                            color: _tierSub,
+                          ),
                         ),
-                      ),
+                      if (pending)
+                        TextSpan(
+                          text: ' — pending',
+                          style: TextStyle(
+                            fontSize: AppLayout.fontSize(context, 12),
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFFF57C00),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -383,32 +380,64 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
             ),
           ),
 
-          TextButton(
-            onPressed: () => Navigator.push(context, MaterialPageRoute(
-              builder: (_) => UpgradeTierScreen(tier: currentTierObj),
-            )),
-            style: TextButton.styleFrom(
-              backgroundColor: _headerBg,
-              padding: EdgeInsets.symmetric(
-                horizontal: AppLayout.scaleWidth(context, 14),
-                vertical: AppLayout.scaleHeight(context, 7),
+          // SLICE 8 (MO-8.1): the upgrade entry always points at the SINGLE
+          // next tier above the granted tier (no-skip 1 -> 2 -> 3, PRD §2.2.4).
+          // UNVERIFIED (0) users have no tier to upgrade — they enter the KYC
+          // funnel directly. Mega (3) is the max — the button is hidden.
+          if (granted == 0)
+            TextButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(
+                builder: (_) => const KycFlowManager(),
+              )),
+              style: TextButton.styleFrom(
+                backgroundColor: _headerBg,
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppLayout.scaleWidth(context, 14),
+                  vertical: AppLayout.scaleHeight(context, 7),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(AppLayout.scaleWidth(context, 20)),
+                ),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(AppLayout.scaleWidth(context, 20)),
+              child: Text(
+                'Start KYC',
+                style: TextStyle(
+                  fontSize: AppLayout.fontSize(context, 10),
+                  color: AppColors.primaryTeal,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            )
+          else if (nextUpgradeTier(granted) != null)
+            TextButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(
+                builder: (_) => UpgradeTierScreen(tier: nextUpgradeTier(granted)!),
+              )),
+              style: TextButton.styleFrom(
+                backgroundColor: _headerBg,
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppLayout.scaleWidth(context, 14),
+                  vertical: AppLayout.scaleHeight(context, 7),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(AppLayout.scaleWidth(context, 20)),
+                ),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(
+                'Upgrade Tier',
+                style: TextStyle(
+                  fontSize: AppLayout.fontSize(context, 10),
+                  color: AppColors.primaryTeal,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-            child: Text(
-              'Upgrade Tier',
-              style: TextStyle(
-                fontSize: AppLayout.fontSize(context, 10),
-                color: AppColors.primaryTeal,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -449,6 +478,19 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
               svgPath: _iconPhone,
               title: _maskPhone(user.phoneNumber),
               subtitle: 'Phone number',
+              isLast: true),
+          // SLICE 6 (MO-6): masked BVN / NIN from the cached server KYC state.
+          _divider(context),
+          _infoRow(context,
+              svgPath: _iconLock,
+              title: _maskedBvn(user),
+              subtitle: user.isBvnVerified ? 'BVN verified' : 'BVN not linked',
+              isLast: false),
+          _divider(context),
+          _infoRow(context,
+              svgPath: _iconLock,
+              title: _maskedNin(user),
+              subtitle: user.isNinVerified ? 'NIN verified' : 'NIN not linked',
               isLast: true),
         ],
       ),
@@ -696,6 +738,93 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
 
   // ── Shared helpers ────────────────────────────────────────────────────────────
 
+  // SLICE 7 (P0-3): the server-authoritative GRANTED tier number, or 0 when no
+  // tier has been granted (UNVERIFIED). Pending/selected/local-provider tiers
+  // are routing intent and are never displayed as the granted tier.
+  int _grantedTierNumber(user) {
+    final granted = user?.grantedTier as int?;
+    if (granted != null && granted >= 1 && granted <= 3) return granted;
+    return 0;
+  }
+
+  // SLICE 7 (P0-3): the tier card object derives from the granted tier, never
+  // the local tierProvider. UNVERIFIED falls back to the entry-tier object but
+  // is labelled UNVERIFIED (see _buildTierCard) — no fabricated grant.
+  UpgradeTier _currentTierObject(user) {
+    final granted = user?.grantedTierOrZero ?? 0;
+    switch (granted) {
+      case 3:
+        return UpgradeTier.megaTier();
+      case 2:
+        return UpgradeTier.proTier();
+      default:
+        return UpgradeTier.basicTier();
+    }
+  }
+
+  // SLICE 6 (MO-6): live KYC status badge derived from server typed state.
+  Widget _buildKycBadge(BuildContext context, user) {
+    final (label, color) = _kycStatusBadge(user);
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: AppLayout.scaleWidth(context, 8),
+        vertical: AppLayout.scaleHeight(context, 4),
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 20)),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            user.kycStatus == KycStatus.verified
+                ? Icons.check_circle_outline
+                : user.kycStatus == KycStatus.rejected
+                    ? Icons.error_outline
+                    : Icons.hourglass_top_outlined,
+            size: AppLayout.scaleWidth(context, 13),
+            color: color,
+          ),
+          SizedBox(width: AppLayout.scaleWidth(context, 3)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: AppLayout.fontSize(context, 11),
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  (String, Color) _kycStatusBadge(user) {
+    // Address verification pending is the PRD's interim Mega state.
+    if (user.addressStatus == AddressVerificationStatus.pendingAgentVisit) {
+      return ('Address verification in progress', const Color(0xFFF57C00));
+    }
+    switch (user.kycStatus) {
+      case KycStatus.verified:
+        return ('Verified', AppColors.primaryTeal);
+      case KycStatus.manualReview:
+        return ('Under review', const Color(0xFFF57C00));
+      case KycStatus.rejected:
+        return ('Verification failed', const Color(0xFFD32F2F));
+      case KycStatus.expired:
+        return ('Verification expired', const Color(0xFFF57C00));
+      case KycStatus.pending:
+      case KycStatus.inProgress:
+      case KycStatus.notStarted:
+        return ('KYC in progress', const Color(0xFFF57C00));
+    }
+    // Defensive fallback (user is dynamically typed here; switch is exhaustive
+    // for KycStatus but the analyzer can't prove it for a dynamic receiver).
+    return ('KYC in progress', const Color(0xFFF57C00));
+  }
+
   Widget _svgIcon(BuildContext context, String path) {
     final boxSize  = AppLayout.scaleWidth(context, 36);
     final iconSize = AppLayout.scaleWidth(context, 16);
@@ -750,6 +879,23 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
   String _maskPhone(String phone) {
     if (phone.length < 8) return phone;
     return '+234******${phone.substring(phone.length - 4)}';
+  }
+
+  String _maskedBvn(user) {
+    final bvn = user.bvn as String?;
+    if (bvn == null || bvn.isEmpty) return 'Not linked';
+    return _maskDigits(bvn);
+  }
+
+  String _maskedNin(user) {
+    final nin = user.nin as String?;
+    if (nin == null || nin.isEmpty) return 'Not linked';
+    return _maskDigits(nin);
+  }
+
+  String _maskDigits(String value) {
+    if (value.length <= 4) return '****';
+    return '${'*' * (value.length - 4)}${value.substring(value.length - 4)}';
   }
 
   String _fmtAmount(double amount) {

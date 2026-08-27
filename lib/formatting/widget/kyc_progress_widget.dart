@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kudipay/model/user/kyc_status.dart';
+import 'package:kudipay/model/user/user_model.dart';
 import 'package:kudipay/presentation/Identity/chooseID.dart';
 // import 'package:kudipay/presentation/Identity/upload_ID.dart';
 import 'package:kudipay/presentation/address/verify_address.dart';
@@ -174,7 +176,7 @@ class KycProgressWidget extends ConsumerWidget {
             icon: Icons.person_outline,
             title: 'Selfie Capture',
             isCompleted: user.isSelfieVerified,
-            onTap: showNavigationButtons && !user.isSelfieVerified
+            onTap: showNavigationButtons && !user.isSelfieVerified && _canStartKyc(user)
                 ? () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -190,7 +192,7 @@ class KycProgressWidget extends ConsumerWidget {
             icon: Icons.credit_card,
             title: 'BVN/NIN Verification',
             isCompleted: user.isBvnVerified,
-            onTap: showNavigationButtons && !user.isBvnVerified
+            onTap: showNavigationButtons && !user.isBvnVerified && _canStartKyc(user)
                 ? () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -206,7 +208,9 @@ class KycProgressWidget extends ConsumerWidget {
             icon: Icons.location_on_outlined,
             title: 'Address Verification',
             isCompleted: user.isAddressVerified,
-            onTap: showNavigationButtons && !user.isAddressVerified
+            onTap: showNavigationButtons &&
+                    !user.isAddressVerified &&
+                    _canStartKyc(user, isAddressStep: true)
                 ? () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -357,7 +361,27 @@ class KycProgressWidget extends ConsumerWidget {
     return Colors.red;
   }
 
+  // Slice 4B: the frozen UI has no surface for review/reject/expire/agent-visit
+  // states. Those must NOT appear as ordinary "Start" steps, so the start
+  // navigation is disabled whenever the authoritative typed state says the
+  // step can't be started from here. (Representing them properly needs
+  // product/UI approval — reported, not implemented.)
+  bool _canStartKyc(UserModel user, {bool isAddressStep = false}) {
+    if (user.kycStatus == KycStatus.pending ||
+        user.kycStatus == KycStatus.manualReview ||
+        user.kycStatus == KycStatus.rejected ||
+        user.kycStatus == KycStatus.expired) {
+      return false;
+    }
+    if (isAddressStep &&
+        user.addressStatus == AddressVerificationStatus.pendingAgentVisit) {
+      return false;
+    }
+    return true;
+  }
+
   String _getNextStepMessage(user) {
+    if (!_canStartKyc(user)) return 'Almost there!';
     if (!user.isSelfieVerified) return 'Next: Complete selfie capture';
     if (!user.isBvnVerified) return 'Next: Verify your BVN/NIN';
     if (!user.isAddressVerified) return 'Next: Verify your address';

@@ -10,6 +10,7 @@ class AddressData {
   String? city;
   String? lga;
   String? landmark;
+  String? area;
   String? streetName;
   String? houseNumber;
 
@@ -18,6 +19,7 @@ class AddressData {
     this.city,
     this.lga,
     this.landmark,
+    this.area,
     this.streetName,
     this.houseNumber,
   });

@@ -28,6 +28,20 @@ class _KudikitTribeScreenState extends ConsumerState<TribeScreen> {
 
     setState(() => _isSaving = true);
 
+    // SLICE 6 (MO-1): tier selection is SERVER-AUTHORITATIVE. POST
+    // /auth/select-tier persists pendingTier on the auth-service and returns the
+    // authoritative UserResponse (tier / pendingTier / registrationComplete).
+    // Local persistence below remains a display/cache fallback only — it must
+    // never override server state (see KycFlowManager.effectiveTier).
+    try {
+      await ref
+          .read(authProvider.notifier)
+          .selectTier(_selectedTierNumber);
+    } on Exception {
+      // Best-effort: a transient network failure must not block onboarding —
+      // local state keeps the flow usable and the next reconcile re-syncs.
+    }
+
     // 1. Persist the chosen tier so tierProvider (and the home / profile
     //    screens that watch it) always shows the correct tier number.
     await ref
