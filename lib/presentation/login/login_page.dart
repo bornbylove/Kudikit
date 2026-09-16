@@ -39,9 +39,13 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   final TextEditingController _passwordCtrl = TextEditingController();
+  final TextEditingController _identifierCtrl = TextEditingController();
   bool _passwordVisible = false;
   bool _showingPhone = true;
   bool _isLoading = false;
+  // True once the user has typed into the identifier field directly — stops
+  // the stored-value autofill from clobbering what they're typing.
+  bool _identifierEdited = false;
 
   final ValueNotifier<String?> _errorNotifier = ValueNotifier<String?>(null);
   // Drives the Continue button — true only when the password field has text.
@@ -53,16 +57,34 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     super.initState();
     _passwordCtrl.addListener(_onPasswordChanged);
     _setupConnectivityListener();
+    // Prefer whichever identifier was actually passed in — defaulting to
+    // "phone" when nothing is available yet still leaves an email-only
+    // caller (e.g. Signup, which only passes `email:`) blank until
+    // _syncIdentifierFromUser corrects it once storedUserProvider resolves.
+    _showingPhone = _hasPhone(null) || !_hasEmail(null);
+    _identifierCtrl.text = _displayValue(null);
   }
 
   @override
   void dispose() {
     _passwordCtrl.removeListener(_onPasswordChanged);
     _passwordCtrl.dispose();
+    _identifierCtrl.dispose();
     _errorNotifier.dispose();
     _passwordNotEmpty.dispose();
     _connectivitySubscription?.close();
     super.dispose();
+  }
+
+  // Autofills the identifier field from the stored user once it resolves,
+  // unless the user has already started typing their own value.
+  void _syncIdentifierFromUser(UserModel? user) {
+    if (_identifierEdited) return;
+    _showingPhone = _hasPhone(user) || !_hasEmail(user);
+    final value = _displayValue(user);
+    if (_identifierCtrl.text != value) {
+      _identifierCtrl.text = value;
+    }
   }
 
   void _onPasswordChanged() {
@@ -99,10 +121,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   String _displayValue(UserModel? user) {
     if (_showingPhone) {
       final raw = widget.phoneNumber ?? user?.phoneNumber ?? '';
-      return raw.isEmpty ? '—' : _formatPhone(raw);
+      return raw.isEmpty ? '' : _formatPhone(raw);
     }
     final email = widget.email ?? user?.email ?? '';
-    return email.isEmpty ? '—' : email;
+    return email;
   }
 
   bool _hasPhone(UserModel? user) =>
@@ -115,6 +137,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final isConnected = ref.read(currentConnectivityProvider);
     if (!isConnected) {
       ConnectivitySnackBar.showNoInternet(context);
+      return;
+    }
+
+    final identifier = _identifierCtrl.text.trim();
+    if (identifier.isEmpty) {
+      _errorNotifier.value = _showingPhone
+          ? 'Please enter your phone number'
+          : 'Please enter your email';
       return;
     }
 
@@ -136,10 +166,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       // The server is authoritative for passcode correctness — a stale or
       // absent local passcode hash (fresh install, new device, reinstall)
       // must never block a login attempt that the backend would accept.
-      final email =
-          widget.email ?? user?.email ?? ref.read(userEmailProvider) ?? '';
       await ref.read(authProvider.notifier).login(
-            email: email,
+            email: identifier,
             password: password,
           );
 
@@ -153,7 +181,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         final challenge = authState.deviceChallenge!;
         ref.read(deviceLinkingProvider.notifier).startDeviceVerification(
               otpReference: challenge.otpReference,
-              identifier: email,
+              identifier: identifier,
               maskedIdentifier: challenge.maskedIdentifier,
             );
         if (!mounted) return;
@@ -255,6 +283,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       setState(() {
         _showingPhone = value == 'phone';
         _errorNotifier.value = null;
+        _identifierEdited = false;
+        _identifierCtrl.text = _displayValue(user);
       });
     });
   }
@@ -332,7 +362,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               child: userAsync.when(
                 loading: () => _buildBody(context, null, isOnline),
                 error: (_, __) => _buildBody(context, null, isOnline),
-                data: (user) => _buildBody(context, user, isOnline),
+                data: (user) {
+                  _syncIdentifierFromUser(user);
+                  return _buildBody(context, user, isOnline);
+                },
               ),
             ),
           ],
@@ -383,14 +416,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 SizedBox(height: AppLayout.scaleHeight(context, 20)),
 
                 // ── Identifier field ──────────────────────────────────────
-                // Tapping the field (or the chevron) opens a dropdown menu
-                // anchored below this field listing phone and email options.
+                // Editable, pre-filled from the stored user (or route args).
+                // The chevron (shown only when both phone and email are on
+                // file) opens a dropdown anchored below this field to switch
+                // which one is prefilled — typing directly always wins.
                 _IdentifierField(
                   key: _identifierFieldKey,
-                  displayValue: _displayValue(user),
+                  controller: _identifierCtrl,
                   showingPhone: _showingPhone,
                   canToggle: canToggle,
-                  onTap: () => _showIdentifierMenu(user),
+                  enabled: !_isLoading && isOnline,
+                  onChanged: (_) => _identifierEdited = true,
+                  onToggleTap: () => _showIdentifierMenu(user),
                 ),
 
                 // ── Error message — directly below identifier field ────────
@@ -550,67 +587,81 @@ class _TopBar extends ConsumerWidget {
 // Identifier field — read-only display
 // =============================================================================
 class _IdentifierField extends StatelessWidget {
-  final String displayValue;
+  final TextEditingController controller;
   final bool showingPhone;
   final bool canToggle;
-  final VoidCallback onTap;
+  final bool enabled;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onToggleTap;
 
   const _IdentifierField({
     super.key,
-    required this.displayValue,
+    required this.controller,
     required this.showingPhone,
     required this.canToggle,
-    required this.onTap,
+    required this.enabled,
+    required this.onChanged,
+    required this.onToggleTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: canToggle ? onTap : null,
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(
-          horizontal: AppLayout.scaleWidth(context, 16),
-          vertical: AppLayout.scaleHeight(context, 17),
+    return Container(
+      decoration: BoxDecoration(
+        color: enabled ? Colors.white : const Color(0xFFF8F8F8),
+        borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
+        border: Border.all(color: const Color(0xFFCEE5D8), width: 1),
+      ),
+      child: TextField(
+        controller: controller,
+        enabled: enabled,
+        onChanged: onChanged,
+        keyboardType:
+            showingPhone ? TextInputType.phone : TextInputType.emailAddress,
+        style: TextStyle(
+          fontSize: AppLayout.fontSize(context, 15),
+          fontWeight: FontWeight.w500,
+          color: Colors.black87,
+          letterSpacing: 0.1,
         ),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius:
-              BorderRadius.circular(AppLayout.scaleWidth(context, 12)),
-          border: Border.all(color: const Color(0xFFCEE5D8), width: 1),
-        ),
-        child: Row(
-          children: [
-            Icon(
+        decoration: InputDecoration(
+          hintText: showingPhone ? 'Phone number' : 'Email address',
+          hintStyle: TextStyle(
+            fontSize: AppLayout.fontSize(context, 15),
+            color: Colors.grey[400],
+            fontWeight: FontWeight.w400,
+          ),
+          prefixIcon: Padding(
+            padding: EdgeInsets.only(
+              left: AppLayout.scaleWidth(context, 16),
+              right: AppLayout.scaleWidth(context, 10),
+            ),
+            child: Icon(
               showingPhone
                   ? Icons.person_outline_rounded
                   : Icons.email_outlined,
               color: Colors.grey[400],
               size: AppLayout.scaleWidth(context, 15),
             ),
-            SizedBox(width: AppLayout.scaleWidth(context, 10)),
-            Expanded(
-              child: Text(
-                displayValue,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: AppLayout.fontSize(context, 15),
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                  letterSpacing: 0.1,
-                ),
-              ),
-            ),
-            // Chevron — only shown when toggling between phone/email is possible.
-            if (canToggle) ...[
-              SizedBox(width: AppLayout.scaleWidth(context, 4)),
-              Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: Colors.grey[400],
-                size: AppLayout.scaleWidth(context, 22),
-              ),
-            ],
-          ],
+          ),
+          prefixIconConstraints: const BoxConstraints(),
+          // Chevron — only shown when toggling between phone/email is possible.
+          suffixIcon: canToggle
+              ? IconButton(
+                  icon: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: Colors.grey[400],
+                    size: AppLayout.scaleWidth(context, 22),
+                  ),
+                  splashRadius: AppLayout.scaleWidth(context, 18),
+                  onPressed: onToggleTap,
+                )
+              : null,
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: AppLayout.scaleWidth(context, 16),
+            vertical: AppLayout.scaleHeight(context, 17),
+          ),
         ),
       ),
     );
