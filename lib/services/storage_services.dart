@@ -69,6 +69,7 @@ class StorageService {
   static const String _refreshTokenKey = 'refresh_token';
   static const String _userPasscodeKey = 'user_passcode'; // renamed from _userPinKey for clarity
   static const String _biometricKey = 'biometric_enabled';
+  static const String _biometricCredentialKey = 'biometric_credential';
   static const String _userInfoKey = 'user_info';
   static const String _userModelKey = 'user_model';
   static const String _isAuthKey = 'is_authenticated';
@@ -567,6 +568,40 @@ Future<bool> changePin({required String oldPin, required String newPin}) async {
     return value == 'true';
   }
 
+  // ---------------------------------------------------------------------------
+  // BIOMETRIC LOGIN CREDENTIAL
+  // ---------------------------------------------------------------------------
+  // The auth-service has no biometric login endpoint — a fingerprint/face can
+  // only unlock something already on the device. So that a fingerprint can log
+  // the user back in after a logout or an expired session, the identifier +
+  // passcode that last logged in successfully are kept in secure storage
+  // (Keystore/Keychain) and replayed through the normal POST /auth/login once
+  // the OS biometric prompt succeeds. Only ever written while biometrics are
+  // enabled; deleted when they are disabled, the passcode changes, or the
+  // server rejects it. Never touched by clearAuth().
+
+  Future<void> saveBiometricCredential(BiometricCredential credential) async {
+    await _secureStorage.write(
+      key: _biometricCredentialKey,
+      value: jsonEncode(credential.toJson()),
+    );
+  }
+
+  Future<BiometricCredential?> getBiometricCredential() async {
+    try {
+      final raw = await _secureStorage.read(key: _biometricCredentialKey);
+      if (raw == null || raw.isEmpty) return null;
+      return BiometricCredential.fromJson(
+          jsonDecode(raw) as Map<String, dynamic>);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> deleteBiometricCredential() async {
+    await _secureStorage.delete(key: _biometricCredentialKey);
+  }
+
   // ===========================================================================
   // LOGOUT / CLEAR
   // ===========================================================================
@@ -590,6 +625,33 @@ Future<bool> changePin({required String oldPin, required String newPin}) async {
     await _secureStorage.deleteAll();
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+  }
+
+  /// Clears everything [clearAll] does EXCEPT what belongs to this device
+  /// rather than to the signed-in session: the device fingerprint, the
+  /// biometric preference, and the biometric login credential.
+  ///
+  /// Use this on an explicit logout. Wiping the fingerprint there made the
+  /// server see a brand-new device on the very next login and answer with a
+  /// DEVICE_LINK OTP challenge every time, and wiping the biometric items made
+  /// biometric login impossible after any logout.
+  Future<void> clearSessionKeepingDevice() async {
+    final fingerprint = await _secureStorage.read(key: _deviceFingerprintKey);
+    final biometric = await _secureStorage.read(key: _biometricKey);
+    final credential = await _secureStorage.read(key: _biometricCredentialKey);
+
+    await clearAll();
+
+    if (fingerprint != null) {
+      await _secureStorage.write(key: _deviceFingerprintKey, value: fingerprint);
+    }
+    if (biometric != null) {
+      await _secureStorage.write(key: _biometricKey, value: biometric);
+    }
+    if (credential != null) {
+      await _secureStorage.write(
+          key: _biometricCredentialKey, value: credential);
+    }
   }
 
   // ===========================================================================
@@ -717,4 +779,38 @@ class StorageException implements Exception {
 
   @override
   String toString() => 'StorageException: $message';
+}
+
+// =============================================================================
+// BiometricCredential
+// -----------------------------------------------------------------------------
+// What a successful biometric prompt replays through POST /auth/login. See
+// StorageService.saveBiometricCredential for why this exists and its lifecycle.
+// [customerId] ties it to the account that enrolled, so a different account
+// signing in on the same device can never inherit it.
+// =============================================================================
+
+class BiometricCredential {
+  final String customerId;
+  final String identifier;
+  final String passcode;
+
+  const BiometricCredential({
+    required this.customerId,
+    required this.identifier,
+    required this.passcode,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'customerId': customerId,
+        'identifier': identifier,
+        'passcode': passcode,
+      };
+
+  factory BiometricCredential.fromJson(Map<String, dynamic> json) =>
+      BiometricCredential(
+        customerId: json['customerId'] as String,
+        identifier: json['identifier'] as String,
+        passcode: json['passcode'] as String,
+      );
 }

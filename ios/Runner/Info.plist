@@ -51,6 +51,8 @@
 	<string>We need access to select documents.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Kudikit needs access to your contacts to help you send airtime and data faster.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Kudikit uses Face ID to securely unlock your account.</string>
  <key>NSAppTransportSecurity</key>
   <dict>
       <key>NSAllowsArbitraryLoads</key>

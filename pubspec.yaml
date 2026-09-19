@@ -161,7 +161,10 @@ dependencies:
   google_maps_flutter: 
  
   # Phone calls
-  url_launcher: 
+  url_launcher:
+
+  # Biometric login (Face ID / fingerprint)
+  local_auth: ^3.0.2
 
 dev_dependencies:
   flutter_test:

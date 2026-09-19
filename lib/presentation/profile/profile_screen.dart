@@ -11,7 +11,10 @@ import 'package:kudipay/presentation/email/change_email_screen.dart';
 import 'package:kudipay/presentation/kyc/kyc_flow_manager.dart';
 import 'package:kudipay/presentation/login/login_page.dart';
 import 'package:kudipay/presentation/notification/notification_preference_screen.dart';
+import 'package:kudipay/presentation/profile/active_sessions_screen.dart';
 import 'package:kudipay/presentation/tier/upgrade_tier_screen.dart';
+import 'package:kudipay/provider/auth/biometric_provider.dart';
+import 'package:kudipay/services/biometric_service.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/provider/refresh/refresh_provider.dart';
 
@@ -41,7 +44,6 @@ class UserProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
-  bool _faceIdPasscode    = false;
   bool _faceIdTransaction = false;
 
   @override
@@ -138,14 +140,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                 showArrow: true,
               ),
               SizedBox(height: AppLayout.scaleHeight(context, 8)),
-              _buildSwitchCard(
-                context,
-                svgPath: _iconFaceId,
-                title: 'Use Face ID',
-                subtitle: 'For passcode',
-                value: _faceIdPasscode,
-                onChanged: (v) => setState(() => _faceIdPasscode = v),
-              ),
+              _buildBiometricSwitchCard(context),
               SizedBox(height: AppLayout.scaleHeight(context, 8)),
               _buildSwitchCard(
                 context,
@@ -154,6 +149,16 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                 subtitle: 'For transaction PIN',
                 value: _faceIdTransaction,
                 onChanged: (v) => setState(() => _faceIdTransaction = v),
+              ),
+              SizedBox(height: AppLayout.scaleHeight(context, 8)),
+              _buildSingleCard(
+                context,
+                svgPath: _iconLock,
+                title: 'Active Sessions',
+                showArrow: true,
+                onTap: () => Navigator.push(context, MaterialPageRoute(
+                  builder: (_) => const ActiveSessionsScreen(),
+                )),
               ),
               SizedBox(height: AppLayout.scaleHeight(context, 24)),
 
@@ -611,6 +616,60 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     );
   }
 
+  // ── Biometric (real local_auth + POST /security/biometric/enable|disable) ──
+  Widget _buildBiometricSwitchCard(BuildContext context) {
+    final enabledAsync = ref.watch(biometricEnabledProvider);
+    final settingsState = ref.watch(biometricSettingsProvider);
+    final busy = settingsState is AsyncLoading;
+
+    return enabledAsync.when(
+      loading: () => _buildSwitchCard(
+        context,
+        svgPath: _iconFaceId,
+        title: 'Use Face ID',
+        subtitle: 'For passcode',
+        value: false,
+        onChanged: null,
+      ),
+      error: (_, __) => _buildSwitchCard(
+        context,
+        svgPath: _iconFaceId,
+        title: 'Use Face ID',
+        subtitle: 'For passcode',
+        value: false,
+        onChanged: null,
+      ),
+      data: (enabled) => _buildSwitchCard(
+        context,
+        svgPath: _iconFaceId,
+        title: 'Use Face ID',
+        subtitle: 'For passcode',
+        value: enabled,
+        onChanged: busy
+            ? null
+            : (v) async {
+                final notifier = ref.read(biometricSettingsProvider.notifier);
+                try {
+                  if (v) {
+                    await notifier.enable();
+                  } else {
+                    await notifier.disable();
+                  }
+                  ref.invalidate(biometricEnabledProvider);
+                } on BiometricAuthException catch (e) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(e.message)));
+                } catch (_) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Could not update Face ID setting.')));
+                }
+              },
+      ),
+    );
+  }
+
   // ── Switch card ───────────────────────────────────────────────────────────────
   Widget _buildSwitchCard(
     BuildContext context, {
@@ -618,7 +677,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     required String title,
     required String subtitle,
     required bool value,
-    required ValueChanged<bool> onChanged,
+    required ValueChanged<bool>? onChanged,
   }) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: AppLayout.scaleWidth(context, 16)),
@@ -936,7 +995,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
               if (mounted) {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          const LoginPage(autoPromptBiometric: false)),
                   (route) => false,
                 );
               }

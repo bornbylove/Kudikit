@@ -14,7 +14,18 @@
 // kBaseUrl / ApiConfig.baseUrl are kept as aliases for ApiConfig.gatewayBaseUrl
 // so the ~10 existing call sites that import kBaseUrl from mock_api_data.dart
 // keep compiling unchanged.
-
+//
+// SECURITY/PROFILE SERVICE (2026-09-17): a third host, confirmed live via its
+// own /v3/api-docs at 199.192.22.72:8181, serves /profile, /security/*,
+// /dashboard, /bills, /agents, /cash, /transactions — this is almost
+// certainly the "Kudikitgateway" the note above predicted at :8080; it's
+// actually on :8181.
+//
+// FIXED (2026-09-17): /profile and /profile/update-profile used to be
+// called through authDioClientProvider (host :8090), which has no /profile
+// route in its own OpenAPI spec. Moved to ProfileService
+// (lib/services/profile_services.dart), which uses securityDioClientProvider
+// (this constant) instead — the correct, confirmed-live host.
 class ApiConfig {
   ApiConfig._();
 
@@ -26,6 +37,14 @@ class ApiConfig {
   static const String authBaseUrl = String.fromEnvironment(
     'KUDIKIT_AUTH_BASE_URL',
     defaultValue: 'http://199.192.22.72:8090/api/v1',
+  );
+
+  // Confirmed live at 199.192.22.72:8181 — see the SECURITY/PROFILE SERVICE
+  // note above. Backs /security/biometric/*, /security/settings, /profile,
+  // /dashboard, /bills, /agents, /cash, /transactions.
+  static const String securityBaseUrl = String.fromEnvironment(
+    'KUDIKIT_SECURITY_BASE_URL',
+    defaultValue: 'http://199.192.22.72:8181/api/v1',
   );
 
   // Deprecated: use gatewayBaseUrl directly or inject DioClient via Riverpod.

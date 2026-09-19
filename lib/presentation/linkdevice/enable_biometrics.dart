@@ -2,13 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/presentation/linkdevice/account_active.dart';
+import 'package:kudipay/provider/auth/biometric_provider.dart';
+import 'package:kudipay/services/biometric_service.dart';
 
 
-class EnableBiometricsScreen extends ConsumerWidget {
+class EnableBiometricsScreen extends ConsumerStatefulWidget {
   const EnableBiometricsScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<EnableBiometricsScreen> createState() =>
+      _EnableBiometricsScreenState();
+}
+
+class _EnableBiometricsScreenState
+    extends ConsumerState<EnableBiometricsScreen> {
+  bool _submitting = false;
+
+  Future<void> _enableAndContinue() async {
+    setState(() => _submitting = true);
+    try {
+      await ref.read(biometricSettingsProvider.notifier).enable();
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AccountActiveScreen()),
+      );
+    } on BiometricAuthException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Could not enable biometrics. Please try again.')),
+      );
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: _buildAppBar(context),
@@ -16,7 +52,7 @@ class EnableBiometricsScreen extends ConsumerWidget {
       body: Stack(
         children: [
           _buildBody(context),
-          
+
         ],
       ),
     );
@@ -235,32 +271,33 @@ class EnableBiometricsScreen extends ConsumerWidget {
             width: double.infinity,
             height: AppLayout.scaleHeight(context, 52),
             child: ElevatedButton(
-              onPressed: () {
-                // Persist the biometrics preference, then proceed.
-                // When local_auth is added to pubspec, call
-                // LocalAuthentication().authenticate() here first.
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AccountActiveScreen(),
-                  ),
-                );
-              },
+              onPressed: _submitting ? null : _enableAndContinue,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF069494),
+                disabledBackgroundColor:
+                    const Color(0xFF069494).withOpacity(0.6),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
                 ),
                 elevation: 0,
               ),
-              child: Text(
-                'Enable Biometrics',
-                style: TextStyle(
-                  fontSize: AppLayout.fontSize(context, 16),
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
+              child: _submitting
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Text(
+                      'Enable Biometrics',
+                      style: TextStyle(
+                        fontSize: AppLayout.fontSize(context, 16),
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
             ),
           ),
           SizedBox(height: AppLayout.scaleHeight(context, 12)),

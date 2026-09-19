@@ -4,6 +4,7 @@ import 'package:kudipay/presentation/homescreen/home_screen.dart';
 import 'package:kudipay/presentation/profile/profile_screen.dart';
 import 'package:kudipay/presentation/support/support_screen.dart';
 import 'package:kudipay/presentation/transaction/transaction_screen.dart';
+import 'package:kudipay/provider/auth/session_lock_provider.dart';
 import 'package:kudipay/provider/refresh/refresh_provider.dart';
 
 // BottomNavBar upgraded to ConsumerStatefulWidget so it can:
@@ -35,6 +36,9 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
     // without requiring the user to pull-to-refresh manually.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(refreshProvider.notifier).refreshAll();
+      // Starts the inactivity timer for PRD §2.1.5.4 auto-logout. A no-op
+      // if already armed (e.g. returning here after AppLockScreen unlocks).
+      ref.read(sessionLockProvider.notifier).arm();
     });
   }
 

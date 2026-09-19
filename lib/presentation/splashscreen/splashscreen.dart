@@ -8,6 +8,7 @@ import 'package:kudipay/presentation/login/login_page.dart';
 import 'package:kudipay/presentation/onboarding/onboarding_screen.dart';
 import 'package:kudipay/presentation/kyc/kyc_flow_manager.dart';
 import 'package:kudipay/provider/auth/auth_provider.dart';
+import 'package:kudipay/provider/auth/session_lock_provider.dart';
 import 'package:kudipay/provider/onboarding/onboarding_provider.dart';
 
 
@@ -77,6 +78,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       // assuming top-level VERIFIED == KYC complete (which is false for
       // Pro/Mega, whose top-level status flips to VERIFIED after just BVN/NIN).
       destination = const KycFlowManager();
+
+      // PRD §2.1.5.3: "Biometric prompt appears if previously enrolled" is a
+      // returning-user login behavior — a cold start with a cached session
+      // must be gated (biometric or passcode fallback), not silently
+      // resumed. arm() then lockNow() puts the app straight into the locked
+      // phase so _SessionLockOverlay (main.dart) shows AppLockScreen over
+      // whatever `destination` renders on its first frame; the cached token
+      // itself is untouched either way.
+      final lockNotifier = ref.read(sessionLockProvider.notifier);
+      await lockNotifier.arm();
+      if (!mounted) return;
+      lockNotifier.lockNow();
     } else if (hasSeenOnboarding) {
       destination = const LoginPage();
     } else {

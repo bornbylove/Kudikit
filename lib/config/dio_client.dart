@@ -111,6 +111,7 @@ class _AuthInterceptor extends Interceptor {
     '/auth/verify-otp',
     '/auth/refresh-token',
     '/auth/logout',
+    '/auth/forgot-passcode',
   ];
 
   // Single-flight guard: concurrent 401s share one in-progress refresh

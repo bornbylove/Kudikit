@@ -147,6 +147,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
           throw Exception(
               'Device verification required but no OTP reference was returned.');
         }
+        // The server only answers 202 AFTER it has accepted the passcode, so
+        // this is the last moment the plaintext is in hand. The device-verify
+        // flow later calls completeSession() without it, and AppLockScreen
+        // checks its unlock passcode against this local hash — skipping the
+        // save here left a freshly linked device with no way past the lock.
+        await _saveLocalPasscodeHash(password, email);
         state = state.deviceVerificationRequired(DeviceVerificationChallenge(
           otpReference: otpReference,
           maskedIdentifier: maskedIdentifier ?? '',
@@ -158,15 +164,56 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await completeSession(data);
 
       // Refresh the locally-stored passcode hash so biometric/local unlock
-      // stays in sync with whatever the server just accepted. Best-effort —
-      // a failure here shouldn't block a successful login.
-      try {
-        await _storageService.savePasscode(password, phoneNumber: email);
-      } catch (_) {}
+      // stays in sync with whatever the server just accepted, and the
+      // biometric login credential if the user has biometrics on.
+      await _saveLocalPasscodeHash(password, email);
+      await rememberBiometricCredential(identifier: email, passcode: password);
     } catch (e) {
       state = state.error(e.toString().replaceFirst('Exception: ', ''));
       rethrow;
     }
+  }
+
+  // Best-effort — a failure here shouldn't block a successful login.
+  Future<void> _saveLocalPasscodeHash(String passcode, String identifier) async {
+    try {
+      await _storageService.savePasscode(passcode, phoneNumber: identifier);
+    } catch (_) {}
+  }
+
+  // ── Biometric login credential ─────────────────────────────────────────────
+  //
+  // Keeps the identifier + passcode a fingerprint/face replays through
+  // POST /auth/login (see StorageService.saveBiometricCredential). Called
+  // wherever the plaintext passcode has just been server-confirmed while a
+  // session is live: login() and a successful AppLockScreen unlock (which
+  // backfills a user who turned biometrics on after logging in).
+  //
+  // A credential that belongs to a DIFFERENT account is never overwritten:
+  // biometrics are switched off instead, so the next account to sign in on a
+  // shared device must opt in itself. No-op unless biometrics are enabled.
+  // Best-effort like the local hash — never blocks or fails a login.
+  Future<void> rememberBiometricCredential({
+    required String identifier,
+    required String passcode,
+  }) async {
+    try {
+      if (!await _storageService.isBiometricEnabled()) return;
+      final user = state.user;
+      if (user == null || user.userId.isEmpty) return;
+
+      final existing = await _storageService.getBiometricCredential();
+      if (existing != null && existing.customerId != user.userId) {
+        await _storageService.setBiometricEnabled(false);
+        await _storageService.deleteBiometricCredential();
+        return;
+      }
+      await _storageService.saveBiometricCredential(BiometricCredential(
+        customerId: user.userId,
+        identifier: normalizeLoginIdentifier(identifier),
+        passcode: passcode,
+      ));
+    } catch (_) {}
   }
 
   // ── Complete session (shared by login() and registration's final step) ────
@@ -414,7 +461,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       await _authService.logout();
     } catch (_) {}
-    await _storageService.clearAll();
+    try {
+      // Biometrics on but no credential was ever captured (enabled after the
+      // last passcode entry): switch them off now, otherwise the NEXT account
+      // to sign in on this device would silently enrol under this flag.
+      if (await _storageService.isBiometricEnabled() &&
+          await _storageService.getBiometricCredential() == null) {
+        await _storageService.setBiometricEnabled(false);
+      }
+    } catch (_) {}
+    // Keep the device fingerprint + biometric login across logout: wiping the
+    // fingerprint forced a DEVICE_LINK OTP on every login after logging out.
+    await _storageService.clearSessionKeepingDevice();
     state = state.unauthenticated();
   }
 }

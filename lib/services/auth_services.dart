@@ -24,6 +24,17 @@
 //   POST /auth/login  { identifier, passcode, deviceFingerprint, deviceName }
 //      -> data: AuthTokenResponse (same shape as register)
 //
+// Forgot passcode (unauthenticated):
+//   POST /auth/send-otp  { identifier, purpose: FORGOT_PASSCODE }
+//   POST /auth/verify-otp { otpReference, code, purpose: FORGOT_PASSCODE }
+//   POST /auth/forgot-passcode/reset { otpReference, newPasscode, confirmPasscode }
+//      -> revokes every session for the account and clears its login lock.
+//
+// Login errors: the server's own message is always what reaches the user
+// (401 "Incorrect phone/email or passcode" / "Account inactive. Contact
+// support", 429 "Account locked. Try again in N minutes.") — PRD login AC 3.
+// Phone identifiers are normalised to +234… first (normalizeLoginIdentifier).
+//
 // Device identity: every register/login carries the stable per-install
 // `deviceFingerprint` (StorageService.getOrCreateDeviceFingerprint) plus an
 // optional `deviceName`. LoginRequest.deviceFingerprint is @NotBlank, and
@@ -48,7 +59,6 @@
 // document. See storage_services.dart / signup.dart for the matching UI
 // and local-validation change.
 
-import 'package:kudipay/config/api_config.dart';
 import 'package:kudipay/config/dio_client.dart';
 import 'package:kudipay/model/user/kyc_status.dart';
 import 'package:kudipay/model/user/user_info.dart';
@@ -66,11 +76,40 @@ class OtpPurpose {
   static const String emailChange = 'EMAIL_CHANGE';
 }
 
+/// Puts a phone identifier into the one shape the auth-service can look up.
+///
+/// kudikit_auth_service matches `identifier` against the stored phone number
+/// exactly (UserRepository.findByPhoneNumber) and stores phones as +234…, but
+/// the login screen displays and lets users type the local 0801… form. Emails
+/// and anything that isn't a recognisable Nigerian mobile number pass through
+/// untouched.
+String normalizeLoginIdentifier(String raw) {
+  final value = raw.trim();
+  if (value.contains('@')) return value;
+  final compact = value.replaceAll(RegExp(r'[\s\-()]'), '');
+  if (RegExp(r'^\+234[7-9][01]\d{8}$').hasMatch(compact)) return compact;
+  if (RegExp(r'^234[7-9][01]\d{8}$').hasMatch(compact)) return '+$compact';
+  if (RegExp(r'^0[7-9][01]\d{8}$').hasMatch(compact)) {
+    return '+234${compact.substring(1)}';
+  }
+  return value;
+}
+
 class AuthService {
   final DioClient _client;
   final StorageService _storage;
 
   AuthService(this._storage, this._client);
+
+  // DioClient maps every 401/403 to KudiUnauthorizedException, but the auth
+  // screens only handle KudiApiException. The server's message is the PRD
+  // wording ("Incorrect phone/email or passcode", "Account inactive. Contact
+  // support", ...) so it is carried through verbatim, never replaced.
+  KudiApiException _serverMessage(KudiUnauthorizedException e,
+      {String fallback = 'Incorrect phone/email or passcode'}) {
+    final message = e.message.trim();
+    return KudiApiException(message.isEmpty ? fallback : message, 401);
+  }
 
   // ── Step 1: Send OTP ───────────────────────────────────────────────────────
   // POST /auth/send-otp
@@ -94,7 +133,9 @@ class AuthService {
                 'purpose': purpose,
               }
             : {
-                'identifier': identifier,
+                'identifier': identifier == null
+                    ? null
+                    : normalizeLoginIdentifier(identifier),
                 'purpose': purpose,
               },
       );
@@ -191,15 +232,18 @@ class AuthService {
       final response = await _client.post<Map<String, dynamic>>(
         '/auth/login',
         data: {
-          'identifier': identifier,
+          'identifier': normalizeLoginIdentifier(identifier),
           'passcode': passcode,
           'deviceFingerprint': deviceFingerprint,
           'deviceName': DeviceInfoService.getDeviceName(),
         },
       );
       return response.data!;
-    } on KudiUnauthorizedException {
-      throw KudiApiException('Invalid credentials. Please try again.');
+    } on KudiUnauthorizedException catch (e) {
+      // 401 covers both "Incorrect phone/email or passcode" and "Account
+      // inactive. Contact support" (PRD login AC 3a/3d) — surface whichever
+      // the server sent. Lock/throttle come back as 429 and never get here.
+      throw _serverMessage(e);
     } on KudiApiException {
       rethrow;
     } catch (e) {
@@ -229,11 +273,47 @@ class AuthService {
         },
       );
       return response.data!;
+    } on KudiUnauthorizedException catch (e) {
+      // e.g. "Account inactive. Contact support" — not a "verification failed".
+      throw _serverMessage(e, fallback: 'Device verification failed');
     } on KudiApiException {
       rethrow;
     } catch (e) {
       throw KudiApiException(
           'Device verification failed: ${e.toString()}');
+    }
+  }
+
+  // ── Forgot passcode: reset ─────────────────────────────────────────────────
+  // POST /auth/forgot-passcode/reset { otpReference, newPasscode, confirmPasscode }
+  // The OTP itself is requested with sendOtp(purpose: OtpPurpose.forgotPasscode)
+  // and confirmed with verifyOtp(same purpose); [otpReference] is the reference
+  // that verify step confirmed. The server enforces the passcode rules, revokes
+  // every session for the account and clears its failed-login lock.
+  Future<void> resetPasscode({
+    required String otpReference,
+    required String newPasscode,
+    required String confirmPasscode,
+  }) async {
+    try {
+      await _client.post<Map<String, dynamic>>(
+        '/auth/forgot-passcode/reset',
+        data: {
+          'otpReference': otpReference,
+          'newPasscode': newPasscode,
+          'confirmPasscode': confirmPasscode,
+        },
+      );
+    } on KudiUnauthorizedException catch (e) {
+      throw _serverMessage(e, fallback: 'Passcode reset failed');
+    } on KudiApiException {
+      rethrow;
+    } on KudiNetworkException {
+      rethrow;
+    } on KudiTimeoutException {
+      rethrow;
+    } catch (e) {
+      throw KudiApiException('Passcode reset failed: ${e.toString()}');
     }
   }
 
@@ -426,85 +506,12 @@ class AuthService {
     }
   }
 
-  // ── Gateway Profile (Slice 6 — MO-6) ──────────────────────────────────────
-  // GET /profile (Gateway). The ProfileResponseDTO exposes account.tier /
-  // account.kycStatus, verification.{bvn,nin}.{verified,masked} and
-  // verification.address.status — the server-authoritative profile surface the
-  // Profile screen should consume. Returns the raw `data` map so the screen can
-  // map exactly the fields it renders (no premature model coupling).
-  Future<Map<String, dynamic>> getProfile() async {
-    try {
-      final response = await _client.get<Map<String, dynamic>>('/profile');
-      final envelope = response.data ?? <String, dynamic>{};
-      final data = (envelope['data'] as Map<String, dynamic>?) ?? envelope;
-      return data;
-    } on KudiApiException {
-      rethrow;
-    } catch (e) {
-      throw KudiApiException('Failed to load profile: ${e.toString()}');
-    }
-  }
-
-  // ── Update Profile ─────────────────────────────────────────────────────────
-  // POST /profile/update-profile (Gateway)
-  Future<UserModel> updateProfile({
-    required String userId,
-    String? firstName,
-    String? lastName,
-    String? email,
-    String? dateOfBirth,
-    String? bvn,
-    String? nin,
-    bool? isBvnVerified,
-    bool? isAddressVerified,
-    bool? isSelfieVerified,
-    bool? isDocumentVerified,
-  }) async {
-    final existing = await _storage.getUserModel();
-    if (existing == null) throw KudiApiException('No user session found.');
-
-    try {
-      final body = <String, dynamic>{
-        if (firstName != null) 'firstName': firstName,
-        if (lastName != null) 'lastName': lastName,
-        if (email != null) 'email': email,
-        if (dateOfBirth != null) 'dateOfBirth': dateOfBirth,
-      };
-
-      final response = await _client.post<Map<String, dynamic>>(
-        '/profile/update-profile',
-        data: body,
-      );
-
-      final data = response.data!;
-      if (data['user'] != null) {
-        return UserModel.fromJson(data['user'] as Map<String, dynamic>);
-      }
-      // Optimistic fallback if server doesn't return a user object.
-      return existing.copyWith(
-        name: (firstName != null && lastName != null)
-            ? '$firstName $lastName'
-            : existing.name,
-        isBvnVerified: isBvnVerified ?? existing.isBvnVerified,
-        isAddressVerified: isAddressVerified ?? existing.isAddressVerified,
-        isSelfieVerified: isSelfieVerified ?? existing.isSelfieVerified,
-        isDocumentVerified: isDocumentVerified ?? existing.isDocumentVerified,
-        bvn: bvn ?? existing.bvn,
-        nin: nin ?? existing.nin,
-      );
-    } catch (e) {
-      // Return an optimistic local update on failure so the KYC/profile UI
-      // isn't blocked by a transient network error.
-      return existing.copyWith(
-        isBvnVerified: isBvnVerified ?? existing.isBvnVerified,
-        isAddressVerified: isAddressVerified ?? existing.isAddressVerified,
-        isSelfieVerified: isSelfieVerified ?? existing.isSelfieVerified,
-        isDocumentVerified: isDocumentVerified ?? existing.isDocumentVerified,
-        bvn: bvn ?? existing.bvn,
-        nin: nin ?? existing.nin,
-      );
-    }
-  }
+  // ── Gateway Profile ────────────────────────────────────────────────────────
+  // MOVED to ProfileService (lib/services/profile_services.dart) — GET
+  // /profile and POST /profile/update-profile don't exist on this service's
+  // host (kudikit_auth_service, :8090); they're confirmed live on the
+  // security/core service (:8181) instead. See profile_services.dart for
+  // the full explanation and the fixed implementation.
 
   // ── Logout ─────────────────────────────────────────────────────────────────
   // POST /auth/logout  { refreshToken }  — Bearer attached automatically by

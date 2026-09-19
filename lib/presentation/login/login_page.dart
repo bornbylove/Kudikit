@@ -10,11 +10,13 @@ import 'package:kudipay/model/user/user_model.dart';
 import 'package:kudipay/presentation/kyc/kyc_flow_manager.dart';
 import 'package:kudipay/presentation/linkdevice/link_device_screen.dart';
 import 'package:kudipay/presentation/linkdevice/sign_in_verify_email_screen.dart';
+import 'package:kudipay/presentation/login/forgot_passcode_screen.dart';
 import 'package:kudipay/presentation/signup/signup.dart';
-import 'package:kudipay/presentation/support/support_screen.dart';
+import 'package:kudipay/provider/auth/biometric_provider.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/config/dio_client.dart';
 import 'package:kudipay/services/api_services.dart';
+import 'package:kudipay/services/biometric_service.dart';
 import 'package:kudipay/services/storage_services.dart';
 
 // =============================================================================
@@ -31,7 +33,18 @@ class LoginPage extends ConsumerStatefulWidget {
   final String? email;
   final String? phoneNumber;
 
-  const LoginPage({this.email, this.phoneNumber, super.key});
+  /// Prompt for biometrics as soon as the page opens (PRD login AC 2a). Pass
+  /// false when the user has just deliberately signed out — re-prompting them
+  /// immediately would be hostile — the "Log in with biometrics" button is
+  /// still there.
+  final bool autoPromptBiometric;
+
+  const LoginPage({
+    this.email,
+    this.phoneNumber,
+    this.autoPromptBiometric = true,
+    super.key,
+  });
 
   @override
   ConsumerState<LoginPage> createState() => _LoginPageState();
@@ -63,6 +76,64 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     // _syncIdentifierFromUser corrects it once storedUserProvider resolves.
     _showingPhone = _hasPhone(null) || !_hasEmail(null);
     _identifierCtrl.text = _displayValue(null);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _prepareBiometricLogin());
+  }
+
+  // ---------------------------------------------------------------------------
+  // Biometric login
+  // ---------------------------------------------------------------------------
+  // Offered only when biometrics are on, this device can prompt for them, and
+  // a credential from an earlier successful login is stored (see
+  // StorageService.saveBiometricCredential). A successful prompt replays that
+  // credential through the ordinary login path, so the server still decides.
+  bool _biometricReady = false;
+  bool _biometricPrompting = false;
+
+  Future<void> _prepareBiometricLogin() async {
+    final storage = StorageService.instance;
+    final enabled = await storage.isBiometricEnabled();
+    final credential = enabled ? await storage.getBiometricCredential() : null;
+    if (credential == null || !mounted) return;
+
+    final availability =
+        await ref.read(biometricServiceProvider).checkAvailability();
+    if (availability != BiometricAvailability.available || !mounted) return;
+
+    setState(() => _biometricReady = true);
+    if (widget.autoPromptBiometric && ref.read(currentConnectivityProvider)) {
+      await _loginWithBiometrics();
+    }
+  }
+
+  Future<void> _loginWithBiometrics() async {
+    if (_isLoading || _biometricPrompting) return;
+    if (!ref.read(currentConnectivityProvider)) {
+      ConnectivitySnackBar.showNoInternet(context);
+      return;
+    }
+    setState(() => _biometricPrompting = true);
+    BiometricCredential? credential;
+    try {
+      await ref
+          .read(biometricServiceProvider)
+          .authenticate(reason: 'Log in to Kudikit');
+      credential = await StorageService.instance.getBiometricCredential();
+    } on BiometricAuthException catch (e) {
+      // Cancelled or failed — the passcode form is right there. Only surface
+      // genuine failures, not the user backing out of the prompt.
+      if (mounted && !e.userCancelled) _errorNotifier.value = e.message;
+    } finally {
+      if (mounted) setState(() => _biometricPrompting = false);
+    }
+    if (credential == null || !mounted) return;
+
+    _identifierCtrl.text = credential.identifier;
+    _identifierEdited = true;
+    await _performLogin(
+      identifier: credential.identifier,
+      password: credential.passcode,
+      fromBiometric: true,
+    );
   }
 
   @override
@@ -159,6 +230,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       return;
     }
 
+    await _performLogin(identifier: identifier, password: password);
+  }
+
+  Future<void> _performLogin({
+    required String identifier,
+    required String password,
+    bool fromBiometric = false,
+  }) async {
     if (mounted) setState(() => _isLoading = true);
     _errorNotifier.value = null;
 
@@ -207,8 +286,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } on KudiNetworkException {
       if (mounted) ConnectivitySnackBar.showNoInternet(context);
     } on KudiApiException catch (e) {
-      _errorNotifier.value = e.message;
+      // Clear the field FIRST: _onPasswordChanged wipes any visible error the
+      // moment the passcode text changes, so setting the message before
+      // clear() erased it in the same frame and users never saw why the
+      // login failed (wrong passcode, inactive account, locked out).
       _passwordCtrl.clear();
+      _errorNotifier.value = e.message;
+      if (fromBiometric && e.statusCode == 401) {
+        // The stored passcode no longer works (changed elsewhere, or the
+        // account is inactive). Drop it so biometrics can't keep replaying a
+        // wrong passcode — every failed attempt counts toward the server's
+        // lockout — and let the next passcode login capture a fresh one.
+        await StorageService.instance.deleteBiometricCredential();
+        if (mounted) setState(() => _biometricReady = false);
+      }
     } on TimeoutException catch (e) {
       _errorNotifier.value = e.toString();
     } catch (e) {
@@ -332,12 +423,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
-  void _showForgotPinSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const _ForgotPinSheet(),
+  Future<void> _openForgotPasscode() async {
+    final didReset = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            ForgotPasscodeScreen(initialIdentifier: _identifierCtrl.text),
+      ),
+    );
+    if (didReset != true || !mounted) return;
+    // The reset revoked every session and any stored biometric credential is
+    // now stale — make the next step obvious.
+    _passwordCtrl.clear();
+    _errorNotifier.value = null;
+    setState(() => _biometricReady = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Passcode updated. Log in with your new passcode.'),
+        backgroundColor: Color.fromARGB(255, 6, 148, 42),
+      ),
     );
   }
 
@@ -484,11 +588,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   onSubmitted: () => _handleLogin(user),
                 ),
 
-                // ── Forgot PIN ────────────────────────────────────────────
+                // ── Forgot passcode ───────────────────────────────────────
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: isOnline ? _showForgotPinSheet : null,
+                    onPressed: isOnline ? _openForgotPasscode : null,
                     style: TextButton.styleFrom(
                       minimumSize: Size.zero,
                       padding: EdgeInsets.symmetric(
@@ -497,7 +601,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: Text(
-                      'Forgot PIN',
+                      'Forgot Passcode?',
                       style: TextStyle(
                         fontSize: AppLayout.fontSize(context, 14),
                         fontWeight: FontWeight.w600,
@@ -518,6 +622,29 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   passwordNotEmpty: _passwordNotEmpty,
                   onPressed: () => _handleLogin(user),
                 ),
+
+                // ── Biometric login ───────────────────────────────────────
+                if (_biometricReady)
+                  Align(
+                    alignment: Alignment.center,
+                    child: TextButton.icon(
+                      onPressed: (isOnline && !_isLoading && !_biometricPrompting)
+                          ? _loginWithBiometrics
+                          : null,
+                      icon: const Icon(Icons.fingerprint,
+                          color: Color(0xFF069494)),
+                      label: Text(
+                        'Log in with biometrics',
+                        style: TextStyle(
+                          fontSize: AppLayout.fontSize(context, 14),
+                          fontWeight: FontWeight.w600,
+                          color: isOnline
+                              ? const Color(0xFF069494)
+                              : Colors.grey[400],
+                        ),
+                      ),
+                    ),
+                  ),
 
                 SizedBox(height: AppLayout.scaleHeight(context, 20)),
 
@@ -949,202 +1076,6 @@ class _LicensingFooter extends StatelessWidget {
                 fit: BoxFit.contain,
                 errorBuilder: (_, __, ___) => Icon(Icons.account_balance,
                     size: iconH * 0.75, color: Colors.grey[600]),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// =============================================================================
-// Forgot PIN bottom sheet
-// =============================================================================
-class _ForgotPinSheet extends StatelessWidget {
-  const _ForgotPinSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    const brand = Color(0xFF069494);
-
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: EdgeInsets.fromLTRB(
-        AppLayout.scaleWidth(context, 24),
-        AppLayout.scaleHeight(context, 12),
-        AppLayout.scaleWidth(context, 24),
-        AppLayout.scaleHeight(context, 32),
-      ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: AppLayout.scaleWidth(context, 40),
-              height: 4,
-              decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2)),
-            ),
-            SizedBox(height: AppLayout.scaleHeight(context, 24)),
-            Container(
-              width: AppLayout.scaleWidth(context, 64),
-              height: AppLayout.scaleWidth(context, 64),
-              decoration: BoxDecoration(
-                  color: brand.withOpacity(0.1), shape: BoxShape.circle),
-              child: Icon(Icons.lock_reset_rounded,
-                  color: brand, size: AppLayout.scaleWidth(context, 32)),
-            ),
-            SizedBox(height: AppLayout.scaleHeight(context, 16)),
-            Text('Forgot PIN?',
-                style: TextStyle(
-                    fontSize: AppLayout.fontSize(context, 22),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87)),
-            SizedBox(height: AppLayout.scaleHeight(context, 8)),
-            Text(
-              'To reset your PIN, log in using your email and '
-              'create a new one, or contact our support team.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: AppLayout.fontSize(context, 14),
-                  color: Colors.grey[600],
-                  height: 1.5),
-            ),
-            SizedBox(height: AppLayout.scaleHeight(context, 28)),
-            SizedBox(
-              width: double.infinity,
-              height: AppLayout.scaleHeight(context, 52),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  showModalBottomSheet(
-                    context: context,
-                    backgroundColor: Colors.white,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(24)),
-                    ),
-                    builder: (_) => SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 28),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 56,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                color: brand.withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Icon(Icons.lock_reset,
-                                  color: brand, size: 28),
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'PIN Reset via Email',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF1A1A2E),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Self-service PIN reset via email is coming soon. '
-                              'For now, contact our support team to reset your PIN.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF9E9E9E),
-                                height: 1.5,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const SupportScreen(),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: brand,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(28),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Contact Support',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text(
-                                'Dismiss',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF9E9E9E),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: brand,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          AppLayout.scaleWidth(context, 32))),
-                ),
-                child: Text('Reset via Email',
-                    style: TextStyle(
-                        fontSize: AppLayout.fontSize(context, 16),
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white)),
-              ),
-            ),
-            SizedBox(height: AppLayout.scaleHeight(context, 12)),
-            SizedBox(
-              width: double.infinity,
-              height: AppLayout.scaleHeight(context, 52),
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: brand, width: 1.5),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          AppLayout.scaleWidth(context, 32))),
-                ),
-                child: Text('Cancel',
-                    style: TextStyle(
-                        fontSize: AppLayout.fontSize(context, 16),
-                        fontWeight: FontWeight.w600,
-                        color: brand)),
               ),
             ),
           ],

@@ -14,6 +14,7 @@ import 'package:kudipay/config/dio_client.dart';
 import 'package:kudipay/model/user/kyc_status.dart';
 import 'package:kudipay/model/user/user_model.dart';
 import 'package:kudipay/services/auth_services.dart';
+import 'package:kudipay/services/profile_services.dart';
 import 'package:kudipay/services/storage_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -64,6 +65,7 @@ void main() {
   late StorageService storage;
   late FakeHttpClientAdapter adapter;
   late AuthService authService;
+  late ProfileService profileService;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -82,6 +84,7 @@ void main() {
       refreshDio: dio,
     );
     authService = AuthService(storage, client);
+    profileService = ProfileService(client, storage);
   });
 
   Map<String, dynamic> lastBody(FakeHttpClientAdapter a) {
@@ -299,21 +302,201 @@ void main() {
       expect(second, first);
     });
 
-    test('maps a 401 to a friendly invalid-credentials message', () async {
+    // The strings below are exactly what AuthServiceImpl.login() returns and
+    // what PRD login AC 3a/3d specify — the app must show them, not its own.
+    test('a wrong passcode shows the PRD wording the server sends (AC 3a)',
+        () async {
       adapter.queue(
         '/auth/login',
-        (_) => FakeHttpClientAdapter.jsonResponse(
-            401, {'status': 'error', 'message': 'Invalid passcode'}),
+        (_) => FakeHttpClientAdapter.jsonResponse(401, {
+          'status': 'error',
+          'message': 'Incorrect phone/email or passcode',
+        }),
       );
 
       await expectLater(
-        authService.login(identifier: '+2348012345678', passcode: 'wrong1'),
-        throwsA(isA<KudiApiException>().having(
-          (e) => e.message,
-          'message',
-          contains('Invalid credentials'),
-        )),
+        authService.login(identifier: '+2348012345678', passcode: '284916'),
+        throwsA(isA<KudiApiException>()
+            .having((e) => e.message, 'message',
+                'Incorrect phone/email or passcode')
+            .having((e) => e.statusCode, 'statusCode', 401)),
       );
+    });
+
+    test('an inactive account is not disguised as bad credentials (AC 3d)',
+        () async {
+      adapter.queue(
+        '/auth/login',
+        (_) => FakeHttpClientAdapter.jsonResponse(401, {
+          'status': 'error',
+          'message': 'Account inactive. Contact support',
+        }),
+      );
+
+      await expectLater(
+        authService.login(identifier: '+2348012345678', passcode: '284915'),
+        throwsA(isA<KudiApiException>().having(
+            (e) => e.message, 'message', 'Account inactive. Contact support')),
+      );
+    });
+
+    test('a locked account (429) keeps its own message (AC 3b)', () async {
+      adapter.queue(
+        '/auth/login',
+        (_) => FakeHttpClientAdapter.jsonResponse(429, {
+          'status': 'error',
+          'message': 'Account locked. Try again in 60 minutes.',
+        }),
+      );
+
+      await expectLater(
+        authService.login(identifier: '+2348012345678', passcode: '284915'),
+        throwsA(isA<KudiApiException>().having((e) => e.message, 'message',
+            'Account locked. Try again in 60 minutes.')),
+      );
+    });
+
+    test('falls back to the PRD wording when the 401 body has no message',
+        () async {
+      adapter.queue(
+        '/auth/login',
+        (_) => FakeHttpClientAdapter.jsonResponse(401, {'status': 'error'}),
+      );
+
+      // DioClient supplies its generic text when the body has none; the auth
+      // screens still must not show "Invalid credentials".
+      await expectLater(
+        authService.login(identifier: '+2348012345678', passcode: '284915'),
+        throwsA(isA<KudiApiException>().having(
+            (e) => e.message, 'message', isNot(contains('Invalid credentials')))),
+      );
+    });
+
+    test('normalizes a local 0801… phone to the +234 form the server stores',
+        () async {
+      adapter.queueJson('/auth/login', 200, {
+        'status': 'success',
+        'data': {'accessToken': 'a', 'refreshToken': 'r', 'user': {}},
+      });
+
+      await authService.login(identifier: '08012345678', passcode: '284915');
+
+      expect(lastBody(adapter)['identifier'], '+2348012345678');
+    });
+
+    test('leaves an email identifier untouched', () async {
+      adapter.queueJson('/auth/login', 200, {
+        'status': 'success',
+        'data': {'accessToken': 'a', 'refreshToken': 'r', 'user': {}},
+      });
+
+      await authService.login(identifier: 'a@b.com', passcode: '284915');
+
+      expect(lastBody(adapter)['identifier'], 'a@b.com');
+    });
+  });
+
+  group('normalizeLoginIdentifier', () {
+    test('handles every phone shape a user can plausibly type', () {
+      expect(normalizeLoginIdentifier('08012345678'), '+2348012345678');
+      expect(normalizeLoginIdentifier('0801 234 5678'), '+2348012345678');
+      expect(normalizeLoginIdentifier('2348012345678'), '+2348012345678');
+      expect(normalizeLoginIdentifier('+2348012345678'), '+2348012345678');
+      expect(normalizeLoginIdentifier('+234 801 234 5678'), '+2348012345678');
+      expect(normalizeLoginIdentifier('09012345678'), '+2349012345678');
+    });
+
+    test('does not touch emails or unrecognised input', () {
+      expect(normalizeLoginIdentifier(' User@Mail.com '), 'User@Mail.com');
+      expect(normalizeLoginIdentifier('12345'), '12345');
+      // A landline-looking number is not a mobile number — pass through as-is
+      // and let the server decide.
+      expect(normalizeLoginIdentifier('01234567890'), '01234567890');
+    });
+  });
+
+  group('forgot passcode', () {
+    test('OTP request sends {identifier, purpose: FORGOT_PASSCODE}, normalized',
+        () async {
+      adapter.queueJson('/auth/send-otp', 200, {
+        'status': 'success',
+        'data': {'otpReference': 'ref-1', 'resendCooldownSeconds': 60},
+      });
+
+      final response = await authService.sendOtp(
+        identifier: '08012345678',
+        purpose: OtpPurpose.forgotPasscode,
+      );
+
+      final body = lastBody(adapter);
+      expect(body['identifier'], '+2348012345678');
+      expect(body['purpose'], 'FORGOT_PASSCODE');
+      expect(body.containsKey('phoneNumber'), isFalse);
+      expect((response['data'] as Map)['otpReference'], 'ref-1');
+    });
+
+    test('resetPasscode POSTs {otpReference, newPasscode, confirmPasscode} '
+        'to /auth/forgot-passcode/reset', () async {
+      adapter.queueJson('/auth/forgot-passcode/reset', 200, {
+        'status': 'success',
+        'message': 'Passcode reset successfully, please log in again',
+      });
+
+      await authService.resetPasscode(
+        otpReference: 'ref-1',
+        newPasscode: '284915',
+        confirmPasscode: '284915',
+      );
+
+      final request = adapter.requests.last;
+      expect(request.uri.toString(),
+          endsWith('/api/v1/auth/forgot-passcode/reset'));
+      final body = lastBody(adapter);
+      expect(body, {
+        'otpReference': 'ref-1',
+        'newPasscode': '284915',
+        'confirmPasscode': '284915',
+      });
+    });
+
+    test('resetPasscode surfaces the server message (passcode rules, bad OTP)',
+        () async {
+      adapter.queueJson('/auth/forgot-passcode/reset', 400, {
+        'status': 'error',
+        'message': 'Passcode is too common',
+      });
+
+      await expectLater(
+        authService.resetPasscode(
+          otpReference: 'ref-1',
+          newPasscode: '123456',
+          confirmPasscode: '123456',
+        ),
+        throwsA(isA<KudiApiException>()
+            .having((e) => e.message, 'message', 'Passcode is too common')),
+      );
+    });
+
+    test('a 401 on reset does not trigger a token refresh / session wipe',
+        () async {
+      await storage.saveRefreshToken('live-refresh');
+      adapter.queueJson('/auth/forgot-passcode/reset', 401, {
+        'status': 'error',
+        'message': 'OTP not verified',
+      });
+
+      await expectLater(
+        authService.resetPasscode(
+          otpReference: 'ref-1',
+          newPasscode: '284915',
+          confirmPasscode: '284915',
+        ),
+        throwsA(isA<KudiApiException>()),
+      );
+
+      expect(adapter.requests.any((r) => r.path.contains('refresh-token')),
+          isFalse);
+      expect(await storage.getRefreshToken(), 'live-refresh');
     });
   });
 
@@ -352,6 +535,20 @@ void main() {
 
       final headers = adapter.requests.last.headers;
       expect(headers.containsKey('Authorization'), isFalse);
+    });
+
+    test('an inactive account keeps its message instead of being wrapped as '
+        '"Device verification failed: …"', () async {
+      adapter.queueJson('/auth/login/verify-device', 401, {
+        'status': 'error',
+        'message': 'Account inactive. Contact support',
+      });
+
+      await expectLater(
+        authService.verifyDeviceLogin(otpReference: 'otp-ref-1'),
+        throwsA(isA<KudiApiException>().having(
+            (e) => e.message, 'message', 'Account inactive. Contact support')),
+      );
     });
   });
 
@@ -734,7 +931,7 @@ void main() {
         },
       });
 
-      final profile = await authService.getProfile();
+      final profile = await profileService.getProfile();
 
       expect(adapter.requests.last.method, 'GET');
       expect(adapter.requests.last.path, contains('/profile'));
@@ -742,6 +939,40 @@ void main() {
       expect(profile['verification']['bvn']['masked'], '****78901');
       expect(profile['verification']['address']['status'],
           'PENDING_AGENT_VISIT');
+    });
+
+    test('updateProfile parses the real ProfileResponseDTO shape '
+        '(profile/account/verification, not "user")', () async {
+      await storage.saveUserModel(UserModel(
+        userId: 'c-1',
+        email: 'old@b.com',
+        phoneNumber: '+2348012345678',
+      ));
+      adapter.queueJson('/profile/update-profile', 200, {
+        'status': 'success',
+        'data': {
+          'profile': {
+            'firstName': 'Ada',
+            'lastName': 'Obi',
+            'email': 'ada@b.com',
+          },
+          'account': {'tier': 'PRO'},
+        },
+      });
+
+      final updated = await profileService.updateProfile(
+        firstName: 'Ada',
+        lastName: 'Obi',
+        email: 'ada@b.com',
+      );
+
+      expect(adapter.requests.last.method, 'POST');
+      expect(adapter.requests.last.path, contains('/profile/update-profile'));
+      // Proves the fix: this must come from the real 'profile' section, not
+      // the optimistic fallback (which would also produce "Ada Obi" — the
+      // email is the tell, since the fallback path never sets it).
+      expect(updated.name, 'Ada Obi');
+      expect(updated.email, 'ada@b.com');
     });
 
     test('verifyAddress sends latitude/longitude when captured (Slice 6 GPS)',
