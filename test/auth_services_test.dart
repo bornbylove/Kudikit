@@ -914,6 +914,19 @@ void main() {
       expect(basic.pendingTier, 1);
     });
 
+    test('an unknown tier number sends nothing instead of silently choosing '
+        'BASIC', () async {
+      for (final tier in [0, 4, -1]) {
+        await expectLater(
+          authService.selectTier(tierNumber: tier),
+          throwsA(isA<KudiApiException>()
+              .having((e) => e.message, 'message', contains('Unknown tier'))),
+        );
+      }
+      expect(
+          adapter.requests.where((r) => r.path.contains('select-tier')), isEmpty);
+    });
+
     test('getProfile returns the raw gateway data map (account + verification)',
         () async {
       adapter.queueJson('/profile', 200, {

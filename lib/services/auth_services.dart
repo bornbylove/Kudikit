@@ -60,6 +60,7 @@
 // and local-validation change.
 
 import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/core/utils/phone_number.dart';
 import 'package:kudipay/model/user/kyc_status.dart';
 import 'package:kudipay/model/user/user_info.dart';
 import 'package:kudipay/model/user/user_model.dart';
@@ -86,13 +87,30 @@ class OtpPurpose {
 String normalizeLoginIdentifier(String raw) {
   final value = raw.trim();
   if (value.contains('@')) return value;
-  final compact = value.replaceAll(RegExp(r'[\s\-()]'), '');
-  if (RegExp(r'^\+234[7-9][01]\d{8}$').hasMatch(compact)) return compact;
-  if (RegExp(r'^234[7-9][01]\d{8}$').hasMatch(compact)) return '+$compact';
-  if (RegExp(r'^0[7-9][01]\d{8}$').hasMatch(compact)) {
-    return '+234${compact.substring(1)}';
+  return normalizeNigerianPhone(value) ?? value;
+}
+
+/// The server enum value for a tier number — SelectTierRequest accepts only
+/// BASIC | PRO | MEGA.
+///
+/// Throws rather than defaulting: an unrecognised number silently becoming
+/// 'BASIC' would quietly downgrade a user who picked Pro or Mega. (Ported from
+/// origin/dev.)
+String tierWireValue(int tierNumber) {
+  switch (tierNumber) {
+    case 1:
+      return 'BASIC';
+    case 2:
+      return 'PRO';
+    case 3:
+      return 'MEGA';
+    default:
+      throw ArgumentError.value(
+        tierNumber,
+        'tierNumber',
+        'Expected 1 (Basic), 2 (Pro) or 3 (Mega)',
+      );
   }
-  return value;
 }
 
 class AuthService {
@@ -485,11 +503,14 @@ class AuthService {
   Future<UserModel> selectTier({
     required int tierNumber,
   }) async {
-    final tierName = switch (tierNumber) {
-      2 => 'PRO',
-      3 => 'MEGA',
-      _ => 'BASIC',
-    };
+    final String tierName;
+    try {
+      tierName = tierWireValue(tierNumber);
+    } on ArgumentError {
+      // Surfaces as the same retryable error type the tier screens already
+      // handle, and — unlike the old default-to-BASIC — sends nothing.
+      throw KudiApiException('Unknown tier ($tierNumber). Please try again.');
+    }
     try {
       final response = await _client.post<Map<String, dynamic>>(
         '/auth/select-tier',

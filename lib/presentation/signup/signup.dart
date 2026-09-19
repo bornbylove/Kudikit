@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/theme/app_theme.dart';
+import 'package:kudipay/core/utils/phone_number.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/formatting/widget/color_app_button.dart';
 import 'package:kudipay/formatting/widget/connectivity_widget.dart';
@@ -209,12 +210,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       }
 
       // Phone
+      // Same rule as the server's ^\+234[7-9][0-1]\d{8}$ — a bare "10 digits"
+      // check let numbers like 6015697383 through to a server 400.
       final phone = numberController.text.trim();
-      if (phone.isEmpty) {
-        _phoneError = 'Please enter your phone number';
-        valid = false;
-      } else if (phone.length != 10) {
-        _phoneError = 'Enter a valid 10-digit Nigerian phone number';
+      final phoneError = nigerianPhoneError(phone);
+      if (phoneError != null) {
+        _phoneError = phoneError;
         valid = false;
       } else {
         _phoneError = null;
@@ -228,7 +229,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         _passcodeError = 'Please enter a passcode';
         valid = false;
       } else {
-        final fullPhone = '+234${numberController.text.trim()}';
+        final fullPhone = normalizeNigerianPhone(numberController.text) ??
+            '+234${numberController.text.trim()}';
         final error = StorageService.instance
             .passcodeValidationError(passcode, phoneNumber: fullPhone);
         if (error != null) {
@@ -280,7 +282,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
    // final fullName = fullNameController.text.trim();
     final email = emailController.text.trim();
-    final phoneNumber = '+234${numberController.text.trim()}';
+    // Validated above, so this is the E.164 form the server stores.
+    final phoneNumber = normalizeNigerianPhone(numberController.text) ??
+        '+234${numberController.text.trim()}';
     final password = passwordController.text.trim();
 
     // Hold the collected data — the actual /auth/register call fires later,
