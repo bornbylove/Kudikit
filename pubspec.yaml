@@ -165,6 +165,7 @@ dependencies:
 
   # Biometric login (Face ID / fingerprint)
   local_auth: ^3.0.2
+  flutter_image_compress: ^2.5.1
 
 dev_dependencies:
   flutter_test:
@@ -172,6 +173,8 @@ dev_dependencies:
   flutter_lints:
   build_runner: 
   riverpod_generator: 
+  integration_test:
+    sdk: flutter
 
 flutter_launcher_icons:
   android: true
