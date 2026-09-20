@@ -36,6 +36,10 @@ migrate_working_dir/
 # Project Documentation
 docs/
 
+# Product requirements documents — kept locally, not versioned
+/KudiKit_PRD*.pdf
+/Kudikit_Product Requirements Document*.pdf
+
 
 # NOTE: ios/Flutter/{Debug,Release}.xcconfig and
 # macos/Flutter/Flutter-{Debug,Release}.xcconfig are NOT local files — the Xcode
