@@ -37,11 +37,11 @@ migrate_working_dir/
 docs/
 
 
-# Flutter/Native Local Configurations
-ios/Flutter/Debug.xcconfig
-ios/Flutter/Release.xcconfig
-macos/Flutter/Flutter-Debug.xcconfig
-macos/Flutter/Flutter-Release.xcconfig
+# NOTE: ios/Flutter/{Debug,Release}.xcconfig and
+# macos/Flutter/Flutter-{Debug,Release}.xcconfig are NOT local files — the Xcode
+# projects reference them, so they must stay tracked (they were once ignored
+# here, which left fresh clones unable to build iOS/macOS). Only the generated
+# Generated.xcconfig / ephemeral/ next to them are ignored.
 
 # Flutter DevTools & OpenCode
 devtools_options.yaml
