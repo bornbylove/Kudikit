@@ -1,4 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/provider/auth/biometric_provider.dart' show securityServiceProvider;
+import 'package:kudipay/services/security_services.dart';
 import 'package:kudipay/services/transaction_pin_service.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
@@ -13,6 +16,7 @@ class TxPinSetupState {
   final bool showError;
   final bool isLoading;
   final bool isComplete;
+  final String? errorMessage;
 
   const TxPinSetupState({
     this.firstPin = '',
@@ -21,6 +25,7 @@ class TxPinSetupState {
     this.showError = false,
     this.isLoading = false,
     this.isComplete = false,
+    this.errorMessage,
   });
 
   TxPinSetupState copyWith({
@@ -30,6 +35,8 @@ class TxPinSetupState {
     bool? showError,
     bool? isLoading,
     bool? isComplete,
+    String? errorMessage,
+    bool clearErrorMessage = false,
   }) {
     return TxPinSetupState(
       firstPin: firstPin ?? this.firstPin,
@@ -38,13 +45,17 @@ class TxPinSetupState {
       showError: showError ?? this.showError,
       isLoading: isLoading ?? this.isLoading,
       isComplete: isComplete ?? this.isComplete,
+      errorMessage:
+          clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
     );
   }
 }
 
 class TxPinSetupNotifier extends StateNotifier<TxPinSetupState> {
   final TransactionPinService _service;
-  TxPinSetupNotifier(this._service) : super(const TxPinSetupState());
+  final SecurityService _securityService;
+  TxPinSetupNotifier(this._service, this._securityService)
+      : super(const TxPinSetupState());
 
   static const int _pinLength = 4;
   bool _isMounted = true;
@@ -71,10 +82,30 @@ class TxPinSetupNotifier extends StateNotifier<TxPinSetupState> {
       state = state.copyWith(firstPin: pin, enteredPin: '', isConfirmStep: true, showError: false);
     } else {
       if (pin == state.firstPin) {
-        state = state.copyWith(isLoading: true);
+        state = state.copyWith(isLoading: true, clearErrorMessage: true);
         try {
+          // FIX: this used to only save locally — POST /security/pin/create
+          // is confirmed live (kudikit's security/core service) and is the
+          // only place a user's transaction PIN gets recorded server-side.
+          // The local hash is kept too, as the fast client-side check
+          // transaction_pin_bottom_sheet.dart already relies on.
+          await _securityService.createTransactionPin(
+              pin: pin, confirmPin: pin);
           await _service.saveTransactionPin(pin);
           if (_isMounted) state = state.copyWith(isLoading: false, isComplete: true);
+        } on KudiApiException catch (e) {
+          if (_isMounted) {
+            state = state.copyWith(
+                isLoading: false,
+                showError: true,
+                enteredPin: '',
+                errorMessage: e.message);
+            Future.delayed(const Duration(milliseconds: 2000), () {
+              if (_isMounted) {
+                state = state.copyWith(showError: false, clearErrorMessage: true);
+              }
+            });
+          }
         } catch (_) {
           if (_isMounted) {
             state = state.copyWith(isLoading: false, showError: true, enteredPin: '');
@@ -103,7 +134,8 @@ class TxPinSetupNotifier extends StateNotifier<TxPinSetupState> {
 
 final txPinSetupProvider = StateNotifierProvider<TxPinSetupNotifier, TxPinSetupState>((ref) {
   final service = ref.read(transactionPinServiceProvider);
-  return TxPinSetupNotifier(service);
+  final securityService = ref.read(securityServiceProvider);
+  return TxPinSetupNotifier(service, securityService);
 });
 
 final hasTxPinProvider = FutureProvider<bool>((ref) async {

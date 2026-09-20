@@ -117,9 +117,15 @@ class _CreateTransactionPinScreenState
                             opacity: state.showError ? 1.0 : 0.0,
                             duration: const Duration(milliseconds: 250),
                             child: Text(
-                              state.isConfirmStep
-                                  ? 'PINs don\'t match. Please try again.'
-                                  : 'Something went wrong. Try again.',
+                              // Server-reported reason (e.g. "PIN is too
+                              // weak.") takes priority when present — falls
+                              // back to the client-side mismatch/generic
+                              // messages otherwise.
+                              state.errorMessage ??
+                                  (state.isConfirmStep
+                                      ? 'PINs don\'t match. Please try again.'
+                                      : 'Something went wrong. Try again.'),
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: AppLayout.fontSize(context, 13),
                                 color: Colors.red[600],
