@@ -33,6 +33,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/provider/wallet/wallet_provider.dart';
+import 'package:kudipay/provider/wallet/dashboard_provider.dart';
 import 'package:kudipay/provider/transaction/transaction_provider.dart';
 import 'package:kudipay/provider/request/request_provider.dart';
 import 'package:kudipay/provider/funding/funding_provider.dart';
@@ -114,6 +115,10 @@ class RefreshNotifier extends StateNotifier<RefreshState> {
         // _ref.read(notificationProvider.notifier).refresh(),
         // _ref.read(savingsProvider.notifier).refresh(),
       ]);
+
+      // Supplementary dashboard data (pending balance, quick stats) —
+      // best-effort, autoDispose FutureProvider re-fetches on invalidate.
+      _ref.invalidate(dashboardSummaryProvider);
 
       state = state.copyWith(
         isRefreshing: false,

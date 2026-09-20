@@ -18,7 +18,10 @@ import 'package:kudipay/provider/kyc/kyc_provider.dart';
 import 'package:kudipay/provider/provider.dart';
 import 'package:kudipay/provider/refresh/refresh_provider.dart';
 import 'package:kudipay/provider/wallet/wallet_provider.dart';
+import 'package:kudipay/provider/wallet/dashboard_provider.dart';
+import 'package:kudipay/provider/auth/biometric_provider.dart' show securitySettingsProvider;
 import 'package:kudipay/core/theme/app_theme.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -386,6 +389,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                             Colors.white.withOpacity(0.7)),
                                     overflow: TextOverflow.ellipsis,
                                   ),
+                                  // PRD §2.2.1 AC#6: "Pending Balance"
+                                  // separate from "Available Balance" —
+                                  // best-effort supplementary data, hidden
+                                  // entirely if unavailable/still zero.
+                                  Consumer(
+                                    builder: (context, ref, _) {
+                                      final dashboardAsync =
+                                          ref.watch(dashboardSummaryProvider);
+                                      final pending = dashboardAsync
+                                              .value?.pendingBalance ??
+                                          0;
+                                      if (pending <= 0 || !_isBalanceVisible) {
+                                        return const SizedBox.shrink();
+                                      }
+                                      return Padding(
+                                        padding: EdgeInsets.only(
+                                            top: AppLayout.scaleHeight(
+                                                context, 4)),
+                                        child: Text(
+                                          'Pending: ₦${NumberFormat('#,##0.00').format(pending)}',
+                                          style: TextStyle(
+                                              fontSize: AppLayout.fontSize(
+                                                  context, 11),
+                                              color: Colors.white
+                                                  .withOpacity(0.7)),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                   SizedBox(
                                       height:
                                           AppLayout.scaleHeight(context, 8)),
@@ -442,6 +474,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 ],
                               ),
                             ),
+
+                      SizedBox(height: AppLayout.scaleHeight(context, 20)),
+
+                      // ── Quick Stats + Security indicator (PRD §2.2.1 §6/§7) ───
+                      const _QuickStatsCard(),
 
                       SizedBox(height: AppLayout.scaleHeight(context, 20)),
 
@@ -1020,4 +1057,147 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 extension _StringExt on String {
   String capitalize() =>
       isEmpty ? this : '${this[0].toUpperCase()}${substring(1).toLowerCase()}';
+}
+
+// =============================================================================
+// _QuickStatsCard — PRD §2.2.1
+//   §6 Quick Stats: "Monthly inflow/outflow, Rewards earned this month,
+//      Savings goal progress (if set)"
+//   §7 Security Indicators: "Last login timestamp and device"
+// Backed by GET /dashboard (quickStats) and GET /security/settings
+// (currentSession) — both best-effort: the whole card hides itself rather
+// than block the dashboard if either call fails or is still loading.
+//
+// Coverage note: the backend's quickStats only exposes todaySpent/
+// todayReceived/monthlySpent/totalTransactions — there is no monthly
+// *inflow* (received) field, and no savings-goal concept anywhere in the
+// three backend services audited for this app, so those two PRD bullets
+// are not renderable yet without backend additions. Rewards-this-month
+// would need summing /rewards/history client-side by date, which needs
+// pagination handling the rewards feature doesn't have wired up yet
+// either — left out rather than half-built silently.
+// =============================================================================
+class _QuickStatsCard extends ConsumerWidget {
+  const _QuickStatsCard();
+
+  String _money(double v) => '₦${NumberFormat('#,##0').format(v)}';
+
+  String _lastActive(DateTime? dt) {
+    if (dt == null) return '';
+    final local = dt.toLocal();
+    return DateFormat('MMM d, h:mm a').format(local);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dashboardAsync = ref.watch(dashboardSummaryProvider);
+    final securityAsync = ref.watch(securitySettingsProvider);
+
+    final stats = dashboardAsync.value?.quickStats;
+    final security = securityAsync.value;
+
+    if (stats == null && security == null) return const SizedBox.shrink();
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: AppLayout.scaleWidth(context, 16)),
+      padding: EdgeInsets.all(AppLayout.scaleWidth(context, 16)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppLayout.scaleWidth(context, 14)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: AppLayout.scaleWidth(context, 8),
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (stats != null)
+            Row(
+              children: [
+                Expanded(
+                  child: _StatItem(
+                    label: 'Spent today',
+                    value: _money(stats.todaySpent),
+                  ),
+                ),
+                Expanded(
+                  child: _StatItem(
+                    label: 'Received today',
+                    value: _money(stats.todayReceived),
+                  ),
+                ),
+                Expanded(
+                  child: _StatItem(
+                    label: 'Spent this month',
+                    value: _money(stats.monthlySpent),
+                  ),
+                ),
+              ],
+            ),
+          if (stats != null && security?.lastActive != null)
+            Padding(
+              padding: EdgeInsets.symmetric(
+                  vertical: AppLayout.scaleHeight(context, 12)),
+              child: Divider(height: 1, color: Colors.grey[200]),
+            ),
+          if (security?.lastActive != null)
+            Row(
+              children: [
+                Icon(Icons.shield_outlined,
+                    size: AppLayout.scaleWidth(context, 14),
+                    color: Colors.grey[500]),
+                SizedBox(width: AppLayout.scaleWidth(context, 6)),
+                Expanded(
+                  child: Text(
+                    'Last active ${_lastActive(security!.lastActive)}'
+                    '${security.currentDevice != null ? ' · ${security.currentDevice}' : ''}',
+                    style: TextStyle(
+                      fontSize: AppLayout.fontSize(context, 11),
+                      color: Colors.grey[600],
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final String label;
+  final String value;
+  const _StatItem({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: AppLayout.fontSize(context, 14),
+            fontWeight: FontWeight.w700,
+            color: AppColors.textDark,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
+        SizedBox(height: AppLayout.scaleHeight(context, 2)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: AppLayout.fontSize(context, 10),
+            color: Colors.grey[500],
+          ),
+        ),
+      ],
+    );
+  }
 }

@@ -1,13 +1,18 @@
 // lib/provider/wallet/wallet_provider.dart
-// INTEGRATED: _load() and refresh() now call real API endpoints via DioClient.
-//
-// Endpoints:
-//   GET /wallet/balance          → { balance: number }
-//   GET /wallet/account-details  → { account_number, account_name, bank_name }
+// FIXED (2026-09-19): now sources from DashboardService (GET /dashboard on
+// the security/core service, :8181) instead of the old '/wallet/balance' +
+// '/wallet/account-details' calls. Those routes don't exist anywhere across
+// kudikit_auth_service, Kudikitgateway, or kudikitpayment — confirmed by
+// checking every controller in all three repos — so they were never
+// reachable. See dashboard_services.dart for the full explanation and the
+// backend-source verification that /dashboard's wallet data is real (a live
+// Cyclos balance read, not a stub).
 
 import 'dart:async';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:kudipay/config/dio_client.dart';
+import 'package:kudipay/provider/wallet/dashboard_provider.dart' show dashboardServiceProvider;
+import 'package:kudipay/services/dashboard_services.dart';
 
 class WalletState {
   final double balance;
@@ -23,7 +28,7 @@ class WalletState {
     this.balance = 0.0,
     this.accountNumber = '',
     this.accountName = '',
-    this.bankName = 'KudiPay MFB',
+    this.bankName = 'Kudikit MFB',
     this.isLoading = false,
     this.isRefreshing = false,
     this.lastUpdated,
@@ -81,31 +86,23 @@ class WalletState {
 }
 
 class WalletNotifier extends StateNotifier<WalletState> {
-  final DioClient _client;
+  final DashboardService _dashboardService;
 
-  WalletNotifier(this._client) : super(const WalletState()) {
+  WalletNotifier(this._dashboardService) : super(const WalletState()) {
     _load();
   }
 
   Future<void> _load() async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      // Fetch balance and account details in parallel
-      final results = await Future.wait([
-        _client.get<Map<String, dynamic>>('/wallet/balance'),
-        _client.get<Map<String, dynamic>>('/wallet/account-details'),
-      ]);
-
-      final balanceData = results[0].data!;
-      final acctData = results[1].data!;
-
+      final summary = await _dashboardService.getDashboardOrThrow();
       state = state.copyWith(
         isLoading: false,
-        balance: (balanceData['balance'] as num).toDouble(),
-        accountNumber: acctData['account_number'] as String,
-        accountName: acctData['account_name'] as String,
-        bankName: (acctData['bank_name'] as String?) ?? 'KudiPay MFB',
-        lastUpdated: DateTime.now(),
+        balance: summary.availableBalance,
+        accountNumber: summary.accountNumber,
+        accountName: summary.accountName,
+        bankName: summary.bankName,
+        lastUpdated: summary.lastUpdated ?? DateTime.now(),
       );
     } on KudiNetworkException {
       state = state.copyWith(
@@ -114,36 +111,20 @@ class WalletNotifier extends StateNotifier<WalletState> {
       state = state.copyWith(
           isLoading: false, error: 'Could not load wallet. Pull to refresh.');
     }
-
-    // ── Mock fallback ─────────────────────────────────────────────────────────
-    // await Future.delayed(const Duration(milliseconds: 900));
-    // state = state.copyWith(
-    //   isLoading: false,
-    //   balance: (MockWalletData.balanceResponse['balance'] as num).toDouble(),
-    //   accountNumber: MockWalletData.accountDetailsResponse['account_number'] as String,
-    //   accountName: MockWalletData.accountDetailsResponse['account_name'] as String,
-    //   lastUpdated: DateTime.now(),
-    // );
   }
 
   Future<void> refresh() async {
     if (state.isRefreshing) return;
     state = state.copyWith(isRefreshing: true, clearError: true);
     try {
-      final results = await Future.wait([
-        _client.get<Map<String, dynamic>>('/wallet/balance'),
-        _client.get<Map<String, dynamic>>('/wallet/account-details'),
-      ]);
-
-      final balanceData = results[0].data!;
-      final acctData = results[1].data!;
-
+      final summary = await _dashboardService.getDashboardOrThrow();
       state = state.copyWith(
         isRefreshing: false,
-        balance: (balanceData['balance'] as num).toDouble(),
-        accountNumber: acctData['account_number'] as String,
-        accountName: acctData['account_name'] as String,
-        lastUpdated: DateTime.now(),
+        balance: summary.availableBalance,
+        accountNumber: summary.accountNumber,
+        accountName: summary.accountName,
+        bankName: summary.bankName,
+        lastUpdated: summary.lastUpdated ?? DateTime.now(),
       );
     } on KudiNetworkException {
       state =
@@ -169,5 +150,5 @@ class WalletNotifier extends StateNotifier<WalletState> {
 
 final walletProvider =
     StateNotifierProvider<WalletNotifier, WalletState>((ref) {
-  return WalletNotifier(ref.read(dioClientProvider));
+  return WalletNotifier(ref.read(dashboardServiceProvider));
 });
