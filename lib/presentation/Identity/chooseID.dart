@@ -4,10 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kudipay/core/constant/id_type.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/model/IDdocument/id_verification_state.dart';
+import 'package:kudipay/model/tier/tier_model.dart';
 import 'package:kudipay/model/user/user_info.dart';
 import 'package:kudipay/presentation/Identity/confirm_info.dart';
 import 'package:kudipay/presentation/Identity/id_verification_controller.dart';
 import 'package:kudipay/presentation/Identity/verification_status.dart';
+import 'package:kudipay/presentation/kyc/kyc_next_step.dart';
+import 'package:kudipay/provider/auth/auth_provider.dart';
+import 'package:kudipay/provider/tier/tier_provider.dart';
 
 class IdVerificationScreen extends ConsumerStatefulWidget {
   const IdVerificationScreen({Key? key}) : super(key: key);
@@ -25,6 +29,35 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
   IdType _selectedIdType = IdType.bvn;
 
   final int _progressPercentage = 48;
+
+  // Accumulates identity data across BOTH verification calls when the tier
+  // requires BVN AND NIN (Pro/Mega) — each success merges in, rather than
+  // ConfirmInfoScreen only ever seeing whichever identifier was checked last.
+  UserInfo? _accumulatedInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    // Resuming user who already verified one of BVN/NIN in a prior session
+    // (KycFlowManager routed them back here because the other is still
+    // missing) — default straight to the one still needed instead of
+    // re-prompting for the one already done.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final user = ref.read(currentUserProvider);
+      if (user == null) return;
+      IdType? resumeType;
+      if (user.isBvnVerified && !user.isNinVerified) {
+        resumeType = IdType.nin;
+      } else if (user.isNinVerified && !user.isBvnVerified) {
+        resumeType = IdType.bvn;
+      }
+      if (resumeType != null && resumeType != _selectedIdType) {
+        setState(() => _selectedIdType = resumeType!);
+        ref.read(idVerificationProvider.notifier).changeIdType(resumeType);
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -470,19 +503,62 @@ class _IdVerificationScreenState extends ConsumerState<IdVerificationScreen> {
     final nameParts = name.split(' ').where((p) => p.isNotEmpty).toList();
     final isBvn = state.idType == IdType.bvn;
     final enteredNumber = _idNumberController.text.trim();
-    final userInfo = UserInfo(
-      firstName: nameParts.isNotEmpty ? nameParts.first : '',
-      lastName: nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',
-      bvn: isBvn ? enteredNumber : '',
-      nin: isBvn ? '' : enteredNumber,
+
+    // Merge into whatever we've accumulated so far this session — Pro/Mega
+    // verify BVN and NIN as two separate calls, not one. (A prior-session
+    // identifier isn't recoverable here since only the "verified" flag
+    // persists, not the raw digits — ConfirmInfoScreen shows that field
+    // blank in that specific resume case; the gating below is what matters.)
+    _accumulatedInfo = UserInfo(
+      firstName: nameParts.isNotEmpty
+          ? nameParts.first
+          : (_accumulatedInfo?.firstName ?? ''),
+      lastName: nameParts.length > 1
+          ? nameParts.sublist(1).join(' ')
+          : (_accumulatedInfo?.lastName ?? ''),
+      bvn: isBvn ? enteredNumber : (_accumulatedInfo?.bvn ?? ''),
+      nin: isBvn ? (_accumulatedInfo?.nin ?? '') : enteredNumber,
       dateOfBirth: DateTime.tryParse(data['dateOfBirth'] as String? ?? '') ??
+          _accumulatedInfo?.dateOfBirth ??
           DateTime(1990, 1, 1),
     );
 
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+    final tier = effectiveKycTier(user, ref.read(tierProvider).currentTier);
+
+    // FIX: this used to advance to ConfirmInfoScreen after ANY single BVN-or-
+    // NIN success, even for Pro/Mega, which require BOTH. Basic is genuinely
+    // OR — one success is enough.
+    final needsBoth = tier != TierLevel.basic;
+    if (needsBoth && !(user.isBvnVerified && user.isNinVerified)) {
+      final justVerified = isBvn ? 'BVN' : 'NIN';
+      final nextType = user.isBvnVerified ? IdType.nin : IdType.bvn;
+      setState(() {
+        _selectedIdType = nextType;
+        _idNumberController.clear();
+      });
+      ref.read(idVerificationProvider.notifier).changeIdType(nextType);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              '$justVerified verified! Now enter your ${nextType.label} to continue.'),
+          backgroundColor: const Color(0xFF069494),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    // Both required identifiers are verified (or Basic's OR is satisfied) —
+    // go to whatever this tier still needs next (ID doc / address for
+    // Pro/Mega), not straight to ConfirmInfoScreen every time.
+    final nextScreen = nextIncompleteKycStep(tier, user);
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ConfirmInfoScreen(userInfo: userInfo),
+        builder: (_) =>
+            nextScreen ?? ConfirmInfoScreen(userInfo: _accumulatedInfo!),
       ),
     );
   }

@@ -6,9 +6,10 @@ import 'package:kudipay/config/dio_client.dart';
 import 'package:kudipay/core/utils/image_base64_util.dart';
 import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/model/address/nigeria_state.dart';
+import 'package:kudipay/model/user/user_info.dart';
 
 import 'package:kudipay/provider/provider.dart';
-import 'package:kudipay/presentation/Identity/upload_ID.dart';
+import 'package:kudipay/presentation/Identity/confirm_info.dart';
 import 'package:kudipay/services/geolocation_provider.dart';
 import 'dart:io';
 
@@ -97,10 +98,31 @@ class _AddressVerificationScreenState
 
       if (!mounted) return;
 
-      // Preserve the existing navigation (Address → Upload ID → Confirm Info).
+      // FIX: this used to push UploadIdCardScreen next, but by the time a
+      // Mega user reaches address verification via KycFlowManager's
+      // canonical order (Selfie → BVN/NIN → ID doc → Address), ID document
+      // is already verified — re-prompting for it was a stale ordering bug.
+      // Address is Mega's LAST requirement, so this goes straight to
+      // ConfirmInfoScreen instead.
+      final storageService = ref.read(storageServiceProvider);
+      UserInfo? userInfo = await storageService.getUserInfo();
+      if (userInfo == null) {
+        final currentUser = ref.read(currentUserProvider);
+        if (currentUser != null) {
+          userInfo = UserInfo(
+            firstName: currentUser.name?.split(' ').first ?? '',
+            lastName: currentUser.name?.split(' ').last ?? '',
+            bvn: currentUser.bvn ?? '',
+            nin: currentUser.nin ?? '',
+            dateOfBirth: DateTime(1990, 1, 1),
+          );
+        }
+      }
+      if (!mounted || userInfo == null) return;
+
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => const UploadIdCardScreen()),
+        MaterialPageRoute(builder: (_) => ConfirmInfoScreen(userInfo: userInfo!)),
       );
     } on KudiApiException catch (e) {
       if (mounted) _showError(e.message);

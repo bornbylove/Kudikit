@@ -8,8 +8,10 @@ import 'package:kudipay/core/utils/responsive.dart';
 import 'package:kudipay/model/IDdocument/document_data.dart';
 import 'package:kudipay/model/user/user_info.dart';
 import 'package:kudipay/presentation/Identity/confirm_info.dart';
+import 'package:kudipay/presentation/kyc/kyc_next_step.dart';
 import 'package:kudipay/provider/auth/auth_provider.dart';
 import 'package:kudipay/provider/kyc/kyc_provider.dart';
+import 'package:kudipay/provider/tier/tier_provider.dart';
 import 'dart:io';
 
 class UploadIdCardScreen extends ConsumerWidget {
@@ -85,26 +87,36 @@ class UploadIdCardScreen extends ConsumerWidget {
       final storageService = ref.read(storageServiceProvider);
       UserInfo? userInfo = await storageService.getUserInfo();
 
-      if (userInfo == null) {
-        final currentUser = ref.read(currentUserProvider);
-        if (currentUser != null) {
-          userInfo = UserInfo(
-            firstName: currentUser.name?.split(' ').first ?? '',
-            lastName: currentUser.name?.split(' ').last ?? '',
-            bvn: currentUser.bvn ?? '',
-            nin: currentUser.nin ?? '',
-            dateOfBirth: DateTime(1990, 1, 1),
-          );
-        }
+      // FIX: was ref.read(currentUserProvider) fetched BEFORE the await above
+      // in the original code — re-read now so isDocumentVerified reflects the
+      // verifyIdDocument() call that just completed (applyKyc already updated
+      // the cached UserModel by this point).
+      final currentUser = ref.read(currentUserProvider);
+
+      if (userInfo == null && currentUser != null) {
+        userInfo = UserInfo(
+          firstName: currentUser.name?.split(' ').first ?? '',
+          lastName: currentUser.name?.split(' ').last ?? '',
+          bvn: currentUser.bvn ?? '',
+          nin: currentUser.nin ?? '',
+          dateOfBirth: DateTime(1990, 1, 1),
+        );
       }
 
-      if (context.mounted && userInfo != null) {
+      if (context.mounted && userInfo != null && currentUser != null) {
+        // FIX: this used to always go to ConfirmInfoScreen next, even for
+        // Mega — which still needs address verification after ID doc. Route
+        // through the same tier-aware "what's next" logic chooseID.dart uses.
+        final tier =
+            effectiveKycTier(currentUser, ref.read(tierProvider).currentTier);
+        final nextScreen = nextIncompleteKycStep(tier, currentUser);
         // pushReplacement removes UploadIdCardScreen from the stack — the user
         // cannot go back to document upload after submitting.
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => ConfirmInfoScreen(userInfo: userInfo!),
+            builder: (_) =>
+                nextScreen ?? ConfirmInfoScreen(userInfo: userInfo!),
           ),
         );
       } else if (context.mounted) {

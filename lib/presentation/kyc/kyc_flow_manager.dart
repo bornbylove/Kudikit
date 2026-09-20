@@ -10,10 +10,13 @@ import 'package:kudipay/model/user/user_model.dart';
 import 'package:kudipay/presentation/Identity/chooseID.dart';
 import 'package:kudipay/presentation/Identity/upload_ID.dart';
 import 'package:kudipay/presentation/address/verify_address.dart';
+import 'package:kudipay/presentation/kyc/kyc_next_step.dart';
 import 'package:kudipay/presentation/selfie/selfie_instruction.dart';
+import 'package:kudipay/presentation/transactionpin/transaction_pin_screen.dart';
 import 'package:kudipay/provider/auth/auth_provider.dart';
 import 'package:kudipay/provider/connectivity/connectivity_provider.dart';
 import 'package:kudipay/provider/tier/tier_provider.dart';
+import 'package:kudipay/provider/transactionpin/transaction_pin_provider.dart';
 
 // =============================================================================
 // KycFlowManager
@@ -98,6 +101,12 @@ class KycFlowManager extends ConsumerWidget {
     final user              = ref.watch(currentUserProvider);
     final tierState         = ref.watch(tierProvider);
     final connectivityState = ref.watch(connectivityStateProvider);
+    // Whether the LOCAL transaction PIN has been set — watched so a resuming
+    // user whose KYC is fully complete but who abandoned before creating a
+    // PIN (app closed between the last verification step and Account Ready)
+    // is sent back to create one instead of landing silently on the
+    // dashboard. See _resolveNextScreen.
+    final hasTxPinAsync = ref.watch(hasTxPinProvider);
 
     // ── Offline guard ────────────────────────────────────────────────────────
     if (!connectivityState.isConnected) {
@@ -109,7 +118,7 @@ class KycFlowManager extends ConsumerWidget {
     }
 
     // ── Loading guard ────────────────────────────────────────────────────────
-    if (user == null || tierState.isLoading) {
+    if (user == null || tierState.isLoading || hasTxPinAsync.isLoading) {
       return const _LoadingScreen(message: 'Loading your information...');
     }
 
@@ -118,7 +127,29 @@ class KycFlowManager extends ConsumerWidget {
     // falling back to the local tier provider for legacy/cached users.
     final tier     = KycFlowManager.effectiveTier(user, tierState.currentTier);
     final decision = KycFlowManager.classify(tier, user);
-    final nextScreen = _resolveNextScreen(tier, user, decision);
+    // Defaults to false on a read error (secure-storage failure) — safer to
+    // re-prompt PIN creation than silently skip it.
+    final hasTxPin = hasTxPinAsync.value ?? false;
+    final nextScreen = _resolveNextScreen(tier, user, decision, hasTxPin);
+
+    // PRD §2.1.5.5 "Continue Your Registration" — KycFlowManager is only
+    // ever entered once per app session (from SplashScreen; the funnel
+    // screens navigate directly to each other, not back through here), so
+    // landing in continueFunnel WITH prior activity always means "returning
+    // to an incomplete registration," never "mid-funnel within this same
+    // session." Show the resume interstitial instead of silently
+    // auto-navigating; its own Continue button does the same push below.
+    if (decision == KycRoutingDecision.continueFunnel &&
+        _hasKycActivity(user)) {
+      return _ResumeRegistrationScreen(
+        tier: tier,
+        user: user,
+        onContinue: () => Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => nextScreen),
+        ),
+      );
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.mounted) {
@@ -137,18 +168,13 @@ class KycFlowManager extends ConsumerWidget {
   // EFFECTIVE TIER (Slice 6 — server-authoritative)
   // pendingTier (set by POST /auth/select-tier) is the tier being worked
   // toward; it wins over the local tierProvider / selectedTier cache.
+  // Delegates to kyc_next_step.dart's effectiveKycTier — single source of
+  // truth shared with chooseID.dart/upload_ID.dart/verify_address.dart,
+  // which need the same tier resolution and can't import this file back
+  // (KycFlowManager already imports them — see kyc_next_step.dart's header).
   // ---------------------------------------------------------------------------
-  static TierLevel effectiveTier(UserModel user, TierLevel fallback) {
-    final pending = user.pendingTier;
-    if (pending != null && pending >= 1 && pending <= 3) {
-      return TierLevel.values[pending - 1];
-    }
-    final selected = user.selectedTier;
-    if (selected >= 1 && selected <= 3) {
-      return TierLevel.values[selected - 1];
-    }
-    return fallback;
-  }
+  static TierLevel effectiveTier(UserModel user, TierLevel fallback) =>
+      effectiveKycTier(user, fallback);
 
   // ---------------------------------------------------------------------------
   // PRD-AUTHORITATIVE CLASSIFIER (Slice 6)
@@ -255,10 +281,16 @@ class KycFlowManager extends ConsumerWidget {
   // complete (authoritative gate above).
   // ---------------------------------------------------------------------------
   Widget _resolveNextScreen(TierLevel tier, UserModel user,
-      KycRoutingDecision decision) {
+      KycRoutingDecision decision, bool hasTxPin) {
     switch (decision) {
       case KycRoutingDecision.complete:
-        return const BottomNavBar();
+        // PRD: Confirm Info → PIN → Account Ready → Dashboard. KYC being
+        // "complete" only covers the verification steps — a resuming user
+        // who never finished setting a transaction PIN must not land
+        // silently on the dashboard with none set.
+        return hasTxPin
+            ? const BottomNavBar()
+            : const CreateTransactionPinScreen();
       case KycRoutingDecision.holdForUiApproval:
         return _KycStatusScreen(
           state: holdState(user),
@@ -755,6 +787,158 @@ class _OfflineScreen extends StatelessWidget {
                       'Restart your device if needed',
                     ].map((tip) => _Tip(tip: tip)),
                   ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// _ResumeRegistrationScreen — PRD §2.1.5.5 "Continue Your Registration"
+// -----------------------------------------------------------------------------
+// Shown once per app session when a returning user has an incomplete
+// registration with genuine prior activity (see KycFlowManager.build). No
+// Figma frame exists for this screen (checked the exported design — it
+// covers onboarding/dashboard/transaction screens but not this one), so
+// styling follows this file's own existing surfaces (_KycStatusScreen /
+// _OfflineScreen) rather than inventing an unreviewed look.
+//
+// Deliberately has no "Start Over" action: KYC state is server-authoritative
+// (kudikit_auth_service owns isBvnVerified/isDocumentVerified/etc.) and no
+// "reset my KYC" endpoint exists — a client-side "start over" button could
+// only clear local cache, which the next server sync would just overwrite,
+// giving a false impression of having reset anything.
+// =============================================================================
+class _ResumeRegistrationScreen extends StatelessWidget {
+  final TierLevel tier;
+  final UserModel user;
+  final VoidCallback onContinue;
+
+  const _ResumeRegistrationScreen({
+    required this.tier,
+    required this.user,
+    required this.onContinue,
+  });
+
+  /// (current step 1-based, total steps, label of the step being resumed).
+  ({int current, int total, String label}) get _progress {
+    final steps = <String>['Selfie verification', 'BVN/NIN verification'];
+    final done = <bool>[
+      user.isSelfieVerified,
+      user.isBvnVerified || user.isNinVerified,
+    ];
+    if (tier != TierLevel.basic) {
+      steps.add('ID document upload');
+      done.add(user.isDocumentVerified);
+    }
+    if (tier == TierLevel.mega) {
+      steps.add('Address verification');
+      done.add(user.addressStatus == AddressVerificationStatus.verified ||
+          user.addressStatus == AddressVerificationStatus.pendingAgentVisit);
+    }
+    steps.add('Create transaction PIN');
+    done.add(false);
+
+    final completedCount = done.where((d) => d).length;
+    final index = completedCount < steps.length ? completedCount : steps.length - 1;
+    return (current: index + 1, total: steps.length, label: steps[index]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = _progress;
+    final tierLabel = switch (tier) {
+      TierLevel.basic => 'Basic',
+      TierLevel.pro => 'Pro',
+      TierLevel.mega => 'Mega',
+    };
+
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(AppLayout.scaleWidth(context, 28)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: AppLayout.scaleWidth(context, 88),
+                height: AppLayout.scaleWidth(context, 88),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryTeal.withValues(alpha: 0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.hourglass_top_rounded,
+                  size: AppLayout.scaleWidth(context, 42),
+                  color: AppColors.primaryTeal,
+                ),
+              ),
+              SizedBox(height: AppLayout.scaleHeight(context, 24)),
+              Text(
+                'Continue Your Registration',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: AppLayout.fontSize(context, 20),
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textDark,
+                ),
+              ),
+              SizedBox(height: AppLayout.scaleHeight(context, 10)),
+              Text(
+                'Step ${progress.current} of ${progress.total}: ${progress.label}',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: AppLayout.fontSize(context, 14),
+                  color: AppColors.textGrey,
+                ),
+              ),
+              SizedBox(height: AppLayout.scaleHeight(context, 16)),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(AppLayout.scaleWidth(context, 12)),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryTeal.withValues(alpha: 0.05),
+                  borderRadius:
+                      BorderRadius.circular(AppLayout.scaleWidth(context, 8)),
+                ),
+                child: Text(
+                  'You\'re signing up for the $tierLabel tier. Pick up right where you left off.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: AppLayout.fontSize(context, 13),
+                    color: AppColors.textDark,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+              SizedBox(height: AppLayout.scaleHeight(context, 28)),
+              SizedBox(
+                height: AppLayout.scaleHeight(context, 52),
+                child: ElevatedButton(
+                  onPressed: onContinue,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryTeal,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          AppLayout.scaleWidth(context, 28)),
+                    ),
+                  ),
+                  child: Text(
+                    'Continue',
+                    style: TextStyle(
+                      fontSize: AppLayout.fontSize(context, 16),
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.white,
+                    ),
+                  ),
                 ),
               ),
             ],
