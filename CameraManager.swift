@@ -1,3 +1,5 @@
+// xcode: set sdk=iOS
+
 import AVFoundation
 
 /// A helper class to request camera permissions, configure an AVCaptureSession safely (including simulator scenarios),
